@@ -113,7 +113,7 @@ extension LaunchController {
             self, selector: #selector(otpUpdate(_:)), name: .otpPush,
             object: nil)
         if settings.usesOneTimePassword {
-            otpCheck.state = .on
+//            otpCheck.state = .on
             enableOTP()
         }
     }

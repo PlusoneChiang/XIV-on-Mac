@@ -93,7 +93,7 @@ final class RecaptchaTokenProvider: NSObject, WKScriptMessageHandler {
     }
 }
 
-class LaunchController: NSViewController {
+class LaunchController: NSViewController, NSTouchBarDelegate {
     var loginSheetWinController: NSWindowController?
     var installerWinController: NSWindowController?
     var patchWinController: NSWindowController?
@@ -109,15 +109,24 @@ class LaunchController: NSViewController {
     @IBOutlet private var userMenu: NSMenu!
     @IBOutlet private var passwdField: NSTextField!
     @IBOutlet var otpField: NSTextField!
-    @IBOutlet var otpCheck: NSButton!
-    @IBOutlet var autoLoginCheck: NSButton!
-    @IBOutlet private var scrollView: AnimatingScrollView!
-    @IBOutlet private var newsView: NSScrollView!
-    @IBOutlet private var topicsView: NSScrollView!
+//    @IBOutlet var otpCheck: NSButton!
+//    @IBOutlet var autoLoginCheck: NSButton!
+//    @IBOutlet private var scrollView: AnimatingScrollView!
+//    @IBOutlet private var newsView: NSScrollView!
+//    @IBOutlet private var topicsView: NSScrollView!
     @IBOutlet var discloseButton: NSButton!
     @IBOutlet private var touchBarLoginButton: NSButtonTouchBarItem!
-    @IBOutlet var leftButton: NSButton!
-    @IBOutlet var rightButton: NSButton!
+    @IBOutlet private var webview: WKWebView!
+    
+
+    func loadWebPage(_ urlString: String) {
+        guard let url = URL(string: urlString) else { return }
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.webview.allowsBackForwardNavigationGestures = true
+            self.webview.load(URLRequest(url: url))
+        }
+    }
 
     override func loadView() {
         super.loadView()
@@ -125,35 +134,39 @@ class LaunchController: NSViewController {
         NotificationCenter.default.addObserver(
             self, selector: #selector(installDone(_:)), name: .installDone,
             object: nil)
-        NotificationCenter.default.addObserver(
-            self, selector: #selector(showSideButtons(_:)), name: .bannerEnter,
-            object: nil)
-        NotificationCenter.default.addObserver(
-            self, selector: #selector(hideSideButtons(_:)), name: .bannerLeft,
-            object: nil)
+//        NotificationCenter.default.addObserver(
+//            self, selector: #selector(showSideButtons(_:)), name: .bannerEnter,
+//            object: nil)
+//        NotificationCenter.default.addObserver(
+//            self, selector: #selector(hideSideButtons(_:)), name: .bannerLeft,
+//            object: nil)
         userMenu.minimumWidth = 264
-        newsTable = FrontierTableView(
-            icon: NSImage(
-                systemSymbolName: "newspaper", accessibilityDescription: nil)!)
-        topicsTable = FrontierTableView(
-            icon: NSImage(
-                systemSymbolName: "newspaper.fill",
-                accessibilityDescription: nil)!)
-        newsView.documentView = newsTable.tableView
-        topicsView.documentView = topicsTable.tableView
-        leftButton.wantsLayer = true
-        rightButton.wantsLayer = true
-        setSideButtonVisibility(to: false)
+//        newsTable = FrontierTableView(
+//            icon: NSImage(
+//                systemSymbolName: "newspaper", accessibilityDescription: nil)!)
+//        topicsTable = FrontierTableView(
+//            icon: NSImage(
+//                systemSymbolName: "newspaper.fill",
+//                accessibilityDescription: nil)!)
+//        newsView.documentView = newsTable.tableView
+//        topicsView.documentView = topicsTable.tableView
+//        leftButton.wantsLayer = true
+//        rightButton.wantsLayer = true
+//        setSideButtonVisibility(to: false)
         DispatchQueue.global(qos: .userInitiated).async {
             self.checkBoot()
         }
         DispatchQueue.global(qos: .userInteractive).async {
-            if let frontierInfo = Frontier.info {
-                self.populateNews(frontierInfo)
+            // TODO: 在這邊載入 launcger_left.html 到 WKWebView
+            DispatchQueue.main.async { [weak self] in
+                self?.loadWebPage("https://user-cdn.ffxiv.com.tw/news/251115/launcher_left.html")
             }
-            if let frontierBanners = Frontier.banners {
-                self.populateBanners(frontierBanners)
-            }
+//            if let frontierInfo = Frontier.info {
+//                self.populateNews(frontierInfo)
+//            }
+//            if let frontierBanners = Frontier.banners {
+//                self.populateBanners(frontierBanners)
+//            }
         }
     }
 
@@ -166,21 +179,21 @@ class LaunchController: NSViewController {
         }
     }
 
-    @objc func hideSideButtons(_ notif: Notification) {
-        setSideButtonVisibility(to: false)
-    }
+//    @objc func hideSideButtons(_ notif: Notification) {
+//        setSideButtonVisibility(to: false)
+//    }
+//
+//    @objc func showSideButtons(_ notif: Notification) {
+//        setSideButtonVisibility(to: true)
+//    }
 
-    @objc func showSideButtons(_ notif: Notification) {
-        setSideButtonVisibility(to: true)
-    }
-
-    func setSideButtonVisibility(to: Bool) {
-        let buttonAlpha = 0.4
-        leftButton.layer?.backgroundColor = .black.copy(
-            alpha: to ? buttonAlpha : 0.0)
-        rightButton.layer?.backgroundColor = .black.copy(
-            alpha: to ? buttonAlpha : 0.0)
-    }
+//    func setSideButtonVisibility(to: Bool) {
+//        let buttonAlpha = 0.4
+//        leftButton.layer?.backgroundColor = .black.copy(
+//            alpha: to ? buttonAlpha : 0.0)
+//        rightButton.layer?.backgroundColor = .black.copy(
+//            alpha: to ? buttonAlpha : 0.0)
+//    }
 
     func checkBoot(skipInstallCheck: Bool = false) {
         if let bootPatches = try? Patch.bootPatches, !bootPatches.isEmpty,
@@ -220,21 +233,21 @@ class LaunchController: NSViewController {
             repairWinController!.contentViewController! as? RepairController
     }
 
-    private func populateNews(_ info: Frontier.Info) {
-        DispatchQueue.main.async {
-            self.topicsTable.add(items: info.topics)
-            self.newsTable.add(items: info.pinned + info.news)
-        }
-    }
-
-    private func populateBanners(_ banners: [Frontier.BannerRoot.Banner]) {
-        DispatchQueue.main.async {
-            self.scrollView.banners = banners
-        }
-    }
+//    private func populateNews(_ info: Frontier.Info) {
+//        DispatchQueue.main.async {
+//            self.topicsTable.add(items: info.topics)
+//            self.newsTable.add(items: info.pinned + info.news)
+//        }
+//    }
+//
+//    private func populateBanners(_ banners: [Frontier.BannerRoot.Banner]) {
+//        DispatchQueue.main.async {
+//            self.scrollView.banners = banners
+//        }
+//    }
 
     private func update() {
-        autoLoginCheck.state = Settings.autoLogin ? .on : .off
+//        autoLoginCheck.state = Settings.autoLogin ? .on : .off
         userField.stringValue = Settings.credentials?.username ?? ""
         passwdField.stringValue = Settings.credentials?.password ?? ""
         setupOTP()
@@ -286,13 +299,13 @@ class LaunchController: NSViewController {
         doLogin(repair: true)
     }
 
-    @IBAction func scrollLeft(_ sender: NSButton) {
-        scrollView.scrollLeft()
-    }
-
-    @IBAction func scrollRight(_ sender: NSButton) {
-        scrollView.scrollRight()
-    }
+//    @IBAction func scrollLeft(_ sender: NSButton) {
+//        scrollView.scrollLeft()
+//    }
+//
+//    @IBAction func scrollRight(_ sender: NSButton) {
+//        scrollView.scrollRight()
+//    }
 
     func problemConfigurationCheck() -> Bool {
         if FirstAidModel().cfgCheckSevereProblems() {
@@ -504,146 +517,148 @@ class userMenuItem: NSMenuItem {
     var credentials: LoginCredentials!
 }
 
-final class BannerView: NSImageView {
-    var banner: Frontier.BannerRoot.Banner? {
-        didSet {
-            let bannerURL = URL(string: banner!.lsbBanner)!
-            DispatchQueue.global(qos: .background).async { [self] in
-                let bannerImage = Frontier.fetchImage(
-                    url: bannerURL)
-                DispatchQueue.main.async { [self] in
-                    image = bannerImage
-                }
-            }
-        }
-    }
+//final class BannerView: NSImageView {
+//    var banner: Frontier.BannerRoot.Banner? {
+//        didSet {
+//            let bannerURL = URL(string: banner!.lsbBanner)!
+//            DispatchQueue.global(qos: .background).async { [self] in
+//                let bannerImage = Frontier.fetchImage(
+//                    url: bannerURL)
+//                DispatchQueue.main.async { [self] in
+//                    image = bannerImage
+//                }
+//            }
+//        }
+//    }
+//
+//    override func mouseDown(with event: NSEvent) {
+//        if let banner = banner {
+//            let url = URL(string: banner.link)!
+//            NSWorkspace.shared.open(url)
+//        }
+//    }
+//}
 
-    override func mouseDown(with event: NSEvent) {
-        if let banner = banner {
-            let url = URL(string: banner.link)!
-            NSWorkspace.shared.open(url)
-        }
-    }
-}
+//final class AnimatingScrollView: NSScrollView {
+//    private var width: CGFloat {
+//        return contentSize.width
+//    }
+//
+//    private var height: CGFloat {
+//        return contentSize.height
+//    }
+//
+//    private let animationDuration = 2.0
+//    private let stayDuration = 8.0
+//    private var index = 0
+//    private var timer = Timer()
+//
+//    var banners: [Frontier.BannerRoot.Banner]? {
+//        didSet {
+//            let banners = banners!
+//            documentView?.setFrameSize(
+//                NSSize(width: width * CGFloat(banners.count), height: height))
+//            for (i, banner) in banners.enumerated() {
+//                let bannerView = BannerView()
+//                bannerView.frame = CGRect(
+//                    x: CGFloat(i) * width, y: 0, width: width, height: height)
+//                bannerView.imageScaling = .scaleProportionallyUpOrDown
+//                bannerView.banner = banner
+//                documentView?.addSubview(bannerView)
+//            }
+//            startTimer()
+//        }
+//    }
+//
+//    override func awakeFromNib() {
+//        super.awakeFromNib()
+//        DispatchQueue.main.async { [self] in
+//            let trackingArea = NSTrackingArea(
+//                rect: bounds,
+//                options: [.activeInKeyWindow, .mouseEnteredAndExited],
+//                owner: self,
+//                userInfo: nil)
+//            addTrackingArea(trackingArea)
+//        }
+//    }
+//
+//    func startTimer() {
+//        stopTimer()
+//        timer = Timer.scheduledTimer(
+//            withTimeInterval: stayDuration, repeats: true,
+//            block: { _ in
+//                DispatchQueue.main.async {
+//                    self.animate()
+//                }
+//            })
+//    }
+//
+//    func stopTimer() {
+//        timer.invalidate()
+//    }
+//
+//    // This will override and cancel any running scroll animations
+//    override public func scroll(_ clipView: NSClipView, to point: NSPoint) {
+//        CATransaction.begin()
+//        CATransaction.setDisableActions(true)
+//        contentView.setBoundsOrigin(point)
+//        CATransaction.commit()
+//        super.scroll(clipView, to: point)
+//        index = Int(floor((point.x + width / 2) / width))
+//        let snap_x = CGFloat(index) * width
+//        scroll(
+//            toPoint: NSPoint(x: snap_x, y: 0),
+//            animationDuration: animationDuration)
+//        startTimer()
+//    }
+//
+//    private func scroll(toPoint: NSPoint, animationDuration: Double) {
+//        NSAnimationContext.beginGrouping()
+//        NSAnimationContext.current.duration = animationDuration
+//        contentView.animator().setBoundsOrigin(toPoint)
+//        reflectScrolledClipView(contentView)
+//        NSAnimationContext.endGrouping()
+//    }
+//
+//    private func animate() {
+//        guard let banners = banners else { return }
+//        index = (index + 1) % banners.count
+//        scroll(
+//            toPoint: NSPoint(x: Int(width) * index, y: 0),
+//            animationDuration: animationDuration)
+//    }
+//
+//    func scrollRight() {
+//        guard let banners = banners, index < banners.count - 1 else {
+//            return
+//        }
+//        startTimer()
+//        index += 1
+//        scroll(
+//            toPoint: NSPoint(x: Int(width) * index, y: 0),
+//            animationDuration: animationDuration)
+//    }
+//
+//    func scrollLeft() {
+//        guard banners != nil, index > 0 else {
+//            return
+//        }
+//        startTimer()
+//        index -= 1
+//        scroll(
+//            toPoint: NSPoint(x: Int(width) * index, y: 0),
+//            animationDuration: animationDuration)
+//    }
+//
+//    override func mouseEntered(with theEvent: NSEvent) {
+//        super.mouseEntered(with: theEvent)
+//        NotificationCenter.default.post(name: .bannerEnter, object: nil)
+//    }
+//
+//    override func mouseExited(with theEvent: NSEvent) {
+//        super.mouseExited(with: theEvent)
+//        NotificationCenter.default.post(name: .bannerLeft, object: nil)
+//    }
+//}
 
-final class AnimatingScrollView: NSScrollView {
-    private var width: CGFloat {
-        return contentSize.width
-    }
 
-    private var height: CGFloat {
-        return contentSize.height
-    }
-
-    private let animationDuration = 2.0
-    private let stayDuration = 8.0
-    private var index = 0
-    private var timer = Timer()
-
-    var banners: [Frontier.BannerRoot.Banner]? {
-        didSet {
-            let banners = banners!
-            documentView?.setFrameSize(
-                NSSize(width: width * CGFloat(banners.count), height: height))
-            for (i, banner) in banners.enumerated() {
-                let bannerView = BannerView()
-                bannerView.frame = CGRect(
-                    x: CGFloat(i) * width, y: 0, width: width, height: height)
-                bannerView.imageScaling = .scaleProportionallyUpOrDown
-                bannerView.banner = banner
-                documentView?.addSubview(bannerView)
-            }
-            startTimer()
-        }
-    }
-
-    override func awakeFromNib() {
-        super.awakeFromNib()
-        DispatchQueue.main.async { [self] in
-            let trackingArea = NSTrackingArea(
-                rect: bounds,
-                options: [.activeInKeyWindow, .mouseEnteredAndExited],
-                owner: self,
-                userInfo: nil)
-            addTrackingArea(trackingArea)
-        }
-    }
-
-    func startTimer() {
-        stopTimer()
-        timer = Timer.scheduledTimer(
-            withTimeInterval: stayDuration, repeats: true,
-            block: { _ in
-                DispatchQueue.main.async {
-                    self.animate()
-                }
-            })
-    }
-
-    func stopTimer() {
-        timer.invalidate()
-    }
-
-    // This will override and cancel any running scroll animations
-    override public func scroll(_ clipView: NSClipView, to point: NSPoint) {
-        CATransaction.begin()
-        CATransaction.setDisableActions(true)
-        contentView.setBoundsOrigin(point)
-        CATransaction.commit()
-        super.scroll(clipView, to: point)
-        index = Int(floor((point.x + width / 2) / width))
-        let snap_x = CGFloat(index) * width
-        scroll(
-            toPoint: NSPoint(x: snap_x, y: 0),
-            animationDuration: animationDuration)
-        startTimer()
-    }
-
-    private func scroll(toPoint: NSPoint, animationDuration: Double) {
-        NSAnimationContext.beginGrouping()
-        NSAnimationContext.current.duration = animationDuration
-        contentView.animator().setBoundsOrigin(toPoint)
-        reflectScrolledClipView(contentView)
-        NSAnimationContext.endGrouping()
-    }
-
-    private func animate() {
-        guard let banners = banners else { return }
-        index = (index + 1) % banners.count
-        scroll(
-            toPoint: NSPoint(x: Int(width) * index, y: 0),
-            animationDuration: animationDuration)
-    }
-
-    func scrollRight() {
-        guard let banners = banners, index < banners.count - 1 else {
-            return
-        }
-        startTimer()
-        index += 1
-        scroll(
-            toPoint: NSPoint(x: Int(width) * index, y: 0),
-            animationDuration: animationDuration)
-    }
-
-    func scrollLeft() {
-        guard banners != nil, index > 0 else {
-            return
-        }
-        startTimer()
-        index -= 1
-        scroll(
-            toPoint: NSPoint(x: Int(width) * index, y: 0),
-            animationDuration: animationDuration)
-    }
-
-    override func mouseEntered(with theEvent: NSEvent) {
-        super.mouseEntered(with: theEvent)
-        NotificationCenter.default.post(name: .bannerEnter, object: nil)
-    }
-
-    override func mouseExited(with theEvent: NSEvent) {
-        super.mouseExited(with: theEvent)
-        NotificationCenter.default.post(name: .bannerLeft, object: nil)
-    }
-}

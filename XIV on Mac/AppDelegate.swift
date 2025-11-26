@@ -199,6 +199,10 @@ import XIVLauncher
         Wine.launch(command: "winecfg")
     }
 
+    @IBAction func handleFakeLogin(_ sender: Any) {
+        XIVLauncher.fakeLogin()
+    }
+
     @IBAction func explorer(_ sender: Any) {
         Wine.launch(command: "explorer")
     }

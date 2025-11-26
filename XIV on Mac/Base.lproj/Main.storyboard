@@ -4,6 +4,7 @@
         <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaDFRPlugin" version="24006"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="24412"/>
+        <plugIn identifier="com.apple.WebKit2IBPlugin" version="24412"/>
         <capability name="Image references" minToolsVersion="12.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
         <capability name="the Touch Bar" minToolsVersion="8.1" minSystemVersion="10.12.2" requiredIntegratedClassName="NSTouchBar"/>
@@ -342,6 +343,12 @@
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
                                                 <action selector="winecfg:" target="Voe-Tx-rLC" id="O3i-Tz-v44"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Fake Login" id="GYt-dI-akd">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="handleFakeLogin:" target="Ady-hI-5gd" id="wM9-zs-zCe"/>
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="hB3-LF-h0Y"/>
@@ -988,15 +995,15 @@ Gw
             <objects>
                 <viewController id="sya-zo-KBW" customClass="LaunchController" customModule="XIV_on_Mac" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" id="Agp-L5-Fby">
-                        <rect key="frame" x="0.0" y="0.0" width="965" height="439"/>
+                        <rect key="frame" x="0.0" y="0.0" width="965" height="673"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
                             <visualEffectView fixedFrame="YES" blendingMode="behindWindow" material="popover" state="followsWindowActiveState" translatesAutoresizingMaskIntoConstraints="NO" id="wY2-dv-E6t">
-                                <rect key="frame" x="0.0" y="0.0" width="965" height="442"/>
+                                <rect key="frame" x="0.0" y="0.0" width="965" height="676"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <textField wantsLayer="YES" focusRingType="none" verticalHuggingPriority="750" fixedFrame="YES" textCompletion="NO" contentType="username" translatesAutoresizingMaskIntoConstraints="NO" id="Oji-h2-frf">
-                                        <rect key="frame" x="682" y="357" width="264" height="27"/>
+                                        <rect key="frame" x="682" y="413" width="264" height="27"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <textFieldCell key="cell" controlSize="large" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" borderStyle="bezel" drawsBackground="YES" id="V4u-7G-g7u">
                                             <font key="font" metaFont="system" size="16"/>
@@ -1008,7 +1015,7 @@ Gw
                                         </connections>
                                     </textField>
                                     <secureTextField wantsLayer="YES" focusRingType="none" verticalHuggingPriority="750" fixedFrame="YES" textCompletion="NO" contentType="password" translatesAutoresizingMaskIntoConstraints="NO" id="Bhg-a8-aUl">
-                                        <rect key="frame" x="682" y="298" width="264" height="27"/>
+                                        <rect key="frame" x="682" y="355" width="264" height="27"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <secureTextFieldCell key="cell" controlSize="large" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" borderStyle="bezel" placeholderString="required" drawsBackground="YES" usesSingleLineMode="YES" id="TfY-Li-gp6">
                                             <font key="font" metaFont="system" size="16"/>
@@ -1023,9 +1030,9 @@ Gw
                                         </connections>
                                     </secureTextField>
                                     <textField wantsLayer="YES" focusRingType="none" verticalHuggingPriority="750" fixedFrame="YES" textCompletion="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hjj-4f-wNd">
-                                        <rect key="frame" x="681" y="240" width="190" height="27"/>
+                                        <rect key="frame" x="682" y="297" width="264" height="27"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                        <textFieldCell key="cell" controlSize="large" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" borderStyle="bezel" placeholderString="optional" drawsBackground="YES" id="5FC-rM-Oay">
+                                        <textFieldCell key="cell" controlSize="large" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" borderStyle="bezel" placeholderString="required" drawsBackground="YES" id="5FC-rM-Oay">
                                             <font key="font" metaFont="system" size="16"/>
                                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -1034,30 +1041,8 @@ Gw
                                             <action selector="doLogin:" target="sya-zo-KBW" id="G0X-GO-dEw"/>
                                         </connections>
                                     </textField>
-                                    <button wantsLayer="YES" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="fhv-Eb-PmW">
-                                        <rect key="frame" x="679" y="203" width="139" height="19"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                        <buttonCell key="cell" type="check" title="Auto-Login" bezelStyle="regularSquare" imagePosition="left" controlSize="large" inset="2" id="J8n-OX-VtC">
-                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                            <font key="font" metaFont="system" size="15"/>
-                                        </buttonCell>
-                                        <connections>
-                                            <action selector="autoLoginStateChange:" target="sya-zo-KBW" id="vSI-5L-6cB"/>
-                                        </connections>
-                                    </button>
-                                    <button wantsLayer="YES" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="xhX-md-4MR">
-                                        <rect key="frame" x="819" y="203" width="127" height="19"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                        <buttonCell key="cell" type="check" title="Auto-OTP" bezelStyle="regularSquare" imagePosition="left" controlSize="large" inset="2" id="hjS-RC-X85">
-                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                            <font key="font" metaFont="system" size="15"/>
-                                        </buttonCell>
-                                        <connections>
-                                            <action selector="toggleOTP:" target="sya-zo-KBW" id="MbF-Ej-s0P"/>
-                                        </connections>
-                                    </button>
                                     <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3uG-Aq-0R3">
-                                        <rect key="frame" x="680" y="386" width="154" height="14"/>
+                                        <rect key="frame" x="680" y="443" width="154" height="14"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <textFieldCell key="cell" controlSize="large" lineBreakMode="clipping" title="Square Enix ID" id="dYN-5e-LY1">
                                             <font key="font" metaFont="smallSystem"/>
@@ -1066,7 +1051,7 @@ Gw
                                         </textFieldCell>
                                     </textField>
                                     <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ZqH-DU-gQT">
-                                        <rect key="frame" x="680" y="327" width="193" height="14"/>
+                                        <rect key="frame" x="680" y="384" width="193" height="14"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <textFieldCell key="cell" controlSize="large" lineBreakMode="clipping" title="Square Enix Password" id="P4p-qs-m93">
                                             <font key="font" metaFont="smallSystem"/>
@@ -1075,7 +1060,7 @@ Gw
                                         </textFieldCell>
                                     </textField>
                                     <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="G6g-Dt-rdC">
-                                        <rect key="frame" x="680" y="269" width="193" height="14"/>
+                                        <rect key="frame" x="680" y="326" width="193" height="14"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <textFieldCell key="cell" controlSize="large" lineBreakMode="clipping" title="One-Time Password" id="Def-J0-BrB">
                                             <font key="font" metaFont="smallSystem"/>
@@ -1083,115 +1068,8 @@ Gw
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                     </textField>
-                                    <button wantsLayer="YES" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Cgh-yM-JG5">
-                                        <rect key="frame" x="673" y="140" width="282" height="40"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                        <buttonCell key="cell" type="push" title="Login" bezelStyle="rounded" alignment="center" controlSize="large" enabled="NO" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="TON-Zk-2g1">
-                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                            <font key="font" metaFont="system" size="15"/>
-                                        </buttonCell>
-                                        <connections>
-                                            <action selector="doLogin:" target="sya-zo-KBW" id="VVO-TS-DAx"/>
-                                        </connections>
-                                    </button>
-                                    <scrollView fixedFrame="YES" borderType="none" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasVerticalScroller="NO" usesPredominantAxisScrolling="NO" horizontalScrollElasticity="allowed" verticalScrollElasticity="none" translatesAutoresizingMaskIntoConstraints="NO" id="kUd-Jw-ky7" customClass="AnimatingScrollView" customModule="XIV_on_Mac" customModuleProvider="target">
-                                        <rect key="frame" x="20" y="138" width="640" height="265"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                        <clipView key="contentView" drawsBackground="NO" id="3yp-No-o33">
-                                            <rect key="frame" x="0.0" y="0.0" width="640" height="248"/>
-                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                            <subviews>
-                                                <view id="61N-YS-eDX">
-                                                    <rect key="frame" x="0.0" y="0.0" width="640" height="248"/>
-                                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                                </view>
-                                            </subviews>
-                                        </clipView>
-                                        <scroller key="horizontalScroller" wantsLayer="YES" verticalHuggingPriority="750" horizontal="YES" id="pef-Df-QAE">
-                                            <rect key="frame" x="0.0" y="248" width="640" height="17"/>
-                                            <autoresizingMask key="autoresizingMask"/>
-                                        </scroller>
-                                        <scroller key="verticalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="vBl-QU-8g3">
-                                            <rect key="frame" x="-100" y="-100" width="15" height="250"/>
-                                            <autoresizingMask key="autoresizingMask"/>
-                                        </scroller>
-                                    </scrollView>
-                                    <button wantsLayer="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="tBx-dX-l3A" userLabel="Left">
-                                        <rect key="frame" x="20" y="153" width="16" height="253"/>
-                                        <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" imagePosition="overlaps" alignment="center" lineBreakMode="truncatingTail" state="on" imageScaling="proportionallyDown" inset="2" id="LUF-1H-RXN">
-                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                            <font key="font" metaFont="system"/>
-                                            <imageReference key="image" image="chevron.left" catalog="system" symbolScale="large" variableValue="1"/>
-                                        </buttonCell>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="245" id="EzR-1i-guR"/>
-                                            <constraint firstAttribute="width" constant="16" id="ghM-Fl-wAo"/>
-                                        </constraints>
-                                        <connections>
-                                            <action selector="scrollLeft:" target="sya-zo-KBW" id="LlY-Dc-N1j"/>
-                                        </connections>
-                                    </button>
-                                    <button wantsLayer="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="YtN-Rh-od1" userLabel="Right">
-                                        <rect key="frame" x="644" y="153" width="16" height="253"/>
-                                        <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" imagePosition="overlaps" alignment="center" lineBreakMode="truncatingTail" state="on" imageScaling="proportionallyDown" inset="2" id="vFE-9l-3Rf">
-                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                            <font key="font" metaFont="system"/>
-                                            <imageReference key="image" image="chevron.right" catalog="system" symbolScale="large"/>
-                                        </buttonCell>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="245" id="VF9-7D-nWO"/>
-                                            <constraint firstAttribute="width" constant="16" id="Wrg-Y3-udI"/>
-                                        </constraints>
-                                        <connections>
-                                            <action selector="scrollRight:" target="sya-zo-KBW" id="eEO-ch-MRR"/>
-                                        </connections>
-                                    </button>
-                                    <scrollView fixedFrame="YES" borderType="none" autohidesScrollers="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="3" verticalPageScroll="3" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pE4-Pq-abN" customClass="FadingScrollView" customModule="XIV_on_Mac" customModuleProvider="target">
-                                        <rect key="frame" x="493" y="13" width="472" height="124"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                        <clipView key="contentView" drawsBackground="NO" id="cFn-Gm-zRu">
-                                            <rect key="frame" x="0.0" y="0.0" width="472" height="124"/>
-                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                            <subviews>
-                                                <view id="6jO-fh-5Sq">
-                                                    <rect key="frame" x="0.0" y="0.0" width="456" height="124"/>
-                                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                                </view>
-                                            </subviews>
-                                        </clipView>
-                                        <scroller key="horizontalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="YES" id="8B1-1j-P2A">
-                                            <rect key="frame" x="-100" y="-100" width="453" height="15"/>
-                                            <autoresizingMask key="autoresizingMask"/>
-                                        </scroller>
-                                        <scroller key="verticalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="hhb-o4-sRe">
-                                            <rect key="frame" x="453" y="0.0" width="15" height="110"/>
-                                            <autoresizingMask key="autoresizingMask"/>
-                                        </scroller>
-                                    </scrollView>
-                                    <scrollView fixedFrame="YES" borderType="none" autohidesScrollers="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="3" verticalPageScroll="3" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="VFB-VA-Nbg" customClass="FadingScrollView" customModule="XIV_on_Mac" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="13" width="488" height="124"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                        <clipView key="contentView" drawsBackground="NO" id="5Xp-Li-WIM">
-                                            <rect key="frame" x="0.0" y="0.0" width="488" height="124"/>
-                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                            <subviews>
-                                                <view id="iRI-SQ-efp">
-                                                    <rect key="frame" x="0.0" y="0.0" width="472" height="124"/>
-                                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                                </view>
-                                            </subviews>
-                                        </clipView>
-                                        <scroller key="horizontalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="YES" id="Jb3-cq-YJ8">
-                                            <rect key="frame" x="-100" y="-100" width="453" height="15"/>
-                                            <autoresizingMask key="autoresizingMask"/>
-                                        </scroller>
-                                        <scroller key="verticalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="Bqo-um-UJn">
-                                            <rect key="frame" x="453" y="0.0" width="15" height="110"/>
-                                            <autoresizingMask key="autoresizingMask"/>
-                                        </scroller>
-                                    </scrollView>
                                     <button wantsLayer="YES" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="R5T-I0-Kje" userLabel="Disclose Button">
-                                        <rect key="frame" x="919" y="358" width="29.5" height="24"/>
+                                        <rect key="frame" x="919" y="415" width="29.5" height="24"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <buttonCell key="cell" type="bevel" bezelStyle="rounded" image="NSTouchBarGoDownTemplate" imagePosition="only" alignment="center" refusesFirstResponder="YES" state="on" inset="2" id="gCP-mx-jfr">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -1201,13 +1079,26 @@ Gw
                                             <action selector="showAccounts:" target="sya-zo-KBW" id="N5K-q4-7F0"/>
                                         </connections>
                                     </button>
+                                    <wkWebView wantsLayer="YES" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="FIQ-dI-veu">
+                                        <rect key="frame" x="20" y="20" width="645" height="617"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <wkWebViewConfiguration key="configuration">
+                                            <audiovisualMediaTypes key="mediaTypesRequiringUserActionForPlayback" none="YES"/>
+                                            <wkPreferences key="preferences"/>
+                                        </wkWebViewConfiguration>
+                                    </wkWebView>
+                                    <button wantsLayer="YES" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Cgh-yM-JG5">
+                                        <rect key="frame" x="682" y="227" width="264" height="40"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <buttonCell key="cell" type="push" title="Login" bezelStyle="rounded" alignment="center" controlSize="large" enabled="NO" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="TON-Zk-2g1">
+                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" metaFont="system" size="15"/>
+                                        </buttonCell>
+                                        <connections>
+                                            <action selector="doLogin:" target="sya-zo-KBW" id="VVO-TS-DAx"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
-                                <constraints>
-                                    <constraint firstItem="YtN-Rh-od1" firstAttribute="centerY" secondItem="3yp-No-o33" secondAttribute="centerY" id="EoV-Lk-1Ps"/>
-                                    <constraint firstItem="tBx-dX-l3A" firstAttribute="centerY" secondItem="3yp-No-o33" secondAttribute="centerY" id="Glb-8f-Wp4"/>
-                                    <constraint firstItem="YtN-Rh-od1" firstAttribute="trailing" secondItem="3yp-No-o33" secondAttribute="trailing" id="Kbv-aG-1R9"/>
-                                    <constraint firstItem="tBx-dX-l3A" firstAttribute="leading" secondItem="3yp-No-o33" secondAttribute="leading" id="oyJ-tQ-rsw"/>
-                                </constraints>
                             </visualEffectView>
                         </subviews>
                     </view>
@@ -1269,26 +1160,20 @@ Gw
                         </touchBarItems>
                     </touchBar>
                     <connections>
-                        <outlet property="autoLoginCheck" destination="fhv-Eb-PmW" id="ZbX-wj-4b6"/>
                         <outlet property="discloseButton" destination="R5T-I0-Kje" id="ALW-vS-IBY"/>
-                        <outlet property="leftButton" destination="tBx-dX-l3A" id="hfY-Eb-j7x"/>
                         <outlet property="loginButton" destination="Cgh-yM-JG5" id="gcf-Am-XLt"/>
-                        <outlet property="newsView" destination="VFB-VA-Nbg" id="Joc-Vj-rNh"/>
-                        <outlet property="otpCheck" destination="xhX-md-4MR" id="16N-02-2YO"/>
                         <outlet property="otpField" destination="hjj-4f-wNd" id="Qbt-Wl-rev"/>
                         <outlet property="passwdField" destination="Bhg-a8-aUl" id="C2s-Nr-4j7"/>
-                        <outlet property="rightButton" destination="YtN-Rh-od1" id="wgw-Sa-chY"/>
-                        <outlet property="scrollView" destination="kUd-Jw-ky7" id="GXL-go-HMw"/>
-                        <outlet property="topicsView" destination="pE4-Pq-abN" id="8cB-5W-RZq"/>
                         <outlet property="touchBarLoginButton" destination="dHG-Nt-Pvm" id="98v-Wp-QUY"/>
                         <outlet property="userField" destination="Oji-h2-frf" id="tkE-H9-75G"/>
                         <outlet property="userMenu" destination="NXC-jb-B44" id="Z9a-mA-A3D"/>
+                        <outlet property="webview" destination="FIQ-dI-veu" id="ll2-Pf-wHW"/>
                     </connections>
                 </viewController>
                 <customObject id="0mb-fo-mzL" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
                 <menu id="NXC-jb-B44"/>
             </objects>
-            <point key="canvasLocation" x="80.5" y="1749.5"/>
+            <point key="canvasLocation" x="80.5" y="1866.5"/>
         </scene>
         <!--Window Controller-->
         <scene sceneID="NXM-Q5-CJl">
@@ -1588,8 +1473,6 @@ Gw
     </scenes>
     <resources>
         <image name="NSTouchBarGoDownTemplate" width="18" height="11"/>
-        <image name="chevron.left" catalog="system" width="12" height="17"/>
-        <image name="chevron.right" catalog="system" width="12" height="17"/>
         <image name="flag.pattern.checkered.2.crossed" catalog="system" width="34" height="22"/>
         <image name="gear" catalog="system" width="17" height="16"/>
         <image name="puzzlepiece.fill" catalog="system" width="22" height="15"/>
