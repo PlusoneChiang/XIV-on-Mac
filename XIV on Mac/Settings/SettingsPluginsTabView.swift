@@ -20,7 +20,7 @@ struct SettingsPluginsTabView: View {
             HStack {
                 Toggle(isOn: $viewModel.dalamudEnabled) {
                     Text("SETTINGS_PLUGINS_DALAMUD_ENABLE")
-                }
+                }.disabled(true)
                 .padding(.leading)
                 Spacer()
                 Toggle(isOn: $viewModel.dalamudEntryPoint) {

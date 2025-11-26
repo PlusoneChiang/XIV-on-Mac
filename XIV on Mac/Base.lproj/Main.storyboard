@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="24127" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="24412" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaDFRPlugin" version="24006"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="24127"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="24412"/>
         <capability name="Image references" minToolsVersion="12.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
         <capability name="the Touch Bar" minToolsVersion="8.1" minSystemVersion="10.12.2" requiredIntegratedClassName="NSTouchBar"/>
@@ -358,13 +358,13 @@
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <menu key="submenu" title="Add On" id="A9a-u7-hsU">
                                     <items>
-                                        <menuItem title="Start Bunny HUD" id="lTa-gf-Qso">
+                                        <menuItem title="Start Bunny HUD" hidden="YES" enabled="NO" id="lTa-gf-Qso">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
                                                 <action selector="startBH:" target="Voe-Tx-rLC" id="RLt-PI-tKQ"/>
                                             </connections>
                                         </menuItem>
-                                        <menuItem title="Auto-Launch Bunny HUD" id="1Do-e8-DyE">
+                                        <menuItem title="Auto-Launch Bunny HUD" hidden="YES" enabled="NO" id="1Do-e8-DyE">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
                                                 <action selector="toggleBH:" target="Voe-Tx-rLC" id="JYB-PA-S2z"/>
@@ -517,7 +517,7 @@
                                                                         <button identifier="withDalamud" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="LIi-e8-P8r">
                                                                             <rect key="frame" x="227" y="149" width="405" height="18"/>
                                                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                                                            <buttonCell key="cell" type="radio" title="Launch with Dalamud Plugin Support" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="0ZX-g7-76H">
+                                                                            <buttonCell key="cell" type="radio" title="Launch with Dalamud Plugin Support" bezelStyle="regularSquare" imagePosition="left" alignment="left" enabled="NO" inset="2" id="0ZX-g7-76H">
                                                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                                                 <font key="font" metaFont="system"/>
                                                                             </buttonCell>
@@ -526,9 +526,9 @@
                                                                             </connections>
                                                                         </button>
                                                                         <textField wantsLayer="YES" focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Kd7-D8-V8B">
-                                                                            <rect key="frame" x="248" y="176" width="240" height="16"/>
+                                                                            <rect key="frame" x="248" y="176" width="299" height="16"/>
                                                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                                                            <textFieldCell key="cell" lineBreakMode="clipping" title="You can chose to enable Dalamud later" id="Jbf-yx-ZQ7">
+                                                                            <textFieldCell key="cell" lineBreakMode="clipping" title="Dalamud is currently not supported on TC server" id="Jbf-yx-ZQ7">
                                                                                 <font key="font" metaFont="system"/>
                                                                                 <color key="textColor" name="secondaryLabelColor" catalog="System" colorSpace="catalog"/>
                                                                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -537,7 +537,7 @@
                                                                         <textField wantsLayer="YES" focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="rVc-z6-q4l">
                                                                             <rect key="frame" x="248" y="128" width="208" height="16"/>
                                                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                                                            <textFieldCell key="cell" lineBreakMode="clipping" title="You can disable Dalamud anytime" id="LPN-SN-8np">
+                                                                            <textFieldCell key="cell" lineBreakMode="clipping" enabled="NO" title="You can disable Dalamud anytime" id="LPN-SN-8np">
                                                                                 <font key="font" metaFont="system"/>
                                                                                 <color key="textColor" name="secondaryLabelColor" catalog="System" colorSpace="catalog"/>
                                                                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -601,7 +601,7 @@ Gw
                                                                 <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="szu-bh-elg">
                                                                     <rect key="frame" x="-2" y="340" width="717" height="16"/>
                                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                                                    <textFieldCell key="cell" lineBreakMode="clipping" title="Select a License" id="hfH-NT-WKX">
+                                                                    <textFieldCell key="cell" lineBreakMode="clipping" title="Select a License (there are only Windows License on TC server)" id="hfH-NT-WKX">
                                                                         <font key="font" usesAppearanceFont="YES"/>
                                                                         <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                                                         <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -625,7 +625,7 @@ Gw
                                                                         <button identifier="macLicense" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Xkg-zq-YPP">
                                                                             <rect key="frame" x="227" y="220" width="405" height="18"/>
                                                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                                                            <buttonCell key="cell" type="radio" title="Mac" bezelStyle="regularSquare" imagePosition="left" alignment="left" state="on" inset="2" id="LRc-OZ-739">
+                                                                            <buttonCell key="cell" type="radio" title="Mac" bezelStyle="regularSquare" imagePosition="left" alignment="left" enabled="NO" inset="2" id="LRc-OZ-739">
                                                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                                                 <font key="font" metaFont="system"/>
                                                                             </buttonCell>
@@ -636,7 +636,7 @@ Gw
                                                                         <button identifier="windowsLicense" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="5Xr-p2-gTo">
                                                                             <rect key="frame" x="227" y="172" width="314" height="18"/>
                                                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                                                            <buttonCell key="cell" type="radio" title="Windows" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="CqV-50-MBO">
+                                                                            <buttonCell key="cell" type="radio" title="Windows" bezelStyle="regularSquare" imagePosition="left" alignment="left" state="on" inset="2" id="CqV-50-MBO">
                                                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                                                 <font key="font" metaFont="system"/>
                                                                             </buttonCell>
@@ -647,7 +647,7 @@ Gw
                                                                         <button identifier="steamLicense" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="eLA-Ed-AXO">
                                                                             <rect key="frame" x="227" y="124" width="405" height="18"/>
                                                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                                                            <buttonCell key="cell" type="radio" title="Windows (Steam)" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="NHb-zd-owg">
+                                                                            <buttonCell key="cell" type="radio" title="Windows (Steam)" bezelStyle="regularSquare" imagePosition="left" alignment="left" enabled="NO" inset="2" id="NHb-zd-owg">
                                                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                                                 <font key="font" metaFont="system"/>
                                                                             </buttonCell>
@@ -1098,11 +1098,11 @@ Gw
                                         <rect key="frame" x="20" y="138" width="640" height="265"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <clipView key="contentView" drawsBackground="NO" id="3yp-No-o33">
-                                            <rect key="frame" x="0.0" y="0.0" width="640" height="265"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="640" height="248"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <subviews>
                                                 <view id="61N-YS-eDX">
-                                                    <rect key="frame" x="0.0" y="0.0" width="640" height="265"/>
+                                                    <rect key="frame" x="0.0" y="0.0" width="640" height="248"/>
                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 </view>
                                             </subviews>
@@ -1117,7 +1117,7 @@ Gw
                                         </scroller>
                                     </scrollView>
                                     <button wantsLayer="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="tBx-dX-l3A" userLabel="Left">
-                                        <rect key="frame" x="20" y="144" width="16" height="253"/>
+                                        <rect key="frame" x="20" y="153" width="16" height="253"/>
                                         <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" imagePosition="overlaps" alignment="center" lineBreakMode="truncatingTail" state="on" imageScaling="proportionallyDown" inset="2" id="LUF-1H-RXN">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -1132,7 +1132,7 @@ Gw
                                         </connections>
                                     </button>
                                     <button wantsLayer="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="YtN-Rh-od1" userLabel="Right">
-                                        <rect key="frame" x="644" y="144" width="16" height="253"/>
+                                        <rect key="frame" x="644" y="153" width="16" height="253"/>
                                         <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" imagePosition="overlaps" alignment="center" lineBreakMode="truncatingTail" state="on" imageScaling="proportionallyDown" inset="2" id="vFE-9l-3Rf">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -1217,7 +1217,6 @@ Gw
                                 <viewController key="viewController" id="78I-9D-tLS">
                                     <button key="view" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="dHG-Nt-Pvm">
                                         <rect key="frame" x="0.0" y="0.0" width="72" height="30"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <buttonCell key="cell" type="push" title="Login" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="803-uu-sDq">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" usesAppearanceFont="YES"/>
@@ -1256,7 +1255,6 @@ Gw
                                 <viewController key="viewController" id="HIt-iC-UO7">
                                     <button key="view" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="msb-e1-O5a">
                                         <rect key="frame" x="0.0" y="0.0" width="144" height="30"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <buttonCell key="cell" type="push" title="Troubleshooting" bezelStyle="rounded" image="gear" catalog="system" imagePosition="leading" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="d7x-jG-QDv">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" usesAppearanceFont="YES"/>
@@ -1403,15 +1401,15 @@ Gw
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                     </textField>
-                                    <progressIndicator fixedFrame="YES" maxValue="100" style="bar" translatesAutoresizingMaskIntoConstraints="NO" id="eyd-GX-zBh">
+                                    <progressIndicator wantsLayer="YES" fixedFrame="YES" maxValue="100" style="bar" translatesAutoresizingMaskIntoConstraints="NO" id="eyd-GX-zBh">
                                         <rect key="frame" x="20" y="231" width="523" height="20"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                     </progressIndicator>
-                                    <progressIndicator fixedFrame="YES" maxValue="100" style="bar" translatesAutoresizingMaskIntoConstraints="NO" id="qc8-1a-Ivc">
+                                    <progressIndicator wantsLayer="YES" fixedFrame="YES" maxValue="100" style="bar" translatesAutoresizingMaskIntoConstraints="NO" id="qc8-1a-Ivc">
                                         <rect key="frame" x="20" y="157" width="523" height="20"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                     </progressIndicator>
-                                    <progressIndicator fixedFrame="YES" maxValue="100" style="bar" translatesAutoresizingMaskIntoConstraints="NO" id="u2N-qE-KmW">
+                                    <progressIndicator wantsLayer="YES" fixedFrame="YES" maxValue="100" style="bar" translatesAutoresizingMaskIntoConstraints="NO" id="u2N-qE-KmW">
                                         <rect key="frame" x="20" y="62" width="523" height="20"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                     </progressIndicator>
@@ -1515,7 +1513,7 @@ Gw
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                     </textField>
-                                    <progressIndicator fixedFrame="YES" maxValue="100" style="bar" translatesAutoresizingMaskIntoConstraints="NO" id="FSF-dS-fBF">
+                                    <progressIndicator wantsLayer="YES" fixedFrame="YES" maxValue="100" style="bar" translatesAutoresizingMaskIntoConstraints="NO" id="FSF-dS-fBF">
                                         <rect key="frame" x="20" y="67" width="523" height="20"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                     </progressIndicator>

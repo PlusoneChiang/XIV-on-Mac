@@ -28,19 +28,14 @@ struct SettingsGeneralTabView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .font(.callout)
 
+                    
                     HStack {
                         Picker(
                             selection: $viewModel.language,
                             label: Text("SETTINGS_LANGUAGE_PICKER")
                         ) {
-                            Text("SETTINGS_LANGUAGE_JAPANESE").tag(
-                                FFXIVLanguage.japanese)
                             Text("SETTINGS_LANGUAGE_ENGLISH").tag(
                                 FFXIVLanguage.english)
-                            Text("SETTINGS_LANGUAGE_FRENCH").tag(
-                                FFXIVLanguage.french)
-                            Text("SETTINGS_LANGUAGE_GERMAN").tag(
-                                FFXIVLanguage.german)
                         }
                         .padding(.bottom)
                         .fixedSize(horizontal: true, vertical: false)
@@ -49,11 +44,8 @@ struct SettingsGeneralTabView: View {
                             selection: $viewModel.platform,
                             label: Text("SETTINGS_PLATFORM_PICKER")
                         ) {
-                            Text("SETTINGS_PLATFORM_MAC").tag(FFXIVPlatform.mac)
                             Text("SETTINGS_PLATFORM_WINDOWS").tag(
                                 FFXIVPlatform.windows)
-                            Text("SETTINGS_PLATFORM_STEAM").tag(
-                                FFXIVPlatform.steam)
                         }
                         .padding(.bottom)
                         .fixedSize(horizontal: true, vertical: false)
@@ -64,13 +56,13 @@ struct SettingsGeneralTabView: View {
                     HStack {
                         Toggle(isOn: $viewModel.freeTrial) {
                             Text("SETTINGS_FREE_TRIAL")
-                        }
+                        }.disabled(true) 
                         .fixedSize(horizontal: true, vertical: false)
 
                         Spacer()
                     }
 
-                    Text("SETTINGS_GENERAL_FREE_TRIAL_BLURB")
+                    Text("There are no Free Trial on TC server.")
                         .multilineTextAlignment(.leading)
                         .lineLimit(nil)
                         .frame(maxWidth: .infinity, alignment: .leading)
