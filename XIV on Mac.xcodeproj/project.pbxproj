@@ -695,7 +695,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#!/bin/sh\n\n# Code-signing is not required for non-release builds.\n\nif [ \"${CONFIGURATION}\" != \"Release\" ] ; then\n    exit 0\nfi\n\nif [ -z \"${CODE_SIGN_IDENTITY}\" ] ; then\n    echo \"error: CODE_SIGN_IDENTITY needs to be set!\"\n    exit 1\nfi\n\nif [ -z \"${CODE_SIGN_ENTITLEMENTS}\" ] ; then\n    echo \"CODE_SIGN_ENTITLEMENTS needs to be set!\"\n    exit 1\nfi\n\nITEMS=\"\"\nWINE_DIR=\"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH_SHALLOW_BUNDLE_NO}/wine\"\n\nif [ -d \"$WINE_DIR\" ] ; then\n    WINE_ITEMS=$(find \"${WINE_DIR}\" -type f)\n    RESULT=$?\n    if [[ $RESULT != 0 ]] ; then\n        exit 1\n    fi\n\n    ITEMS=\"${WINE_ITEMS}\"\nfi\n\nCODE_SIGN_IDENTITY_FOR_ITEMS=\"${EXPANDED_CODE_SIGN_IDENTITY_NAME}\"\nif [ \"${CODE_SIGN_IDENTITY_FOR_ITEMS}\" = \"\" ] ; then\n    CODE_SIGN_IDENTITY_FOR_ITEMS=\"${CODE_SIGN_IDENTITY}\"\nfi\n\nOIFS=\"$IFS\"\nIFS=$'\\n'\n\nfor ITEM in $ITEMS;\ndo\n    if [[ \"$ITEM\" == *\".dylib\" || \"$ITEM\" == *\".so\" || -x \"$ITEM\" ]]; then\n            echo \"Signing '${ITEM}'\"\n        codesign --force --verbose --sign \"${CODE_SIGN_IDENTITY_FOR_ITEMS}\" --entitlements \"${CODE_SIGN_ENTITLEMENTS}\" --options=runtime \"${ITEM}\"\n        RESULT=$?\n        if [[ $RESULT != 0 ]] ; then\n            echo \"Failure: '${ITEM}'.\"\n            IFS=$SAVED_IFS\n            exit 1\n        fi\n    fi\ndone\n\nIFS=\"$OIFS\"\n";
+			shellScript = "#!/bin/sh\n\n# Code-signing is not required for non-release builds.\n\nif [ \"${CONFIGURATION}\" != \"Release\" ] ; then\n    exit 0\nfi\n\n# Allow ad-hoc signing when no identity is provided or when Xcode sets the placeholder \"Sign to Run Locally\".\nif { [ -z \"${CODE_SIGN_IDENTITY}\" ] && [ -z \"${EXPANDED_CODE_SIGN_IDENTITY_NAME}\" ]; } || [ \"${CODE_SIGN_IDENTITY}\" = \"Sign to Run Locally\" ] || [ \"${EXPANDED_CODE_SIGN_IDENTITY_NAME}\" = \"Sign to Run Locally\" ]; then\n    CODE_SIGN_IDENTITY=\"-\"\n    EXPANDED_CODE_SIGN_IDENTITY_NAME=\"-\"\nfi\n\nif [ -z \"${CODE_SIGN_ENTITLEMENTS}\" ] ; then\n    echo \"CODE_SIGN_ENTITLEMENTS needs to be set!\"\n    exit 1\nfi\n\nITEMS=\"\"\nWINE_DIR=\"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH_SHALLOW_BUNDLE_NO}/wine\"\n\nif [ -d \"$WINE_DIR\" ] ; then\n    WINE_ITEMS=$(find \"${WINE_DIR}\" -type f)\n    RESULT=$?\n    if [[ $RESULT != 0 ]] ; then\n        exit 1\n    fi\n\n    ITEMS=\"${WINE_ITEMS}\"\nfi\n\nCODE_SIGN_IDENTITY_FOR_ITEMS=\"${EXPANDED_CODE_SIGN_IDENTITY_NAME}\"\nif [ \"${CODE_SIGN_IDENTITY_FOR_ITEMS}\" = \"\" ] || [ \"${CODE_SIGN_IDENTITY_FOR_ITEMS}\" = \"Sign to Run Locally\" ]; then\n    CODE_SIGN_IDENTITY_FOR_ITEMS=\"${CODE_SIGN_IDENTITY}\"\nfi\n\nOIFS=\"$IFS\"\nIFS=$'\\n'\n\nfor ITEM in $ITEMS;\ndo\n    if [[ \"$ITEM\" == *\".dylib\" || \"$ITEM\" == *\".so\" || -x \"$ITEM\" ]]; then\n            echo \"Signing '${ITEM}'\"\n        codesign --force --verbose --sign \"${CODE_SIGN_IDENTITY_FOR_ITEMS}\" --entitlements \"${CODE_SIGN_ENTITLEMENTS}\" --options=runtime \"${ITEM}\"\n        RESULT=$?\n        if [[ $RESULT != 0 ]] ; then\n            echo \"Failure: '${ITEM}'.\"\n            IFS=$SAVED_IFS\n            exit 1\n        fi\n    fi\ndone\n\nIFS=\"$OIFS\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -923,13 +923,13 @@
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = "XIV on Mac/XIV_on_Mac.entitlements";
-				CODE_SIGN_IDENTITY = "Apple Development";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "-";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 181;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = TQJJTJ6364;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "XIV-on-Mac-Info.plist";
@@ -970,13 +970,13 @@
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = "XIV on Mac/XIV_on_Mac.entitlements";
-				CODE_SIGN_IDENTITY = "Apple Development";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "-";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 181;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = TQJJTJ6364;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "XIV-on-Mac-Info.plist";
