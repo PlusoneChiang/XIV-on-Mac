@@ -6,6 +6,92 @@
 //
 
 import Cocoa
+import WebKit
+
+final class RecaptchaTokenProvider: NSObject, WKScriptMessageHandler {
+    static let shared = RecaptchaTokenProvider()
+
+    private let siteKey = "6Ld6VmorAAAAANQdQeqkaOeScR42qHC7Hyalq00r"
+    private var completion: ((Result<String, Error>) -> Void)?
+    private var webView: WKWebView?
+
+    func fetchToken(completion: @escaping (Result<String, Error>) -> Void) {
+        DispatchQueue.main.async {
+            self.cancel()
+            self.completion = completion
+
+            let contentController = WKUserContentController()
+            contentController.add(self, name: "recaptchaToken")
+
+            let script = """
+                const SITE_KEY = '\(self.siteKey)';
+                function postTokenToHost(token) {
+                  try {
+                    window.webkit.messageHandlers.recaptchaToken.postMessage(token || '');
+                  } catch (_) {}
+                }
+                (function() {
+                  try {
+                    var s = document.createElement('script');
+                    s.src = 'https://www.google.com/recaptcha/enterprise.js?render=' + SITE_KEY;
+                    s.async = true;
+                    s.defer = true;
+                    s.onload = function() {
+                      try {
+                        if (typeof grecaptcha === 'undefined' || !grecaptcha.enterprise) {
+                          postTokenToHost('');
+                          return;
+                        }
+                        grecaptcha.enterprise.ready(function() {
+                          grecaptcha.enterprise.execute(SITE_KEY, { action: 'LOGIN' })
+                            .then(function(token) { postTokenToHost(token); })
+                            .catch(function() { postTokenToHost(''); });
+                        });
+                      } catch (_) { postTokenToHost(''); }
+                    };
+                    s.onerror = function() { postTokenToHost(''); };
+                    document.head.appendChild(s);
+                  } catch (_) { postTokenToHost(''); }
+                })();
+                """
+
+            let userScript = WKUserScript(
+                source: script, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
+            contentController.addUserScript(userScript)
+
+            let config = WKWebViewConfiguration()
+            config.userContentController = contentController
+            let webView = WKWebView(frame: .zero, configuration: config)
+            webView.isHidden = true
+            self.webView = webView
+
+            guard let url = URL(string: "https://user.ffxiv.com.tw/login") else {
+                completion(.failure(NSError(
+                    domain: "RecaptchaTokenProvider", code: -1,
+                    userInfo: [NSLocalizedDescriptionKey: "Invalid recaptcha URL"])))
+                self.cancel()
+                return
+            }
+
+            webView.load(URLRequest(url: url))
+        }
+    }
+
+    func userContentController(_ userContentController: WKUserContentController,
+                               didReceive message: WKScriptMessage) {
+        guard message.name == "recaptchaToken" else { return }
+
+        let token = message.body as? String ?? ""
+        completion?(.success(token))
+        cancel()
+    }
+
+    private func cancel() {
+        webView?.stopLoading()
+        webView = nil
+        completion = nil
+    }
+}
 
 class LaunchController: NSViewController {
     var loginSheetWinController: NSWindowController?
@@ -226,6 +312,28 @@ class LaunchController: NSViewController {
         Settings.credentials = LoginCredentials(
             username: userField.stringValue, password: passwdField.stringValue,
             oneTimePassword: otpField.stringValue)
+        RecaptchaTokenProvider.shared.fetchToken { [weak self] result in
+            guard let self = self else { return }
+            switch result {
+            case let .success(token):
+                self.executeLogin(repair: repair, recaptchaToken: token)
+            case let .failure(error):
+                DispatchQueue.main.async {
+                    self.loginSheetWinController?.window?.close()
+                    let alert = NSAlert()
+                    alert.addButton(
+                        withTitle: NSLocalizedString("BUTTON_OK", comment: ""))
+                    alert.alertStyle = .critical
+                    alert.messageText = NSLocalizedString(
+                        "LOGIN_RECAPTCHA_FAILED", comment: "")
+                    alert.informativeText = error.localizedDescription
+                    alert.runModal()
+                }
+            }
+        }
+    }
+
+    private func executeLogin(repair: Bool, recaptchaToken: String) {
         DispatchQueue.global(qos: .default).async {
             do {
                 guard FFXIVApp().installed else {
@@ -238,7 +346,8 @@ class LaunchController: NSViewController {
                 if Frontier.loginMaintenance {
                     throw FFXIVLoginError.maintenance
                 }
-                let loginResult = try LoginResult(repair)
+                let loginResult = try LoginResult(
+                    repair, recaptchaToken: recaptchaToken)
                 guard loginResult.state != .NoService else {
                     throw FFXIVLoginError.notPlayable
                 }

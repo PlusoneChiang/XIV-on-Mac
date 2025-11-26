@@ -37,10 +37,11 @@ struct LoginResult: Codable {
         LoginState(rawValue: _state) ?? .Unknown
     }
 
-    init(_ repair: Bool) throws {
+    init(_ repair: Bool, recaptchaToken: String) throws {
         let loginResultCString = tryLoginToGame(
             Settings.credentials!.username, Settings.credentials!.password,
-            Settings.credentials!.oneTimePassword, repair)!
+            Settings.credentials!.oneTimePassword,
+            recaptchaToken, repair)!
         let loginResultJSON = String(cString: loginResultCString)
         free(UnsafeMutableRawPointer(mutating: loginResultCString))
         do {
