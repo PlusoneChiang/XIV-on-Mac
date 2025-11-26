@@ -11,7 +11,7 @@ public struct FFXIVApp {
     static let configURL = Settings.gameConfigPath.appendingPathComponent(
         "FFXIV.cfg")
     static let seConfigURL = Util.userHome.appendingPathComponent(
-        "/Documents/My Games/FINAL FANTASY XIV - A Realm Reborn/",
+        "/Documents/My Games/FINAL FANTASY XIV - TC/",
         isDirectory: true)
     let bootRepoURL, bootExeURL, bootExe64URL, launcherExe64URL,
         updaterExe64URL: URL
