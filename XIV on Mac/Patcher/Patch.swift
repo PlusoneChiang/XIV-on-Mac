@@ -97,7 +97,7 @@ public struct Patch: Codable {
                 alert.informativeText = NSLocalizedString(
                     "PATCH_ERROR_INFORMATIVE", comment: "")
                 alert.runModal()
-                try! FileManager.default.removeItem(atPath: patchPath)
+                deletePatchFile(at: patchPath)
                 Util.quit()
             }
             return
@@ -124,6 +124,21 @@ public struct Patch: Codable {
         }
         if !Patch.keep {
             try? FileManager.default.removeItem(atPath: patchPath)
+        }
+    }
+
+    private func deletePatchFile(at path: String) {
+        let fm = FileManager.default
+
+        guard fm.fileExists(atPath: path) else {
+            Log.warning("Patch file not found for deletion: \(path)")
+            return
+        }
+
+        do {
+            try fm.removeItem(atPath: path)
+        } catch {
+            Log.error("Failed to delete patch file \(path): \(error.localizedDescription)")
         }
     }
 }

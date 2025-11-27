@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>SUEnableAutomaticChecks</key>
-	<true/>
+	<false/>
 	<key>SUFeedURL</key>
 	<string>https://softwareupdate.xivmac.com/sites/default/files/update_data/xivonmac_appcast.xml</string>
 	<key>SUPublicEDKey</key>

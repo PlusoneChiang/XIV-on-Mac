@@ -13,28 +13,24 @@ public struct FFXIVApp {
     static let seConfigURL = Util.userHome.appendingPathComponent(
         "/Documents/My Games/FINAL FANTASY XIV - TC/",
         isDirectory: true)
-    let bootRepoURL, bootExeURL, bootExe64URL, launcherExe64URL,
-        updaterExe64URL: URL
+    let bootRepoURL, launcherExe64URL: URL
     let gameRepoURL, dx9URL, dx11URL, sqpackFolderURL: URL
-    private let bootFiles: [URL]
 
     init() {
         bootRepoURL = Settings.gamePath.appendingPathComponent("boot")
-        bootExeURL = bootRepoURL.appendingPathComponent("ffxivboot.exe")
-        bootExe64URL = bootRepoURL.appendingPathComponent("ffxivboot64.exe")
+        // bootExeURL = bootRepoURL.appendingPathComponent("ffxivboot.exe")
+        // bootExe64URL = bootRepoURL.appendingPathComponent("ffxivboot64.exe")
+        // launcherExe64URL = bootRepoURL.appendingPathComponent(
+        //     "ffxivlauncher64.exe")
+        // updaterExe64URL = bootRepoURL.appendingPathComponent(
+        //     "ffxivupdater64.exe")
         launcherExe64URL = bootRepoURL.appendingPathComponent(
-            "ffxivlauncher64.exe")
-        updaterExe64URL = bootRepoURL.appendingPathComponent(
-            "ffxivupdater64.exe")
+            "FfxivLauncherTc.exe")
 
         gameRepoURL = Settings.gamePath.appendingPathComponent("game")
         dx9URL = gameRepoURL.appendingPathComponent("ffxiv.exe")
         dx11URL = gameRepoURL.appendingPathComponent("ffxiv_dx11.exe")
         sqpackFolderURL = gameRepoURL.appendingPathComponent("sqpack")
-
-        bootFiles = [
-            bootExeURL, bootExe64URL, launcherExe64URL, updaterExe64URL,
-        ]
     }
 
     static var running: Bool {
@@ -46,7 +42,13 @@ public struct FFXIVApp {
     }
 
     var installed: Bool {
-        bootFiles.allSatisfy { FileManager.default.fileExists(atPath: $0.path) }
+        directoryExists(at: bootRepoURL) && directoryExists(at: gameRepoURL)
+    }
+
+    private func directoryExists(at url: URL) -> Bool {
+        var isDirectory: ObjCBool = false
+        return FileManager.default.fileExists(
+            atPath: url.path, isDirectory: &isDirectory) && isDirectory.boolValue
     }
 
     private static func createConfigDirectory() {

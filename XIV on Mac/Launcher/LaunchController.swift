@@ -154,7 +154,9 @@ class LaunchController: NSViewController, NSTouchBarDelegate {
 //        rightButton.wantsLayer = true
 //        setSideButtonVisibility(to: false)
         DispatchQueue.global(qos: .userInitiated).async {
-            self.checkBoot()
+            // self.checkBoot()
+            self.loginButton.isEnabled = true
+            self.touchBarLoginButton.isEnabled = true
         }
         DispatchQueue.global(qos: .userInteractive).async {
             // TODO: 在這邊載入 launcger_left.html 到 WKWebView
@@ -172,7 +174,7 @@ class LaunchController: NSViewController, NSTouchBarDelegate {
 
     @objc func installDone(_ notif: Notification) {
         DispatchQueue.global(qos: .userInitiated).async {
-            self.checkBoot(skipInstallCheck: true)
+            // self.checkBoot(skipInstallCheck: true)
             DispatchQueue.main.async {
                 self.doLogin()
             }
@@ -196,21 +198,24 @@ class LaunchController: NSViewController, NSTouchBarDelegate {
 //    }
 
     func checkBoot(skipInstallCheck: Bool = false) {
-        if let bootPatches = try? Patch.bootPatches, !bootPatches.isEmpty,
-            FFXIVApp().installed || skipInstallCheck
-        {
-            startPatch(bootPatches)
-        }
-        DispatchQueue.main.async {
-            self.loginButton.isEnabled = true
-            self.touchBarLoginButton.isEnabled = true
-            if settings.autoLogin
-                && NSEvent.modifierFlags.intersection(
-                    .deviceIndependentFlagsMask) != .shift
-            {
-                self.doLogin()
-            }
-        }
+        // NOTE(Kulimi): Skip boot check for now
+        fatalError("not implement")
+
+        // if let bootPatches = try? Patch.bootPatches, !bootPatches.isEmpty,
+        //     FFXIVApp().installed || skipInstallCheck
+        // {
+        //     startPatch(bootPatches)
+        // }
+        // DispatchQueue.main.async {
+        //     self.loginButton.isEnabled = true
+        //     self.touchBarLoginButton.isEnabled = true
+        //     if settings.autoLogin
+        //         && NSEvent.modifierFlags.intersection(
+        //             .deviceIndependentFlagsMask) != .shift
+        //     {
+        //         self.doLogin()
+        //     }
+        // }
     }
 
     override func viewDidAppear() {
@@ -365,7 +370,7 @@ class LaunchController: NSViewController, NSTouchBarDelegate {
                     throw FFXIVLoginError.notPlayable
                 }
                 guard loginResult.state != .NoTerms else {
-                    Wine.launch(command: "\"\(FFXIVApp().bootExe64URL.path)\"")
+//                    Wine.launch(command: "\"\(FFXIVApp().bootExe64URL.path)\"")
                     throw FFXIVLoginError.noTerms
                 }
                 if repair {
