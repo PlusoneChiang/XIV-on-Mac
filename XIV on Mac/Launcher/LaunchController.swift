@@ -8,17 +8,16 @@
 import Cocoa
 import WebKit
 
-final class RecaptchaTokenProvider: NSObject, WKScriptMessageHandler {
+class RecaptchaTokenProvider: NSObject, WKScriptMessageHandler {
     static let shared = RecaptchaTokenProvider()
 
     private let siteKey = "6Ld6VmorAAAAANQdQeqkaOeScR42qHC7Hyalq00r"
-    private var completion: ((Result<String, Error>) -> Void)?
-    private weak var webView: WKWebView?
     private let handlerName = "recaptchaToken"
+    private var completion: ((Result<String, Error>) -> Void)?
+
     private var bootstrapScript: String {
         """
         (function() {
-          if (window.__xomRecaptcha) { return; }
           const SITE_KEY = '\(siteKey)';
 
           function postTokenToHost(token) {
@@ -27,7 +26,7 @@ final class RecaptchaTokenProvider: NSObject, WKScriptMessageHandler {
             } catch (_) {}
           }
 
-          function loadRecaptcha() {
+          function ensureRecaptcha() {
             return new Promise(function(resolve) {
               try {
                 if (window.grecaptcha && window.grecaptcha.enterprise) { resolve(); return; }
@@ -42,87 +41,58 @@ final class RecaptchaTokenProvider: NSObject, WKScriptMessageHandler {
             });
           }
 
-          window.__xomRecaptcha = {
-            fetch: function() {
-              loadRecaptcha().then(function() {
-                try {
-                  if (!window.grecaptcha || !window.grecaptcha.enterprise) {
-                    postTokenToHost('');
-                    return;
-                  }
-                  window.grecaptcha.enterprise.ready(function() {
-                    window.grecaptcha.enterprise.execute(SITE_KEY, { action: 'LOGIN' })
-                      .then(function(token) { postTokenToHost(token); })
-                      .catch(function() { postTokenToHost(''); });
-                  });
-                } catch (_) { postTokenToHost(''); }
-              });
-            }
+          window.getToken = function() {
+            ensureRecaptcha().then(function() {
+              try {
+                if (!window.grecaptcha || !window.grecaptcha.enterprise) {
+                  postTokenToHost('');
+                  return;
+                }
+                window.grecaptcha.enterprise.ready(function() {
+                  window.grecaptcha.enterprise.execute(SITE_KEY, { action: 'LOGIN' })
+                    .then(function(token) { postTokenToHost(token); })
+                    .catch(function() { postTokenToHost(''); });
+                });
+              } catch (_) { postTokenToHost(''); }
+            });
           };
+
+          ensureRecaptcha();
         })();
         """
     }
 
+    func installScript(using webView: WKWebView) {
+        let contentController = webView.configuration.userContentController
+        contentController.removeScriptMessageHandler(forName: handlerName)
+        contentController.add(self, name: handlerName)
+
+        let userScript = WKUserScript(
+            source: bootstrapScript, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
+        if !contentController.userScripts.contains(where: { $0.source == bootstrapScript }) {
+            contentController.addUserScript(userScript)
+        }
+        webView.evaluateJavaScript(bootstrapScript, completionHandler: nil)
+    }
+
     func fetchToken(using webView: WKWebView,
                     completion: @escaping (Result<String, Error>) -> Void) {
-        DispatchQueue.main.async {
-            self.cancel()
-            self.completion = completion
-            self.webView = webView
-
-            let contentController = webView.configuration.userContentController
-            contentController.removeScriptMessageHandler(forName: self.handlerName)
-            contentController.add(self, name: self.handlerName)
-            self.injectRecaptchaScriptIfNeeded(into: contentController, webView: webView)
-
-            webView.evaluateJavaScript(
-                "window.__xomRecaptcha && window.__xomRecaptcha.fetch();",
-                completionHandler: { _, error in
-                    if let error = error {
-                        completion(.failure(error))
-                        self.cancel()
-                    }
-                })
-        }
+        self.completion = completion
+        installScript(using: webView)
+        webView.evaluateJavaScript("getToken();", completionHandler: { _, error in
+            if let error = error {
+                completion(.failure(error))
+                self.completion = nil
+            }
+        })
     }
 
     func userContentController(_ userContentController: WKUserContentController,
                                didReceive message: WKScriptMessage) {
-        guard message.name == "recaptchaToken" else { return }
-
+        guard message.name == handlerName else { return }
         let token = message.body as? String ?? ""
         completion?(.success(token))
-        cancel()
-    }
-
-    private func injectRecaptchaScriptIfNeeded(into contentController: WKUserContentController,
-                                               webView: WKWebView) {
-        if contentController.userScripts.contains(where: { $0.source.contains("__xomRecaptcha") }) {
-            webView.evaluateJavaScript(bootstrapScript, completionHandler: nil)
-            return
-        }
-
-        let userScript = WKUserScript(
-            source: bootstrapScript, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
-        contentController.addUserScript(userScript)
-        webView.evaluateJavaScript(bootstrapScript, completionHandler: nil)
-    }
-
-    private func cancel() {
-        let cleanup = {
-            if let webView = self.webView {
-                let controller = webView.configuration.userContentController
-                controller.removeScriptMessageHandler(forName: self.handlerName)
-            }
-            self.webView = nil
-            self.completion = nil
-        }
-
-        if Thread.isMainThread {
-            cleanup()
-        } else {
-            DispatchQueue.main.async(execute: cleanup)
-        }
+        completion = nil
     }
 }
 
@@ -157,7 +127,7 @@ class LaunchController: NSViewController, NSTouchBarDelegate {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             self.webview.allowsBackForwardNavigationGestures = true
-            
+            RecaptchaTokenProvider.shared.installScript(using: self.webview)
             self.webview.load(URLRequest(url: url))
         }
     }
