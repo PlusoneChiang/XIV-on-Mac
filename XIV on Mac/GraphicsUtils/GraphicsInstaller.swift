@@ -64,11 +64,13 @@ enum GraphicsInstaller {
 
     static func ensureBackend() {
         install(dll: d3dcompilerDll)
+        Log.information("[GraphicsInstaller] Settings.dxmtEnabled: \(Settings.dxmtEnabled)")
         if Settings.dxmtEnabled {
             Dxmt.install()
         } else {
             Dxvk.install()
             Dxmt.uninstall()
         }
+        Log.information("[GraphicsInstaller] ensureBackend complete")
     }
 }
