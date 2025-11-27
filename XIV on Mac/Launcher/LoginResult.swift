@@ -71,6 +71,7 @@ struct LoginResult: Codable {
         let processInformationJSON = String(cString: processInformationCString)
         Log.information("processInformationJSON: \(processInformationJSON)")
         free(UnsafeMutableRawPointer(mutating: processInformationCString))
+        
         do {
             return try JSONDecoder().decode(
                 ProcessInformation.self,
@@ -116,6 +117,10 @@ struct ProcessInformation: Codable {
 
     var exitCode: Int32 {
         getExitCode(pid)
+    }
+    enum CodingKeys: String, CodingKey {
+        case pid = "Pid"
+        case handle = "Handle"
     }
 }
 
