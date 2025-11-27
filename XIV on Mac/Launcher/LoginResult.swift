@@ -42,7 +42,9 @@ struct LoginResult: Codable {
             Settings.credentials!.username, Settings.credentials!.password,
             Settings.credentials!.oneTimePassword,
             recaptchaToken, repair)!
+    
         let loginResultJSON = String(cString: loginResultCString)
+        Log.information("LoginResult payload: \(loginResultJSON)")
         free(UnsafeMutableRawPointer(mutating: loginResultCString))
         do {
             self = try JSONDecoder().decode(
@@ -50,6 +52,8 @@ struct LoginResult: Codable {
         } catch {
             throw XLError.loginError(loginResultJSON).tryMap
         }
+        Log.information("LoginResult _state: \(_state) pendingPatches: \(String(describing: pendingPatches)) oauthLogin: \(String(describing: oauthLogin)) uniqueID: \(String(describing: uniqueID))")
+        
     }
 
     var dalamudInstallState: Dalamud.InstallState {
@@ -57,12 +61,15 @@ struct LoginResult: Codable {
     }
 
     func startGame(_ _dalamudOk: Bool) throws -> ProcessInformation {
+        
         let loginResultJSON = String(
             data: try! JSONEncoder().encode(self),
             encoding: String.Encoding.utf8)!
+        Log.information("loginResultJSON: \(loginResultJSON)\n _dalamudOk: \(_dalamudOk)")
         let processInformationCString = XIVLauncher.startGame(
             loginResultJSON, _dalamudOk)!
         let processInformationJSON = String(cString: processInformationCString)
+        Log.information("processInformationJSON: \(processInformationJSON)")
         free(UnsafeMutableRawPointer(mutating: processInformationCString))
         do {
             return try JSONDecoder().decode(
@@ -111,3 +118,4 @@ struct ProcessInformation: Codable {
         getExitCode(pid)
     }
 }
+

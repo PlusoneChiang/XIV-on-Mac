@@ -62,7 +62,7 @@ final class RecaptchaTokenProvider: NSObject, WKScriptMessageHandler {
             let config = WKWebViewConfiguration()
             config.userContentController = contentController
             let webView = WKWebView(frame: .zero, configuration: config)
-            webView.isHidden = true
+            // webView.isHidden = true
             self.webView = webView
 
             guard let url = URL(string: "https://user.ffxiv.com.tw/login") else {
@@ -117,7 +117,7 @@ class LaunchController: NSViewController, NSTouchBarDelegate {
     @IBOutlet var discloseButton: NSButton!
     @IBOutlet private var touchBarLoginButton: NSButtonTouchBarItem!
     @IBOutlet private var webview: WKWebView!
-    
+
 
     func loadWebPage(_ urlString: String) {
         guard let url = URL(string: urlString) else { return }
@@ -153,10 +153,14 @@ class LaunchController: NSViewController, NSTouchBarDelegate {
 //        leftButton.wantsLayer = true
 //        rightButton.wantsLayer = true
 //        setSideButtonVisibility(to: false)
-        DispatchQueue.global(qos: .userInitiated).async {
-            // self.checkBoot()
+        DispatchQueue.main.async {
             self.loginButton.isEnabled = true
             self.touchBarLoginButton.isEnabled = true
+        }
+        DispatchQueue.global(qos: .userInitiated).async {
+            //  self.checkBoot()
+//            self.loginButton.isEnabled = true
+//            self.touchBarLoginButton.isEnabled = true
         }
         DispatchQueue.global(qos: .userInteractive).async {
             // TODO: 在這邊載入 launcger_left.html 到 WKWebView
@@ -174,7 +178,7 @@ class LaunchController: NSViewController, NSTouchBarDelegate {
 
     @objc func installDone(_ notif: Notification) {
         DispatchQueue.global(qos: .userInitiated).async {
-            // self.checkBoot(skipInstallCheck: true)
+             self.checkBoot(skipInstallCheck: true)
             DispatchQueue.main.async {
                 self.doLogin()
             }
@@ -199,23 +203,23 @@ class LaunchController: NSViewController, NSTouchBarDelegate {
 
     func checkBoot(skipInstallCheck: Bool = false) {
         // NOTE(Kulimi): Skip boot check for now
-        fatalError("not implement")
+//        fatalError("not implement")
 
-        // if let bootPatches = try? Patch.bootPatches, !bootPatches.isEmpty,
-        //     FFXIVApp().installed || skipInstallCheck
-        // {
-        //     startPatch(bootPatches)
-        // }
-        // DispatchQueue.main.async {
-        //     self.loginButton.isEnabled = true
-        //     self.touchBarLoginButton.isEnabled = true
-        //     if settings.autoLogin
-        //         && NSEvent.modifierFlags.intersection(
-        //             .deviceIndependentFlagsMask) != .shift
-        //     {
-        //         self.doLogin()
-        //     }
-        // }
+        //  if let bootPatches = try? Patch.bootPatches, !bootPatches.isEmpty,
+        //      FFXIVApp().installed || skipInstallCheck
+        //  {
+        //      startPatch(bootPatches)
+        //  }
+         DispatchQueue.main.async {
+             self.loginButton.isEnabled = true
+             self.touchBarLoginButton.isEnabled = true
+             if settings.autoLogin
+                 && NSEvent.modifierFlags.intersection(
+                     .deviceIndependentFlagsMask) != .shift
+             {
+                 self.doLogin()
+             }
+         }
     }
 
     override func viewDidAppear() {
@@ -665,5 +669,3 @@ class userMenuItem: NSMenuItem {
 //        NotificationCenter.default.post(name: .bannerLeft, object: nil)
 //    }
 //}
-
-
