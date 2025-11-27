@@ -105,7 +105,6 @@ class PatchController: NSViewController {
             "User-Agent": Patch.userAgent,
             "Accept-Encoding":
                 "*/*,application/metalink4+xml,application/metalink+xml",
-            "Host": "patch-dl.ffxiv.com",
             "Connection": "Keep-Alive",
             "Want-Digest": "SHA-512;q=1, SHA-256;q=1, SHA;q=0.1",
         ]
