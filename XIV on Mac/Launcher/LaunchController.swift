@@ -13,67 +13,76 @@ final class RecaptchaTokenProvider: NSObject, WKScriptMessageHandler {
 
     private let siteKey = "6Ld6VmorAAAAANQdQeqkaOeScR42qHC7Hyalq00r"
     private var completion: ((Result<String, Error>) -> Void)?
-    private var webView: WKWebView?
+    private weak var webView: WKWebView?
+    private let handlerName = "recaptchaToken"
+    private var bootstrapScript: String {
+        """
+        (function() {
+          if (window.__xomRecaptcha) { return; }
+          const SITE_KEY = '\(siteKey)';
 
-    func fetchToken(completion: @escaping (Result<String, Error>) -> Void) {
+          function postTokenToHost(token) {
+            try {
+              window.webkit.messageHandlers.\(handlerName).postMessage(token || '');
+            } catch (_) {}
+          }
+
+          function loadRecaptcha() {
+            return new Promise(function(resolve) {
+              try {
+                if (window.grecaptcha && window.grecaptcha.enterprise) { resolve(); return; }
+                var s = document.createElement('script');
+                s.src = 'https://www.google.com/recaptcha/enterprise.js?render=' + SITE_KEY;
+                s.async = true;
+                s.defer = true;
+                s.onload = function() { resolve(); };
+                s.onerror = function() { resolve(); };
+                document.head.appendChild(s);
+              } catch (_) { resolve(); }
+            });
+          }
+
+          window.__xomRecaptcha = {
+            fetch: function() {
+              loadRecaptcha().then(function() {
+                try {
+                  if (!window.grecaptcha || !window.grecaptcha.enterprise) {
+                    postTokenToHost('');
+                    return;
+                  }
+                  window.grecaptcha.enterprise.ready(function() {
+                    window.grecaptcha.enterprise.execute(SITE_KEY, { action: 'LOGIN' })
+                      .then(function(token) { postTokenToHost(token); })
+                      .catch(function() { postTokenToHost(''); });
+                  });
+                } catch (_) { postTokenToHost(''); }
+              });
+            }
+          };
+        })();
+        """
+    }
+
+    func fetchToken(using webView: WKWebView,
+                    completion: @escaping (Result<String, Error>) -> Void) {
         DispatchQueue.main.async {
             self.cancel()
             self.completion = completion
-
-            let contentController = WKUserContentController()
-            contentController.add(self, name: "recaptchaToken")
-
-            let script = """
-                const SITE_KEY = '\(self.siteKey)';
-                function postTokenToHost(token) {
-                  try {
-                    window.webkit.messageHandlers.recaptchaToken.postMessage(token || '');
-                  } catch (_) {}
-                }
-                (function() {
-                  try {
-                    var s = document.createElement('script');
-                    s.src = 'https://www.google.com/recaptcha/enterprise.js?render=' + SITE_KEY;
-                    s.async = true;
-                    s.defer = true;
-                    s.onload = function() {
-                      try {
-                        if (typeof grecaptcha === 'undefined' || !grecaptcha.enterprise) {
-                          postTokenToHost('');
-                          return;
-                        }
-                        grecaptcha.enterprise.ready(function() {
-                          grecaptcha.enterprise.execute(SITE_KEY, { action: 'LOGIN' })
-                            .then(function(token) { postTokenToHost(token); })
-                            .catch(function() { postTokenToHost(''); });
-                        });
-                      } catch (_) { postTokenToHost(''); }
-                    };
-                    s.onerror = function() { postTokenToHost(''); };
-                    document.head.appendChild(s);
-                  } catch (_) { postTokenToHost(''); }
-                })();
-                """
-
-            let userScript = WKUserScript(
-                source: script, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
-            contentController.addUserScript(userScript)
-
-            let config = WKWebViewConfiguration()
-            config.userContentController = contentController
-            let webView = WKWebView(frame: .zero, configuration: config)
-            // webView.isHidden = true
             self.webView = webView
 
-            guard let url = URL(string: "https://user.ffxiv.com.tw/login") else {
-                completion(.failure(NSError(
-                    domain: "RecaptchaTokenProvider", code: -1,
-                    userInfo: [NSLocalizedDescriptionKey: "Invalid recaptcha URL"])))
-                self.cancel()
-                return
-            }
+            let contentController = webView.configuration.userContentController
+            contentController.removeScriptMessageHandler(forName: self.handlerName)
+            contentController.add(self, name: self.handlerName)
+            self.injectRecaptchaScriptIfNeeded(into: contentController, webView: webView)
 
-            webView.load(URLRequest(url: url))
+            webView.evaluateJavaScript(
+                "window.__xomRecaptcha && window.__xomRecaptcha.fetch();",
+                completionHandler: { _, error in
+                    if let error = error {
+                        completion(.failure(error))
+                        self.cancel()
+                    }
+                })
         }
     }
 
@@ -86,10 +95,34 @@ final class RecaptchaTokenProvider: NSObject, WKScriptMessageHandler {
         cancel()
     }
 
+    private func injectRecaptchaScriptIfNeeded(into contentController: WKUserContentController,
+                                               webView: WKWebView) {
+        if contentController.userScripts.contains(where: { $0.source.contains("__xomRecaptcha") }) {
+            webView.evaluateJavaScript(bootstrapScript, completionHandler: nil)
+            return
+        }
+
+        let userScript = WKUserScript(
+            source: bootstrapScript, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
+        contentController.addUserScript(userScript)
+        webView.evaluateJavaScript(bootstrapScript, completionHandler: nil)
+    }
+
     private func cancel() {
-        webView?.stopLoading()
-        webView = nil
-        completion = nil
+        let cleanup = {
+            if let webView = self.webView {
+                let controller = webView.configuration.userContentController
+                controller.removeScriptMessageHandler(forName: self.handlerName)
+            }
+            self.webView = nil
+            self.completion = nil
+        }
+
+        if Thread.isMainThread {
+            cleanup()
+        } else {
+            DispatchQueue.main.async(execute: cleanup)
+        }
     }
 }
 
@@ -124,6 +157,7 @@ class LaunchController: NSViewController, NSTouchBarDelegate {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             self.webview.allowsBackForwardNavigationGestures = true
+            
             self.webview.load(URLRequest(url: url))
         }
     }
@@ -334,20 +368,33 @@ class LaunchController: NSViewController, NSTouchBarDelegate {
         Settings.credentials = LoginCredentials(
             username: userField.stringValue, password: passwdField.stringValue,
             oneTimePassword: otpField.stringValue)
-        RecaptchaTokenProvider.shared.fetchToken { [weak self] result in
+        RecaptchaTokenProvider.shared.fetchToken(using: webview) { [weak self] result in
             guard let self = self else { return }
             switch result {
             case let .success(token):
+                let trimmed = token.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !trimmed.isEmpty else {
+                    DispatchQueue.main.async {
+                        self.loginSheetWinController?.window?.close()
+                        let alert = NSAlert()
+                        alert.addButton(
+                            withTitle: "OK")
+                        alert.alertStyle = .critical
+                        alert.messageText = "Failed to get reCAPTCHA token"
+                        alert.informativeText = "Please try again."
+                        alert.runModal()
+                    }
+                    return
+                }
                 self.executeLogin(repair: repair, recaptchaToken: token)
             case let .failure(error):
                 DispatchQueue.main.async {
                     self.loginSheetWinController?.window?.close()
                     let alert = NSAlert()
                     alert.addButton(
-                        withTitle: NSLocalizedString("BUTTON_OK", comment: ""))
+                        withTitle: "OK")
                     alert.alertStyle = .critical
-                    alert.messageText = NSLocalizedString(
-                        "LOGIN_RECAPTCHA_FAILED", comment: "")
+                    alert.messageText = "Failed to get reCAPTCHA token"
                     alert.informativeText = error.localizedDescription
                     alert.runModal()
                 }
@@ -398,30 +445,29 @@ class LaunchController: NSViewController, NSTouchBarDelegate {
                 if Frontier.gameMaintenance {
                     throw FFXIVLoginError.maintenance
                 }
-                NotificationCenter.default.post(
-                    name: .loginInfo, object: nil,
-                    userInfo: [Notification.status.info: "Updating Dalamud"])
-                let dalamudInstallState = loginResult.dalamudInstallState
-                DispatchQueue.main.async {
-                    if Settings.dalamudEnabled && dalamudInstallState == .failed
-                    {
-                        let alert = NSAlert()
-                        alert.addButton(
-                            withTitle: NSLocalizedString(
-                                "BUTTON_OK", comment: ""))
-                        alert.alertStyle = .critical
-                        alert.messageText = NSLocalizedString(
-                            "DALAMUD_START_FAILURE", comment: "")
-                        alert.informativeText = NSLocalizedString(
-                            "DALAMUD_START_FAILURE_INFORMATIONAL", comment: "")
-                        alert.runModal()
-                    }
-                }
+                // NotificationCenter.default.post(
+                //     name: .loginInfo, object: nil,
+                //     userInfo: [Notification.status.info: "Updating Dalamud"])
+                // let dalamudInstallState = loginResult.dalamudInstallState
+                // DispatchQueue.main.async {
+                //     if Settings.dalamudEnabled && dalamudInstallState == .failed
+                //     {
+                //         let alert = NSAlert()
+                //         alert.addButton(
+                //             withTitle: NSLocalizedString(
+                //                 "BUTTON_OK", comment: ""))
+                //         alert.alertStyle = .critical
+                //         alert.messageText = NSLocalizedString(
+                //             "DALAMUD_START_FAILURE", comment: "")
+                //         alert.informativeText = NSLocalizedString(
+                //             "DALAMUD_START_FAILURE_INFORMATIONAL", comment: "")
+                //         alert.runModal()
+                //     }
+                // }
                 NotificationCenter.default.post(
                     name: .loginInfo, object: nil,
                     userInfo: [Notification.status.info: "Starting Game"])
-                let process = try loginResult.startGame(
-                    dalamudInstallState == .ok)
+                let process = try loginResult.startGame(false)
                 DispatchQueue.main.async { [self] in
                     loginSheetWinController?.window?.close()
                     view.window?.close()
