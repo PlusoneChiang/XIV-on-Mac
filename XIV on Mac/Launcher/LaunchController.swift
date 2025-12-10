@@ -42,34 +42,151 @@ class RecaptchaSchemeHandler: NSObject, WKURLSchemeHandler {
 final class RecaptchaTokenProvider: NSObject, WKScriptMessageHandler {
     static let shared = RecaptchaTokenProvider()
 
-    private var completion: ((Result<String, Error>) -> Void)?
-    private var webView: WKWebView?
+    // 持久化 WebView（不再銷毀）
+    private var webView: WKWebView!
+    
+    // Token 快取機制
+    private var cachedToken: String?
+    private var tokenExpiryTime: Date?
+    private let tokenValidDuration: TimeInterval = 110 // 110秒有效期
+    
+    // 請求佇列（避免並發請求）
+    private var pendingCompletions: [(Result<String, Error>) -> Void] = []
+    private var isFetchingToken = false
+    
+    // 初始化狀態
+    private var isInitialized = false
+    
+    // WebView 容器視圖
+    weak var containerView: NSView? {
+        didSet {
+            if let container = containerView {
+                container.addSubview(webView)
+                webView.translatesAutoresizingMaskIntoConstraints = false
+                NSLayoutConstraint.activate([
+                    webView.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+                    webView.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+                    webView.topAnchor.constraint(equalTo: container.topAnchor),
+                    webView.bottomAnchor.constraint(equalTo: container.bottomAnchor)
+                ])
+            }
+        }
+    }
 
-    func fetchToken(completion: @escaping (Result<String, Error>) -> Void) {
-        DispatchQueue.main.async {
-            self.cancel()
-            self.completion = completion
+    private override init() {
+        super.init()
+        setupWebView()
+    }
+    
+    private func setupWebView() {
+        let contentController = WKUserContentController()
+        contentController.add(self, name: "recaptchaToken")
 
-            let contentController = WKUserContentController()
-            contentController.add(self, name: "recaptchaToken")
+        let config = WKWebViewConfiguration()
+        config.userContentController = contentController
+        config.setURLSchemeHandler(RecaptchaSchemeHandler(), forURLScheme: "recaptcha")
+        
+        // 持久化資料存儲
+        config.websiteDataStore = WKWebsiteDataStore.default()
+        
+        // 設置合理的 User-Agent
+        config.applicationNameForUserAgent = "XIVLauncher/5.2.3 (Macintosh)"
 
-            let config = WKWebViewConfiguration()
-            config.userContentController = contentController
-            config.setURLSchemeHandler(RecaptchaSchemeHandler(), forURLScheme: "recaptcha")
-
-            let webView = WKWebView(frame: .zero, configuration: config)
-            webView.isHidden = true
-            self.webView = webView
-
+        webView = WKWebView(frame: NSRect(x: 0, y: 0, width: 200, height: 100), configuration: config)
+        
+        // 設置半透明（測試用 50%）
+        webView.alphaValue = 0.5
+        webView.wantsLayer = true
+        webView.layer?.opacity = 0.5
+        
+        // 設置圓角
+        webView.layer?.cornerRadius = 10.0
+        webView.layer?.masksToBounds = true
+        
+        // 設置透明背景
+        webView.setValue(false, forKey: "drawsBackground")
+    }
+    
+    // 預熱方法（在應用啟動時呼叫）
+    func warmup() {
+        guard !isInitialized else { return }
+        
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
             guard let url = URL(string: "recaptcha://user.ffxiv.com.tw/recaptcha_page.html") else {
-                completion(.failure(NSError(
-                    domain: "RecaptchaTokenProvider", code: -1,
-                    userInfo: [NSLocalizedDescriptionKey: "Invalid recaptcha URL"])))
-                self.cancel()
                 return
             }
+            
+            self.isInitialized = true
+            self.webView.load(URLRequest(url: url))
+            
+            Log.information("reCAPTCHA WebView warmed up")
+        }
+    }
 
-            webView.load(URLRequest(url: url))
+    func fetchToken(completion: @escaping (Result<String, Error>) -> Void) {
+        // 檢查快取的 token 是否仍有效
+        if let cached = cachedToken,
+           let expiry = tokenExpiryTime,
+           Date() < expiry {
+            Log.information("Using cached reCAPTCHA token")
+            completion(.success(cached))
+            return
+        }
+        
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            
+            // 加入等待佇列
+            self.pendingCompletions.append(completion)
+            
+            // 如果正在取得 token，直接返回
+            if self.isFetchingToken {
+                Log.information("reCAPTCHA fetch already in progress, queued")
+                return
+            }
+            
+            self.isFetchingToken = true
+            
+            // 如果還沒初始化，先載入頁面
+            if !self.isInitialized {
+                guard let url = URL(string: "recaptcha://user.ffxiv.com.tw/recaptcha_page.html") else {
+                    self.notifyAllCompletions(.failure(NSError(
+                        domain: "RecaptchaTokenProvider",
+                        code: -1,
+                        userInfo: [NSLocalizedDescriptionKey: "Invalid recaptcha URL"]
+                    )))
+                    return
+                }
+                self.isInitialized = true
+                self.webView.load(URLRequest(url: url))
+            } else {
+                // 已經初始化，直接執行 reCAPTCHA
+                self.executeRecaptcha()
+            }
+            
+            // 設置超時機制（15秒）
+            DispatchQueue.main.asyncAfter(deadline: .now() + 15) { [weak self] in
+                guard let self = self, self.isFetchingToken else { return }
+                
+                Log.error("reCAPTCHA token fetch timeout")
+                self.notifyAllCompletions(.failure(NSError(
+                    domain: "RecaptchaTokenProvider",
+                    code: -2,
+                    userInfo: [NSLocalizedDescriptionKey: "Token fetch timeout"]
+                )))
+            }
+        }
+    }
+    
+    private func executeRecaptcha() {
+        // 透過 JavaScript 觸發 reCAPTCHA
+        let script = "if (typeof window.triggerRecaptcha === 'function') { window.triggerRecaptcha(); }"
+        
+        webView.evaluateJavaScript(script) { [weak self] result, error in
+            if let error = error {
+                Log.error("Failed to execute reCAPTCHA: \(error)")
+            }
         }
     }
 
@@ -78,14 +195,40 @@ final class RecaptchaTokenProvider: NSObject, WKScriptMessageHandler {
         guard message.name == "recaptchaToken" else { return }
 
         let token = message.body as? String ?? ""
-        completion?(.success(token))
-        cancel()
+        
+        if !token.isEmpty {
+            // 快取 token
+            cachedToken = token
+            tokenExpiryTime = Date().addingTimeInterval(tokenValidDuration)
+            
+            Log.information("reCAPTCHA token received and cached (length: \(token.count))")
+            notifyAllCompletions(.success(token))
+        } else {
+            Log.error("Empty reCAPTCHA token received")
+            notifyAllCompletions(.failure(NSError(
+                domain: "RecaptchaTokenProvider",
+                code: -3,
+                userInfo: [NSLocalizedDescriptionKey: "Empty token received"]
+            )))
+        }
     }
-
-    private func cancel() {
-        webView?.stopLoading()
-        webView = nil
-        completion = nil
+    
+    private func notifyAllCompletions(_ result: Result<String, Error>) {
+        isFetchingToken = false
+        
+        let completions = pendingCompletions
+        pendingCompletions.removeAll()
+        
+        for completion in completions {
+            completion(result)
+        }
+    }
+    
+    // 清除快取
+    func invalidateCache() {
+        cachedToken = nil
+        tokenExpiryTime = nil
+        Log.information("reCAPTCHA token cache invalidated")
     }
 }
 
@@ -100,6 +243,7 @@ class LaunchController: NSViewController, WKNavigationDelegate {
     var newsWebView: WKWebView!  // 新增：WebView 覆蓋層
     var topicsTable: FrontierTableView!
     var otp: OTP?
+    var recaptchaContainerView: NSView!  // reCAPTCHA WebView 容器
 
     @IBOutlet private var loginButton: NSButton!
     @IBOutlet var userField: NSTextField!
@@ -182,6 +326,14 @@ class LaunchController: NSViewController, WKNavigationDelegate {
                 let request = URLRequest(url: url)
                 newsWebView.load(request)
             }
+        }
+        
+        // 設置 reCAPTCHA 容器
+        setupRecaptchaContainer()
+        
+        // 延遲 1 秒後預熱 reCAPTCHA
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            RecaptchaTokenProvider.shared.warmup()
         }
         
         DispatchQueue.global(qos: .userInitiated).async {
@@ -341,6 +493,31 @@ class LaunchController: NSViewController, WKNavigationDelegate {
     @IBAction func scrollRight(_ sender: NSButton) {
         scrollView.scrollRight()
     }
+    
+    private func setupRecaptchaContainer() {
+        // 創建容器視圖（200x100，右下角）
+        recaptchaContainerView = NSView(frame: NSRect(x: 0, y: 0, width: 200, height: 100))
+        recaptchaContainerView.wantsLayer = true
+        // 完全透明背景
+        recaptchaContainerView.layer?.backgroundColor = .clear
+        
+        // 加入主視圖
+        view.addSubview(recaptchaContainerView)
+        
+        // 設置約束：右下角，距離邊緣 10px
+        recaptchaContainerView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            recaptchaContainerView.trailingAnchor.constraint(
+                equalTo: view.trailingAnchor, constant: -10),
+            recaptchaContainerView.bottomAnchor.constraint(
+                equalTo: view.bottomAnchor, constant: -10),
+            recaptchaContainerView.widthAnchor.constraint(equalToConstant: 200),
+            recaptchaContainerView.heightAnchor.constraint(equalToConstant: 100)
+        ])
+        
+        // 設置為 reCAPTCHA 的容器
+        RecaptchaTokenProvider.shared.containerView = recaptchaContainerView
+    }
 
     func problemConfigurationCheck() -> Bool {
         if FirstAidModel().cfgCheckSevereProblems() {
@@ -364,12 +541,9 @@ class LaunchController: NSViewController, WKNavigationDelegate {
             guard let self = self else { return }
             switch result {
             case let .success(token):
-                // 印出取得的 reCaptcha token
-                Log.information("Recaptcha token obtained: \(token)")
-                print("Recaptcha token obtained: \(token)")
-                
-                // 繼續執行登入流程
+                Log.information("Recaptcha token obtained (length: \(token.count))")
                 self.executeLogin(repair: repair, recaptchaToken: token)
+                
             case let .failure(error):
                 DispatchQueue.main.async {
                     self.loginSheetWinController?.window?.close()

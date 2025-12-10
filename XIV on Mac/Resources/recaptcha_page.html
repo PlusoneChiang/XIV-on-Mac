@@ -5,53 +5,180 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Recaptcha Host</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 8px;
+      background: transparent;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    #statusContainer {
+      text-align: center;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 11px;
+      margin-bottom: 8px;
+    }
+    #refreshButton {
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      padding: 6px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+      transition: all 0.2s;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    #refreshButton:hover {
+      background: rgba(255, 255, 255, 0.3);
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+    #refreshButton:active {
+      transform: scale(0.95);
+    }
+    .spinner {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top: 2px solid white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
 </head>
 <body>
-  <div id="tokenPreview" style="display:none;"> </div>
+  <div id="statusContainer">
+    <span class="spinner" id="spinner" style="display:none;"></span>
+    <span id="statusText">Ready</span>
+  </div>
+  <button id="refreshButton" onclick="refreshToken()">🔄 Refresh Token</button>
   <script>
     const SITE_KEY = "6Ld6VmorAAAAANQdQeqkaOeScR42qHC7Hyalq00r";
+    let retryCount = 0;
+    const MAX_RETRIES = 3;
+
+    function updateStatus(message, showSpinner = false) {
+      const statusEl = document.getElementById('statusText');
+      const spinnerEl = document.getElementById('spinner');
+      if (statusEl) statusEl.textContent = message;
+      if (spinnerEl) spinnerEl.style.display = showSpinner ? 'inline-block' : 'none';
+      console.log('[reCAPTCHA]', message);
+    }
 
     function postTokenToHost(token) {
       try {
-        // For WKWebView (macOS)
         if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.recaptchaToken) {
           window.webkit.messageHandlers.recaptchaToken.postMessage(token || '');
+          if (token) {
+            console.log('[reCAPTCHA] Token sent to host (length: ' + token.length + ')');
+            updateStatus('✓ Token ready', false);
+          }
         }
       } catch (e) {
-        console.error('postTokenToHost error', e);
+        console.error('[reCAPTCHA] postTokenToHost error', e);
+        updateStatus('✗ Send failed', false);
       }
     }
 
-    // Load enterprise grecaptcha and execute once ready
+    function refreshToken() {
+      updateStatus('Refreshing...', true);
+      retryCount = 0;
+      executeRecaptcha();
+    }
+
+    function executeRecaptcha() {
+      if (typeof grecaptcha === 'undefined' || !grecaptcha.enterprise) {
+        console.warn('[reCAPTCHA] grecaptcha not ready, retry: ' + retryCount);
+        updateStatus('Loading... (' + (retryCount + 1) + '/' + MAX_RETRIES + ')', true);
+        
+        if (retryCount < MAX_RETRIES) {
+          retryCount++;
+          setTimeout(executeRecaptcha, 1000);
+        } else {
+          console.error('[reCAPTCHA] Max retries reached, giving up');
+          updateStatus('✗ Failed to load', false);
+          postTokenToHost('');
+        }
+        return;
+      }
+
+      console.log('[reCAPTCHA] Executing verification...');
+      updateStatus('Verifying...', true);
+      
+      grecaptcha.enterprise.ready(function() {
+        grecaptcha.enterprise.execute(SITE_KEY, { action: 'LOGIN' })
+          .then(function(token) {
+            console.log('[reCAPTCHA] Token received successfully');
+            postTokenToHost(token);
+          })
+          .catch(function(e) {
+            console.error('[reCAPTCHA] Execute failed:', e);
+            
+            if (retryCount < MAX_RETRIES) {
+              retryCount++;
+              console.log('[reCAPTCHA] Retrying... (' + retryCount + '/' + MAX_RETRIES + ')');
+              updateStatus('Retrying... (' + retryCount + '/' + MAX_RETRIES + ')', true);
+              setTimeout(executeRecaptcha, 2000);
+            } else {
+              console.error('[reCAPTCHA] Max retries reached after error');
+              updateStatus('✗ Verification failed', false);
+              postTokenToHost('');
+            }
+          });
+      });
+    }
+
+    // 支援從外部觸發執行（用於 WebView 重複使用）
+    window.triggerRecaptcha = function() {
+      console.log('[reCAPTCHA] Manual trigger received');
+      retryCount = 0;
+      executeRecaptcha();
+    };
+
+    // 載入 reCAPTCHA SDK
     (function() {
+      console.log('[reCAPTCHA] Loading SDK...');
+      updateStatus('Loading SDK...', true);
+      
       try {
         var s = document.createElement('script');
         s.src = 'https://www.google.com/recaptcha/enterprise.js?render=' + SITE_KEY;
         s.async = true;
         s.defer = true;
+        
         s.onload = function() {
-          try {
-            if (typeof grecaptcha === 'undefined' || !grecaptcha.enterprise) {
-              console.error('grecaptcha.enterprise not available');
-              postTokenToHost('');
-              return;
-            }
-            grecaptcha.enterprise.ready(function() {
-              grecaptcha.enterprise.execute(SITE_KEY, { action: 'LOGIN' }).then(function(token) {
-                try {
-                  var el = document.getElementById('tokenPreview');
-                  if (el) el.textContent = token || '';
-                  // Post token to host
-                  postTokenToHost(token);
-                } catch (e) { console.error(e); }
-              }).catch(function(e){ console.error('execute failed', e); postTokenToHost(''); });
-            });
-          }
-          catch (e) { console.error('grecaptcha onload handler error', e); postTokenToHost(''); }
+          console.log('[reCAPTCHA] SDK loaded successfully');
+          updateStatus('SDK loaded', false);
+          // 給 SDK 一點時間初始化
+          setTimeout(executeRecaptcha, 500);
         };
-        s.onerror = function(e) { console.error('failed to load enterprise.js', e); postTokenToHost(''); };
+        
+        s.onerror = function(e) {
+          console.error('[reCAPTCHA] Failed to load SDK', e);
+          updateStatus('✗ SDK load failed', false);
+          postTokenToHost('');
+        };
+        
         document.head.appendChild(s);
-      } catch (e) { console.error('recaptcha init error', e); postTokenToHost(''); }
+      } catch (e) {
+        console.error('[reCAPTCHA] Init error', e);
+        updateStatus('✗ Init error', false);
+        postTokenToHost('');
+      }
     })();
   </script>
 </body>
