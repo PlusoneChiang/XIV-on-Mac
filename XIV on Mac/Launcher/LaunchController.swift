@@ -242,6 +242,23 @@ final class RecaptchaTokenProvider: NSObject, WKScriptMessageHandler {
         tokenExpiryTime = nil
         Log.information("reCAPTCHA token cache invalidated")
     }
+    
+    // 模擬用戶互動（在獲取 token 前呼叫）
+    func simulateInteraction() {
+        guard isInitialized else { return }
+        
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            
+            self.webView.evaluateJavaScript("if (typeof window.simulateInteraction === 'function') { window.simulateInteraction(); }") { result, error in
+                if let error = error {
+                    Log.error("Failed to simulate interaction: \(error)")
+                } else {
+                    Log.information("User interaction simulated for reCAPTCHA")
+                }
+            }
+        }
+    }
 }
 
 class LaunchController: NSViewController, WKNavigationDelegate {
@@ -552,6 +569,10 @@ class LaunchController: NSViewController, WKNavigationDelegate {
         if problemConfigurationCheck() {
             return
         }
+        
+        // 在獲取 token 前模擬用戶互動（讓 reCAPTCHA 記錄點擊行為）
+        RecaptchaTokenProvider.shared.simulateInteraction()
+        
         view.window?.beginSheet(loginSheetWinController!.window!)
         Settings.credentials = LoginCredentials(
             username: userField.stringValue, password: passwdField.stringValue,

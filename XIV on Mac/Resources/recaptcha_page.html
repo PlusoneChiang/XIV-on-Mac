@@ -110,6 +110,38 @@
       executeRecaptcha();
     }
 
+    // 模擬用戶互動（在獲取 token 前呼叫）
+    window.simulateInteraction = function() {
+      console.log('[reCAPTCHA] Simulating user interaction...');
+      
+      // 模擬多種互動行為
+      try {
+        // 1. 觸發 body 點擊事件
+        if (document.body) {
+          var clickEvent = new MouseEvent('click', {
+            bubbles: true,
+            cancelable: true,
+            view: window
+          });
+          document.body.dispatchEvent(clickEvent);
+        }
+        
+        // 2. 觸發 mousemove 事件（模擬滑鼠移動）
+        var moveEvent = new MouseEvent('mousemove', {
+          bubbles: true,
+          cancelable: true,
+          view: window,
+          clientX: Math.random() * window.innerWidth,
+          clientY: Math.random() * window.innerHeight
+        });
+        document.dispatchEvent(moveEvent);
+        
+        console.log('[reCAPTCHA] User interaction simulated successfully');
+      } catch (e) {
+        console.error('[reCAPTCHA] Failed to simulate interaction:', e);
+      }
+    };
+
     function executeRecaptcha() {
       if (typeof grecaptcha === 'undefined' || !grecaptcha.enterprise) {
         console.warn('[reCAPTCHA] grecaptcha not ready, retry: ' + retryCount);
