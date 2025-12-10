@@ -9,6 +9,22 @@ import Cocoa
 import WebKit
 import XIVLauncher
 
+// 自定義視圖：上方點擊穿透，下方100px可互動
+class ClickThroughView: NSView {
+    var interactiveHeight: CGFloat = 100 // 下方100px可互動
+    
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        // 計算點擊位置是否在下方100px範圍內
+        if point.y <= interactiveHeight {
+            // 下方100px：正常處理點擊（遞迴查找子視圖）
+            return super.hitTest(point)
+        } else {
+            // 上方區域：點擊穿透（返回 nil 讓點擊事件穿透到下層視圖）
+            return nil
+        }
+    }
+}
+
 class RecaptchaSchemeHandler: NSObject, WKURLSchemeHandler {
     func webView(_ webView: WKWebView, start urlSchemeTask: WKURLSchemeTask) {
         guard urlSchemeTask.request.url?.absoluteString == "recaptcha://user.ffxiv.com.tw/recaptcha_page.html" else {
@@ -92,16 +108,12 @@ final class RecaptchaTokenProvider: NSObject, WKScriptMessageHandler {
         // 設置合理的 User-Agent
         config.applicationNameForUserAgent = "XIVLauncher/5.2.3 (Macintosh)"
 
-        webView = WKWebView(frame: NSRect(x: 0, y: 0, width: 200, height: 100), configuration: config)
+        webView = WKWebView(frame: .zero, configuration: config)
         
-        // 設置半透明（測試用 50%）
+        // 設置半透明（50% 用於可見性）
         webView.alphaValue = 0.5
         webView.wantsLayer = true
         webView.layer?.opacity = 0.5
-        
-        // 設置圓角
-        webView.layer?.cornerRadius = 10.0
-        webView.layer?.masksToBounds = true
         
         // 設置透明背景
         webView.setValue(false, forKey: "drawsBackground")
@@ -331,8 +343,8 @@ class LaunchController: NSViewController, WKNavigationDelegate {
         // 設置 reCAPTCHA 容器
         setupRecaptchaContainer()
         
-        // 延遲 1 秒後預熱 reCAPTCHA
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+        // 延遲 3 秒後預熱 reCAPTCHA（給瀏覽器更多時間建立指紋）
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
             RecaptchaTokenProvider.shared.warmup()
         }
         
@@ -495,24 +507,31 @@ class LaunchController: NSViewController, WKNavigationDelegate {
     }
     
     private func setupRecaptchaContainer() {
-        // 創建容器視圖（200x100，右下角）
-        recaptchaContainerView = NSView(frame: NSRect(x: 0, y: 0, width: 200, height: 100))
-        recaptchaContainerView.wantsLayer = true
-        // 完全透明背景
-        recaptchaContainerView.layer?.backgroundColor = .clear
+        // 創建自定義容器視圖（點擊穿透功能）
+        let clickThroughView = ClickThroughView(frame: .zero)
+        clickThroughView.wantsLayer = true
+        clickThroughView.layer?.backgroundColor = .clear
+        clickThroughView.interactiveHeight = 100 // 下方100px可互動
+        
+        recaptchaContainerView = clickThroughView
         
         // 加入主視圖
         view.addSubview(recaptchaContainerView)
         
-        // 設置約束：右下角，距離邊緣 10px
+        // 設置約束：覆蓋右側登入區域（對齊右邊緣，從頂部到底部）
         recaptchaContainerView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
+            // 右邊對齊視圖右邊緣
             recaptchaContainerView.trailingAnchor.constraint(
-                equalTo: view.trailingAnchor, constant: -10),
+                equalTo: view.trailingAnchor),
+            // 從頂部開始
+            recaptchaContainerView.topAnchor.constraint(
+                equalTo: view.topAnchor),
+            // 到底部結束
             recaptchaContainerView.bottomAnchor.constraint(
-                equalTo: view.bottomAnchor, constant: -10),
-            recaptchaContainerView.widthAnchor.constraint(equalToConstant: 200),
-            recaptchaContainerView.heightAnchor.constraint(equalToConstant: 100)
+                equalTo: view.bottomAnchor),
+            // 寬度：覆蓋右側登入區域（約300px）
+            recaptchaContainerView.widthAnchor.constraint(equalToConstant: 300)
         ])
         
         // 設置為 reCAPTCHA 的容器
