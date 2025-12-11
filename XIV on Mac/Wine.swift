@@ -56,7 +56,135 @@ enum Wine {
     static func boot() {
         DispatchQueue.global(qos: .utility).async {
             ensurePrefix()
+            installFontIfNeeded()
+            setLocaleToZhTW()
         }
+    }
+    
+    /// 安裝 Sarasa Mono TC 字體到 Wine（如果尚未安裝）
+    static func installFontIfNeeded() {
+        let fontName = "SarasaMonoTC-Regular.ttf"
+        let fontsPath = prefix.appendingPathComponent("drive_c/windows/Fonts")
+        let targetFontPath = fontsPath.appendingPathComponent(fontName)
+        
+        // 檢查字體文件是否實際存在於 wine prefix 中
+        if FileManager.default.fileExists(atPath: targetFontPath.path) {
+            return
+        }
+        
+        // 從 Bundle 獲取字體 - 先嘗試多種路徑
+        var fontURL: URL?
+        
+        // 嘗試1: Resources 子目錄
+        fontURL = Bundle.main.url(
+            forResource: "SarasaMonoTC-Regular",
+            withExtension: "ttf"
+        )
+        
+        guard let fontURL = fontURL else {
+            Log.error("[Wine] Font file '\(fontName)' not found in bundle")
+            return
+        }
+        
+        guard FileManager.default.fileExists(atPath: fontURL.path) else {
+            Log.error("[Wine] Font source file does not exist")
+            return
+        }
+        
+        do {
+            // 確保目錄存在
+            if !FileManager.default.fileExists(atPath: fontsPath.path) {
+                try FileManager.default.createDirectory(
+                    at: fontsPath,
+                    withIntermediateDirectories: true
+                )
+            }
+            
+            // 複製字體
+            try FileManager.default.copyItem(at: fontURL, to: targetFontPath)
+            
+            // 設定字體文件權限為 644 (rw-r--r--)
+            try FileManager.default.setAttributes(
+                [.posixPermissions: 0o644],
+                ofItemAtPath: targetFontPath.path
+            )
+            
+            // 在 Wine 註冊表中註冊字體
+            addReg(
+                key: "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Fonts",
+                value: "Sarasa Mono TC (TrueType)",
+                data: fontName
+            )
+            
+            Log.information("[Wine] Font installed: \(fontName)")
+            
+            // 設定字體替換和連結
+            configureFontSubstitutionAndLinking()
+        } catch {
+            Log.error("[Wine] Failed to install font: \(error.localizedDescription)")
+        }
+    }
+    
+    /// 配置字體替換和字體連結，讓 Wine 應用程式能正確顯示中文
+    static func configureFontSubstitutionAndLinking() {
+        let fontName = "Sarasa Mono TC"
+        
+        // 1. Wine 字體替換 (Font Replacements)
+        let wineReplacementKey = "HKEY_CURRENT_USER\\Software\\Wine\\Fonts\\Replacements"
+        addReg(key: wineReplacementKey, value: "MS Shell Dlg", data: fontName)
+        addReg(key: wineReplacementKey, value: "MS Shell Dlg 2", data: fontName)
+        addReg(key: wineReplacementKey, value: "MS Sans Serif", data: fontName)
+        addReg(key: wineReplacementKey, value: "Microsoft Sans Serif", data: fontName)
+        addReg(key: wineReplacementKey, value: "Tahoma", data: fontName)
+        addReg(key: wineReplacementKey, value: "Segoe UI", data: fontName)
+        addReg(key: wineReplacementKey, value: "Arial", data: fontName)
+        addReg(key: wineReplacementKey, value: "Courier New", data: fontName)
+        
+        // 2. 字體連結 (Font Linking)
+        let linkKey = "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows NT\\CurrentVersion\\FontLink\\SystemLink"
+        let fallbackValue = "SarasaMonoTC-Regular.ttf,Sarasa Mono TC"
+        addReg(key: linkKey, value: "Tahoma", data: fallbackValue)
+        addReg(key: linkKey, value: "Microsoft Sans Serif", data: fallbackValue)
+        addReg(key: linkKey, value: "MS Sans Serif", data: fallbackValue)
+        addReg(key: linkKey, value: "Lucida Sans Unicode", data: fallbackValue)
+        addReg(key: linkKey, value: "Arial", data: fallbackValue)
+        
+        // 3. 設定系統級別區域
+        addReg(
+            key: "HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\Nls\\Language",
+            value: "InstallLanguage",
+            data: "0404"
+        )
+        addReg(
+            key: "HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\Nls\\Language",
+            value: "Default",
+            data: "0404"
+        )
+    }
+    
+    /// 設定 Wine 區域為繁體中文-台灣
+    static func setLocaleToZhTW() {
+        // 設定區域為繁體中文-台灣 (0404 = zh-TW)
+        addReg(
+            key: "HKEY_CURRENT_USER\\Control Panel\\International",
+            value: "Locale",
+            data: "00000404"
+        )
+        addReg(
+            key: "HKEY_CURRENT_USER\\Control Panel\\International",
+            value: "LocaleName",
+            data: "zh-TW"
+        )
+        addReg(
+            key: "HKEY_CURRENT_USER\\Control Panel\\International",
+            value: "sLanguage",
+            data: "CHT"
+        )
+        addReg(
+            key: "HKEY_CURRENT_USER\\Control Panel\\International",
+            value: "sCountry",
+            data: "Taiwan"
+        )
     }
 
     static func launch(

@@ -164,10 +164,11 @@ public enum Settings {
     private static let autoLoginKey = "AutoLogin"
     static var autoLogin: Bool {
         get {
-            UserDefaults.standard.bool(forKey: autoLoginKey)
+            // 始終返回 false，因為自動登入功能已被禁用
+            false
         }
         set {
-            UserDefaults.standard.set(newValue, forKey: autoLoginKey)
+            // 不儲存任何值，因為自動登入功能已被禁用
         }
     }
 
