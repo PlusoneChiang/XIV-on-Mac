@@ -100,6 +100,11 @@
 		50FC2E0127F9751600871760 /* DxvkError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50FC2E0027F9751600871760 /* DxvkError.swift */; };
 		5A1B2C3D4E5F678A /* recaptcha_page.html in Resources */ = {isa = PBXBuildFile; fileRef = 5A1B2C3D4E5F6789 /* recaptcha_page.html */; };
 		CC9B3FA62EDF5E7C0029BF87 /* FFXIV-TcDefault.cfg in Resources */ = {isa = PBXBuildFile; fileRef = CC9B3FA52EDF5E7C0029BF87 /* FFXIV-TcDefault.cfg */; };
+		CCFF04AA2EEAB05D0009A0EA /* LoginPageSchemeHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFF04A92EEAB05D0009A0EA /* LoginPageSchemeHandler.swift */; };
+		CCFF04AB2EEAB05D0009A0EA /* LoginPageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFF04A82EEAB05D0009A0EA /* LoginPageManager.swift */; };
+		CCFF04AF2EEAB6890009A0EA /* login_page.html in Resources */ = {isa = PBXBuildFile; fileRef = CCFF04AD2EEAB6890009A0EA /* login_page.html */; };
+		CCFF04B02EEAB6890009A0EA /* login_page.js in Resources */ = {isa = PBXBuildFile; fileRef = CCFF04AE2EEAB6890009A0EA /* login_page.js */; };
+		CCFF04B12EEAB6890009A0EA /* login_page.css in Resources */ = {isa = PBXBuildFile; fileRef = CCFF04AC2EEAB6890009A0EA /* login_page.css */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -221,6 +226,11 @@
 		50FC2E0027F9751600871760 /* DxvkError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DxvkError.swift; sourceTree = "<group>"; };
 		5A1B2C3D4E5F6789 /* recaptcha_page.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = recaptcha_page.html; sourceTree = "<group>"; };
 		CC9B3FA52EDF5E7C0029BF87 /* FFXIV-TcDefault.cfg */ = {isa = PBXFileReference; lastKnownFileType = text; path = "FFXIV-TcDefault.cfg"; sourceTree = "<group>"; };
+		CCFF04A82EEAB05D0009A0EA /* LoginPageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginPageManager.swift; sourceTree = "<group>"; };
+		CCFF04A92EEAB05D0009A0EA /* LoginPageSchemeHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginPageSchemeHandler.swift; sourceTree = "<group>"; };
+		CCFF04AC2EEAB6890009A0EA /* login_page.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = login_page.css; sourceTree = "<group>"; };
+		CCFF04AD2EEAB6890009A0EA /* login_page.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = login_page.html; sourceTree = "<group>"; };
+		CCFF04AE2EEAB6890009A0EA /* login_page.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = login_page.js; sourceTree = "<group>"; };
 		F46BBF18291C0494000C4672 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Main.strings; sourceTree = "<group>"; };
 		F46BBF19291C0494000C4672 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		FC2A0719289A5E4300C25C34 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Main.strings; sourceTree = "<group>"; };
@@ -251,6 +261,9 @@
 		07A349882805689200A9D7D0 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				CCFF04AC2EEAB6890009A0EA /* login_page.css */,
+				CCFF04AD2EEAB6890009A0EA /* login_page.html */,
+				CCFF04AE2EEAB6890009A0EA /* login_page.js */,
 				07E8A66F2BD06C79005AD41B /* Cameos */,
 				508C678E29431BFF0046AA38 /* snowflake_x2.png */,
 				5A1B2C3D4E5F6789 /* recaptcha_page.html */,
@@ -378,6 +391,8 @@
 		50511EC32770E085003A1E9F /* XIV on Mac */ = {
 			isa = PBXGroup;
 			children = (
+				CCFF04A82EEAB05D0009A0EA /* LoginPageManager.swift */,
+				CCFF04A92EEAB05D0009A0EA /* LoginPageSchemeHandler.swift */,
 				50B2A2B327ABEF6800EFA0A2 /* XIV-on-Mac-Info.plist */,
 				505C0D9A277333920008A344 /* Util.swift */,
 				50F6CBA927A975A000013301 /* Wine.swift */,
@@ -594,6 +609,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CCFF04AF2EEAB6890009A0EA /* login_page.html in Resources */,
+				CCFF04B02EEAB6890009A0EA /* login_page.js in Resources */,
+				CCFF04B12EEAB6890009A0EA /* login_page.css in Resources */,
 				507BECDD2D27E142009BE4A5 /* d3dcompiler in Resources */,
 				07A3499028056C7600A9D7D0 /* CfgCheckProblems.tiff in Resources */,
 				5046F7EF27E74AC9006C34E1 /* discord_bridge.exe in Resources */,
@@ -759,6 +777,8 @@
 				502A18D827AA8C0D00144AB9 /* LoginCredentials.swift in Sources */,
 				07B3506F29A457770010C1F5 /* BenchmarkView.swift in Sources */,
 				509FE19C27E39DCB008D56D6 /* FFXIVApp.swift in Sources */,
+				CCFF04AA2EEAB05D0009A0EA /* LoginPageSchemeHandler.swift in Sources */,
+				CCFF04AB2EEAB05D0009A0EA /* LoginPageManager.swift in Sources */,
 				079A343027F90F350043BEEA /* FirstAidModel.swift in Sources */,
 				50511EC52770E085003A1E9F /* AppDelegate.swift in Sources */,
 				07FC7C2E28001EDA009A6FE0 /* FFXIVCFGCheckup.swift in Sources */,

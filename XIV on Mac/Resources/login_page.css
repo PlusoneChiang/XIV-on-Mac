@@ -1,0 +1,482 @@
+/* ===== 全域設定 ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  overflow: hidden;
+  background: transparent; /* 改為透明 */
+}
+
+/* ===== 主容器：左右分欄 ===== */
+.container {
+  display: flex;
+  gap: 10px; /* 新聞區域與登入區域之間的間距 */
+  height: 100vh;
+  width: 100vw;
+  background: transparent; /* 改為透明 */
+  padding: 10px; /* 整體四周留白 */
+  box-sizing: border-box;
+}
+
+/* ===== 左側：新聞區域 (65%) ===== */
+.news-section {
+  flex: 1.857; /* 65% / 35% = 1.857 */
+  min-width: 650px;
+  min-height: 620px; /* 固定高度 620px，為新聞內容保留空間 */
+  position: relative;
+  padding: 0;
+  background: #ffffff;
+  border-radius: 12px; /* 圓角 */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 4px 16px rgba(0, 0, 0, 0.2); /* 陰影效果 */
+  overflow: hidden; /* 確保 iframe 也有圓角 */
+}
+
+.news-section iframe {
+  width: 100%;
+  height: 620px; /* 固定高度 620px */
+  border: none;
+  display: block;
+}
+
+/* ===== 右側：登入區域 (35%) ===== */
+.login-section {
+  flex: 1;
+  min-width: 350px;
+  max-width: 450px;
+  background: linear-gradient(135deg, #2c2c2c 0%, #1a1a1a 100%); /* 維持原本的深色漸層背景 */
+  border-radius: 12px; /* 圓角 */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 4px 16px rgba(0, 0, 0, 0.2); /* 陰影效果 */
+  display: flex;
+  align-items: flex-start; /* 靠上對齊 */
+  justify-content: center;
+  padding: 20px; /* 與卡片邊緣保留 20px */
+  box-sizing: border-box;
+}
+
+/* 支援深色模式 */
+@media (prefers-color-scheme: light) {
+  .login-section {
+    background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+  }
+  
+  body {
+    background: #f0f0f0;
+  }
+}
+
+/* ===== 登入表單 ===== */
+.login-form {
+  width: 100%;
+  max-width: 320px;
+}
+
+/* 標題區域 */
+.header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.header h1 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #ffffff; /* 白色文字配深色背景 */
+  margin-bottom: 4px;
+  letter-spacing: 0.5px;
+}
+
+.header .subtitle {
+  font-size: 12px;
+  color: #999999; /* 淺灰色副標題 */
+  font-weight: 400;
+}
+
+@media (prefers-color-scheme: light) {
+  .header h1 {
+    color: #1a1a1a;
+  }
+  
+  .header .subtitle {
+    color: #666666;
+  }
+}
+
+/* ===== 表單群組 ===== */
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: #cccccc;
+  margin-bottom: 6px;
+}
+
+@media (prefers-color-scheme: light) {
+  .form-group label {
+    color: #333333;
+  }
+}
+
+/* ===== 輸入框樣式（仿造 macOS 原生） ===== */
+input[type="text"],
+input[type="password"] {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(100, 150, 255, 0.6);
+  box-shadow: 0 0 0 3px rgba(100, 150, 255, 0.15);
+}
+
+input[type="text"]::placeholder,
+input[type="password"]::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+@media (prefers-color-scheme: light) {
+  input[type="text"],
+  input[type="password"] {
+    color: #1a1a1a;
+    background: #ffffff;
+    border: 1px solid #cccccc;
+  }
+  
+  input[type="text"]:focus,
+  input[type="password"]:focus {
+    background: #ffffff;
+    border-color: #007aff;
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15);
+  }
+  
+  input[type="text"]::placeholder,
+  input[type="password"]::placeholder {
+    color: #999999;
+  }
+}
+
+/* ===== 核選框樣式 ===== */
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #007aff;
+}
+
+.checkbox-label {
+  font-size: 13px;
+  color: #cccccc;
+  cursor: pointer;
+  user-select: none;
+  margin: 0;
+}
+
+@media (prefers-color-scheme: light) {
+  .checkbox-label {
+    color: #333333;
+  }
+}
+
+/* ===== OTP 金鑰輸入區域（展開式） ===== */
+.otp-key-group {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: -8px;
+  margin-bottom: 16px;
+  overflow: hidden;
+  /* 動畫由 JavaScript 控制 */
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.otp-key-group label {
+  color: #f0c674;
+  font-size: 11px;
+}
+
+.otp-key-group input {
+  margin-bottom: 8px;
+  font-family: "Courier New", monospace;
+  letter-spacing: 0.5px;
+}
+
+@media (prefers-color-scheme: light) {
+  .otp-key-group {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.15);
+  }
+  
+  .otp-key-group label {
+    color: #c97a00;
+  }
+}
+
+/* ===== 按鈕樣式 ===== */
+.btn-primary {
+  width: 100%;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  background: linear-gradient(180deg, #007aff 0%, #0051d5 100%);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 122, 255, 0.3);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(180deg, #0062cc 0%, #0041a8 100%);
+  box-shadow: 0 3px 8px rgba(0, 122, 255, 0.4);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 3px rgba(0, 122, 255, 0.2);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-secondary {
+  width: 100%;
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.btn-secondary:active {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+@media (prefers-color-scheme: light) {
+  .btn-secondary {
+    color: #333333;
+    background: #ffffff;
+    border-color: #cccccc;
+  }
+  
+  .btn-secondary:hover {
+    background: #f5f5f5;
+    border-color: #999999;
+  }
+}
+
+/* ===== 響應式設計 ===== */
+@media (max-width: 1200px) {
+  .news-section {
+    flex: 1.5;
+    min-width: 500px;
+  }
+  
+  .login-section {
+    flex: 1;
+    min-width: 300px;
+  }
+}
+
+@media (max-width: 900px) {
+  .container {
+    flex-direction: column;
+  }
+  
+  .news-section,
+  .login-section {
+    flex: none;
+    width: 100%;
+    min-width: auto;
+    max-width: none;
+  }
+  
+  .news-section {
+    height: 40vh;
+  }
+  
+  .login-section {
+    height: 60vh;
+  }
+}
+
+/* ===== 載入狀態 ===== */
+.btn-primary.loading {
+  position: relative;
+  color: transparent;
+}
+
+.btn-primary.loading::after {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  top: 50%;
+  left: 50%;
+  margin-left: -8px;
+  margin-top: -8px;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  border-top-color: transparent;
+  animation: spinner 0.8s linear infinite;
+}
+
+@keyframes spinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+/* ===== 帳號選擇器樣式 ===== */
+.account-selector {
+  position: relative;
+}
+
+.account-selector input {
+  padding-right: 36px; /* 為按鈕留空間 */
+}
+
+.account-dropdown-btn {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 28px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.account-dropdown-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.account-dropdown-btn:active {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.account-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: rgba(40, 40, 40, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.account-dropdown-item {
+  padding: 10px 12px;
+  cursor: pointer;
+  color: #ffffff;
+  font-size: 13px;
+  transition: background 0.15s ease;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.account-dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.account-dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.account-dropdown-empty {
+  padding: 12px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 12px;
+}
+
+@media (prefers-color-scheme: light) {
+  .account-dropdown-btn {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.15);
+    color: rgba(0, 0, 0, 0.6);
+  }
+  
+  .account-dropdown-btn:hover {
+    background: rgba(0, 0, 0, 0.1);
+    color: rgba(0, 0, 0, 0.8);
+  }
+  
+  .account-dropdown {
+    background: rgba(255, 255, 255, 0.95);
+    border-color: rgba(0, 0, 0, 0.2);
+  }
+  
+  .account-dropdown-item {
+    color: #1a1a1a;
+    border-bottom-color: rgba(0, 0, 0, 0.1);
+  }
+  
+  .account-dropdown-item:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
+  
+  .account-dropdown-empty {
+    color: rgba(0, 0, 0, 0.5);
+  }
+}

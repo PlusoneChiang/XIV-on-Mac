@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="zh-TW">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FINAL FANTASY XIV - 登入</title>
+  <link rel="stylesheet" href="login_page.css" />
+</head>
+<body>
+  <div class="container">
+    <!-- 左側：新聞區域 (65%) -->
+    <div class="news-section">
+      <iframe id="newsFrame" 
+              src="https://user-cdn.ffxiv.com.tw/news/251115/launcher_left.html"
+              frameborder="0"
+              allowtransparency="true"></iframe>
+    </div>
+    
+    <!-- 右側：登入表單區域 (35%) -->
+    <div class="login-section">
+      <div class="login-form">
+        <!-- 帳號輸入 -->
+        <div class="form-group">
+          <label for="username">帳號</label>
+          <div class="account-selector">
+            <input type="text" 
+                   id="username" 
+                   placeholder="請輸入帳號"
+                   autocomplete="username"
+                   required />
+            <button type="button" id="accountDropdownBtn" class="account-dropdown-btn" title="選擇已儲存的帳號">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <path d="M2 4L6 8L10 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <div id="accountDropdown" class="account-dropdown" style="display:none;">
+              <!-- 由 Swift 動態填入已儲存的帳號 -->
+            </div>
+          </div>
+        </div>
+        
+        <!-- 密碼輸入 -->
+        <div class="form-group">
+          <label for="password">密碼</label>
+          <input type="password" 
+                 id="password" 
+                 placeholder="請輸入密碼"
+                 autocomplete="current-password"
+                 required />
+        </div>
+        
+        <!-- OTP 輸入框 -->
+        <div class="form-group" id="otpGroup">
+          <label for="otp">一次性密碼</label>
+          <input type="text" 
+                 id="otp" 
+                 placeholder="6 位數字"
+                 maxlength="6"
+                 pattern="[0-9]{6}"
+                 autocomplete="one-time-code"
+                 required />
+        </div>
+        
+        <!-- 自動 OTP 核選框 -->
+        <div class="form-group checkbox-group">
+          <input type="checkbox" id="autoOTP" />
+          <label for="autoOTP" class="checkbox-label">自動生成 OTP</label>
+        </div>
+        
+        <!-- OTP 金鑰輸入（展開式） -->
+        <div class="form-group otp-key-group" id="otpKeyGroup" style="display:none;">
+          <label for="otpKey">OTP 金鑰</label>
+          <input type="text" 
+                 id="otpKey" 
+                 placeholder="請輸入 Base32 格式金鑰" />
+          <button type="button" id="confirmOtpKey" class="btn-secondary">確認金鑰</button>
+        </div>
+        
+        <!-- 登入按鈕 -->
+        <button type="button" id="loginButton" class="btn-primary">登入</button>
+        
+        <!-- reCAPTCHA 容器（隱藏） -->
+        <div id="recaptchaContainer" style="display:none;"></div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- reCAPTCHA SDK -->
+  <script src="https://www.google.com/recaptcha/enterprise.js?render=6Ld6VmorAAAAANQdQeqkaOeScR42qHC7Hyalq00r" async defer></script>
+  
+  <!-- 主要邏輯 -->
+  <script src="login_page.js"></script>
+</body>
+</html>
