@@ -26,240 +26,6 @@ class ClickThroughView: NSView {
     }
 }
 
-// reCAPTCHA 自定義 URL Scheme Handler
-class RecaptchaSchemeHandler: NSObject, WKURLSchemeHandler {
-    func webView(_ webView: WKWebView, start urlSchemeTask: WKURLSchemeTask) {
-        guard let url = urlSchemeTask.request.url,
-              url.scheme == "recaptcha",
-              let path = Bundle.main.path(forResource: "recaptcha_page", ofType: "html"),
-              let htmlContent = try? String(contentsOfFile: path, encoding: .utf8) else {
-            urlSchemeTask.didFailWithError(NSError(domain: "RecaptchaSchemeHandler", code: -1))
-            return
-        }
-        
-        let response = HTTPURLResponse(
-            url: url,
-            statusCode: 200,
-            httpVersion: "HTTP/1.1",
-            headerFields: ["Content-Type": "text/html; charset=utf-8"]
-        )!
-        
-        urlSchemeTask.didReceive(response)
-        urlSchemeTask.didReceive(htmlContent.data(using: .utf8)!)
-        urlSchemeTask.didFinish()
-    }
-    
-    func webView(_ webView: WKWebView, stop urlSchemeTask: WKURLSchemeTask) {
-        // No-op
-    }
-}
-
-final class RecaptchaTokenProvider: NSObject, WKScriptMessageHandler {
-    static let shared = RecaptchaTokenProvider()
-
-    // 持久化 WebView（不再銷毀）
-    private var webView: WKWebView!
-    
-    // Token 快取機制
-    private var cachedToken: String?
-    private var tokenExpiryTime: Date?
-    private let tokenValidDuration: TimeInterval = 110 // 110秒有效期
-    
-    // 請求佇列（避免並發請求）
-    private var pendingCompletions: [(Result<String, Error>) -> Void] = []
-    private var isFetchingToken = false
-    
-    // 初始化狀態
-    private var isInitialized = false
-    
-    // WebView 容器視圖
-    weak var containerView: NSView? {
-        didSet {
-            if let container = containerView {
-                container.addSubview(webView)
-                webView.translatesAutoresizingMaskIntoConstraints = false
-                NSLayoutConstraint.activate([
-                    webView.leadingAnchor.constraint(equalTo: container.leadingAnchor),
-                    webView.trailingAnchor.constraint(equalTo: container.trailingAnchor),
-                    webView.topAnchor.constraint(equalTo: container.topAnchor),
-                    webView.bottomAnchor.constraint(equalTo: container.bottomAnchor)
-                ])
-            }
-        }
-    }
-
-    private override init() {
-        super.init()
-        setupWebView()
-    }
-    
-    private func setupWebView() {
-        let contentController = WKUserContentController()
-        contentController.add(self, name: "recaptchaToken")
-
-        let config = WKWebViewConfiguration()
-        config.userContentController = contentController
-        config.setURLSchemeHandler(RecaptchaSchemeHandler(), forURLScheme: "recaptcha")
-        
-        // 持久化資料存儲
-        config.websiteDataStore = WKWebsiteDataStore.default()
-        
-        // 設置合理的 User-Agent
-        config.applicationNameForUserAgent = "XIVLauncher/5.2.3 (Macintosh)"
-
-        webView = WKWebView(frame: .zero, configuration: config)
-        
-        // 設置半透明（50% 用於可見性）
-        webView.alphaValue = 0.5
-        webView.wantsLayer = true
-        webView.layer?.opacity = 0.5
-        
-        // 設置透明背景
-        webView.setValue(false, forKey: "drawsBackground")
-    }
-    
-    // 預熱方法（在應用啟動時呼叫）
-    func warmup() {
-        guard !isInitialized else { return }
-        
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-            guard let url = URL(string: "recaptcha://user.ffxiv.com.tw/recaptcha_page.html") else {
-                return
-            }
-            
-            self.isInitialized = true
-            self.webView.load(URLRequest(url: url))
-            
-            Log.information("reCAPTCHA WebView warmed up")
-        }
-    }
-
-    func fetchToken(completion: @escaping (Result<String, Error>) -> Void) {
-        // 檢查快取的 token 是否仍有效
-        if let cached = cachedToken,
-           let expiry = tokenExpiryTime,
-           Date() < expiry {
-            Log.information("Using cached reCAPTCHA token")
-            completion(.success(cached))
-            return
-        }
-        
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-            
-            // 加入等待佇列
-            self.pendingCompletions.append(completion)
-            
-            // 如果正在取得 token，直接返回
-            if self.isFetchingToken {
-                Log.information("reCAPTCHA fetch already in progress, queued")
-                return
-            }
-            
-            self.isFetchingToken = true
-            
-            // 如果還沒初始化，先載入頁面
-            if !self.isInitialized {
-                guard let url = URL(string: "recaptcha://user.ffxiv.com.tw/recaptcha_page.html") else {
-                    self.notifyAllCompletions(.failure(NSError(
-                        domain: "RecaptchaTokenProvider",
-                        code: -1,
-                        userInfo: [NSLocalizedDescriptionKey: "Invalid recaptcha URL"]
-                    )))
-                    return
-                }
-                self.isInitialized = true
-                self.webView.load(URLRequest(url: url))
-            } else {
-                // 已經初始化，直接執行 reCAPTCHA
-                self.executeRecaptcha()
-            }
-            
-            // 設置超時機制（15秒）
-            DispatchQueue.main.asyncAfter(deadline: .now() + 15) { [weak self] in
-                guard let self = self, self.isFetchingToken else { return }
-                
-                Log.error("reCAPTCHA token fetch timeout")
-                self.notifyAllCompletions(.failure(NSError(
-                    domain: "RecaptchaTokenProvider",
-                    code: -2,
-                    userInfo: [NSLocalizedDescriptionKey: "Token fetch timeout"]
-                )))
-            }
-        }
-    }
-    
-    private func executeRecaptcha() {
-        // 透過 JavaScript 觸發 reCAPTCHA
-        let script = "if (typeof window.triggerRecaptcha === 'function') { window.triggerRecaptcha(); }"
-        
-        webView.evaluateJavaScript(script) { [weak self] result, error in
-            if let error = error {
-                Log.error("Failed to execute reCAPTCHA: \(error)")
-            }
-        }
-    }
-
-    func userContentController(_ userContentController: WKUserContentController,
-                               didReceive message: WKScriptMessage) {
-        guard message.name == "recaptchaToken" else { return }
-
-        let token = message.body as? String ?? ""
-        
-        if !token.isEmpty {
-            // 快取 token
-            cachedToken = token
-            tokenExpiryTime = Date().addingTimeInterval(tokenValidDuration)
-            
-            Log.information("reCAPTCHA token received and cached (length: \(token.count))")
-            notifyAllCompletions(.success(token))
-        } else {
-            Log.error("Empty reCAPTCHA token received")
-            notifyAllCompletions(.failure(NSError(
-                domain: "RecaptchaTokenProvider",
-                code: -3,
-                userInfo: [NSLocalizedDescriptionKey: "Empty token received"]
-            )))
-        }
-    }
-    
-    private func notifyAllCompletions(_ result: Result<String, Error>) {
-        isFetchingToken = false
-        
-        let completions = pendingCompletions
-        pendingCompletions.removeAll()
-        
-        for completion in completions {
-            completion(result)
-        }
-    }
-    
-    // 清除快取
-    func invalidateCache() {
-        cachedToken = nil
-        tokenExpiryTime = nil
-        Log.information("reCAPTCHA token cache invalidated")
-    }
-    
-    // 模擬用戶互動（在獲取 token 前呼叫）
-    func simulateInteraction() {
-        guard isInitialized else { return }
-        
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-            
-            self.webView.evaluateJavaScript("if (typeof window.simulateInteraction === 'function') { window.simulateInteraction(); }") { result, error in
-                if let error = error {
-                    Log.error("Failed to simulate interaction: \(error)")
-                } else {
-                    Log.information("User interaction simulated for reCAPTCHA")
-                }
-            }
-        }
-    }
-}
-
 class LaunchController: NSViewController, WKNavigationDelegate {
     var loginSheetWinController: NSWindowController?
     var installerWinController: NSWindowController?
@@ -331,39 +97,9 @@ class LaunchController: NSViewController, WKNavigationDelegate {
             scrollView.translatesAutoresizingMaskIntoConstraints = true
             scrollView.autoresizingMask = []
         }
-
-        // 新增：建立 WebView 覆蓋層（但不載入網頁）
-        let webViewConfiguration = WKWebViewConfiguration()
-        newsWebView = WKWebView(frame: .zero, configuration: webViewConfiguration)
-        newsWebView.translatesAutoresizingMaskIntoConstraints = false
-        newsWebView.navigationDelegate = self
-        // 設置圓角
-        newsWebView.layer?.cornerRadius = 8.0
-        newsWebView.layer?.masksToBounds = true
-
-        // 將 WebView 添加到與 scrollView 相同的父視圖
-        if let parentView = scrollView.superview {
-            parentView.addSubview(newsWebView)
-
-            // 設定約束，使 WebView 覆蓋整個 scrollView
-            NSLayoutConstraint.activate([
-                newsWebView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
-                newsWebView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
-                newsWebView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-                newsWebView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor)
-            ])
-
-            // 停止載入外部網頁
-            // 新聞版面將由 loginPageWebView 中的 login_page.html 載入
-        }
         
         // 設置 Login Page 容器
         setupLoginPageContainer()
-        
-        // 延遲 3 秒後預熱 reCAPTCHA（給瀏覽器更多時間建立指紋）
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-            RecaptchaTokenProvider.shared.warmup()
-        }
         
         DispatchQueue.global(qos: .userInitiated).async {
             self.checkBoot()
@@ -385,8 +121,9 @@ class LaunchController: NSViewController, WKNavigationDelegate {
     @objc func installDone(_ notif: Notification) {
         DispatchQueue.global(qos: .userInitiated).async {
             self.checkBoot(skipInstallCheck: true)
-            DispatchQueue.main.async {
-                self.doLogin()
+            DispatchQueue.main.async { [self] in
+                // 安裝完成後關閉安裝視窗，用戶將回到 WebView 登入介面
+                installerWinController?.window?.close()
             }
         }
     }
@@ -554,6 +291,7 @@ class LaunchController: NSViewController, WKNavigationDelegate {
         loginPageContainerView = NSView(frame: .zero)
         loginPageContainerView.translatesAutoresizingMaskIntoConstraints = false
         loginPageContainerView.wantsLayer = true
+        loginPageContainerView.layer?.backgroundColor = .clear  // 設置透明背景，避免灰色遮罩
         
         // 加入 WebView 到容器
         loginPageContainerView.addSubview(loginPageWebView)
@@ -604,48 +342,32 @@ class LaunchController: NSViewController, WKNavigationDelegate {
         return false
     }
 
+    /// 已廢棄：請使用 LoginPageManager 執行登入
+    /// 此方法僅保留用於向後相容，實際上不應再被調用
+    @available(*, deprecated, message: "Use LoginPageManager delegate instead")
     func doLogin(repair: Bool = false) {
+        Log.warning("[DEPRECATED] doLogin() called - this method is deprecated, use WebView login instead")
+        
         // Check for show stopping problems
         if problemConfigurationCheck() {
             return
         }
         
-        // 在獲取 token 前模擬用戶互動（讓 reCAPTCHA 記錄點擊行為）
-        RecaptchaTokenProvider.shared.simulateInteraction()
-        
-        view.window?.beginSheet(loginSheetWinController!.window!)
-        Settings.credentials = LoginCredentials(
-            username: userField.stringValue, password: passwdField.stringValue,
-            oneTimePassword: otpField.stringValue)
-        RecaptchaTokenProvider.shared.fetchToken { [weak self] result in
-            guard let self = self else { return }
-            switch result {
-            case let .success(token):
-                Log.information("Recaptcha token obtained (length: \(token.count))")
-                self.executeLogin(repair: repair, recaptchaToken: token)
-                
-            case let .failure(error):
-                DispatchQueue.main.async {
-                    self.loginSheetWinController?.window?.close()
-                    let alert = NSAlert()
-                    alert.addButton(
-                        withTitle: NSLocalizedString("BUTTON_OK", comment: ""))
-                    alert.alertStyle = .critical
-                    alert.messageText = NSLocalizedString(
-                        "LOGIN_RECAPTCHA_FAILED", comment: "")
-                    alert.informativeText = error.localizedDescription
-                    alert.runModal()
-                }
-            }
+        // 由於已廢棄舊的 reCAPTCHA 流程，這裡直接顯示錯誤訊息
+        DispatchQueue.main.async { [weak self] in
+            let alert = NSAlert()
+            alert.addButton(withTitle: NSLocalizedString("BUTTON_OK", comment: ""))
+            alert.alertStyle = .warning
+            alert.messageText = "舊版登入已廢棄"
+            alert.informativeText = "請使用新的 WebView 登入介面進行登入操作。"
+            alert.runModal()
         }
     }
 
     private func executeLogin(repair: Bool, recaptchaToken: String) {
         DispatchQueue.global(qos: .default).async {
             do {
-                guard FFXIVApp().installed else {
-                    throw FFXIVLoginError.noInstall
-                }
+                // 安裝檢查已在 loginPageManager 中執行，此處不再需要
                 // Ensure graphics backend is installed before starting the game
                 GraphicsInstaller.ensureBackend()
                 DispatchQueue.global(qos: .userInitiated).async {
@@ -1009,32 +731,27 @@ extension LaunchController {
     }
     
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        // 檢查是否為 loginPageWebView
-        if webView == loginPageWebView {
-            // Login page 載入完成後，先獲取原始高度
-            webView.evaluateJavaScript("document.body.scrollHeight") { [weak self] (result, error) in
-                guard let self = self, let originalHeight = result as? CGFloat, error == nil else {
-                    Log.error("[LaunchController] Failed to get login page height: \(error?.localizedDescription ?? "unknown")")
-                    return
-                }
-                
-                // 加上 20px 緩衝
-                let heightWithBuffer = originalHeight + 20
-                
-                Log.information("[LaunchController] Login page original scrollHeight: \(originalHeight)px")
-                Log.information("[LaunchController] Login page height with 20px buffer: \(heightWithBuffer)px")
-                
-                DispatchQueue.main.async {
-                    self.adjustLoginPageContainerAndWindow(for: heightWithBuffer)
-                }
+        // Login page 載入完成後，先獲取原始高度
+        webView.evaluateJavaScript("document.body.scrollHeight") { [weak self] (result, error) in
+            guard let self = self, let originalHeight = result as? CGFloat, error == nil else {
+                Log.error("[LaunchController] Failed to get login page height: \(error?.localizedDescription ?? "unknown")")
+                return
             }
-        } else {
-            // 原本的 newsWebView 邏輯（已不需要）
-            webView.evaluateJavaScript("document.body.scrollHeight") { [weak self] (result, error) in
-                guard let self = self, let height = result as? CGFloat, error == nil else { return }
+            
+            // 加上 20px 緩衝
+            let heightWithBuffer = originalHeight + 20
+            
+            Log.information("[LaunchController] Login page original scrollHeight: \(originalHeight)px")
+            Log.information("[LaunchController] Login page height with 20px buffer: \(heightWithBuffer)px")
+            
+            DispatchQueue.main.async {
+                self.adjustLoginPageContainerAndWindow(for: heightWithBuffer)
                 
-                DispatchQueue.main.async {
-                    self.adjustScrollViewHeight(for: height)
+                // 高度調整完成後，檢查是否為初次執行（遊戲是否已安裝）
+                // 在使用者輸入帳號密碼前先安裝，避免 OTP 在安裝過程中過期
+                if !FFXIVApp().installed {
+                    Log.information("[LaunchController] First run detected, showing installer")
+                    self.view.window?.beginSheet(self.installerWinController!.window!)
                 }
             }
         }
@@ -1083,77 +800,7 @@ extension LaunchController {
         }
     }
     
-    private func adjustWindowHeight(for contentHeight: CGFloat) {
-        guard let window = view.window else { return }
-        
-        // 計算新的視窗高度
-        // 考慮到其他 UI 元素的高度（如標題欄、按鈕等）
-        let currentFrame = window.frame
-        let titleBarHeight: CGFloat = 28  // 標題欄高度估計
-        let buttonAreaHeight: CGFloat = 80  // 按鈕區域高度估計
-        let minHeight: CGFloat = 400  // 最小視窗高度
-        let maxHeight: CGFloat = 800  // 最大視窗高度
-        
-        // 新的視窗高度 = 內容高度 + 標題欄 + 按鈕區域
-        var newHeight = contentHeight + titleBarHeight + buttonAreaHeight
-        newHeight = max(minHeight, min(newHeight, maxHeight))  // 限制在合理範圍內
-        
-        // 調整視窗框架，保持視窗頂部位置不變
-        let newFrame = NSRect(
-            x: currentFrame.origin.x,
-            y: currentFrame.origin.y + currentFrame.height - newHeight,
-            width: currentFrame.width,
-            height: newHeight
-        )
-        
-        window.setFrame(newFrame, display: true, animate: true)
-    }
-    
-    private func adjustScrollViewHeight(for contentHeight: CGFloat) {
-        guard let scrollView = self.scrollView, let window = view.window else { return }
 
-        // 設定高度上限為640px
-        let maxHeight: CGFloat = 640
-        let newHeight = min(contentHeight, maxHeight)
-
-        // 獲取當前scrollView frame
-        let currentScrollViewFrame = scrollView.frame
-
-        // 計算高度變化量
-        let heightDifference = newHeight - currentScrollViewFrame.height
-
-        // 如果高度沒有變化，不需要調整
-        guard heightDifference != 0 else { return }
-
-        // 創建新的scrollView frame，保持頂部位置不變，只改變高度
-        let newScrollViewFrame = NSRect(
-            x: currentScrollViewFrame.origin.x,
-            y: currentScrollViewFrame.origin.y,  // 保持頂部Y座標不變
-            width: currentScrollViewFrame.width,
-            height: newHeight
-        )
-
-        // 調整視窗高度
-        let currentWindowFrame = window.frame
-        let newWindowHeight = currentWindowFrame.height + heightDifference
-
-        // 計算新的視窗frame，保持在畫面中央（水平和垂直）
-        let screenFrame = NSScreen.main?.visibleFrame ?? NSScreen.main!.frame
-        let newWindowFrame = NSRect(
-            x: screenFrame.midX - currentWindowFrame.width / 2,  // 水平居中
-            y: screenFrame.midY - newWindowHeight / 2,  // 垂直居中
-            width: currentWindowFrame.width,
-            height: newWindowHeight
-        )
-
-        // 同時調整scrollView和視窗
-        NSAnimationContext.runAnimationGroup { context in
-            context.duration = 0.3
-            context.allowsImplicitAnimation = true
-            scrollView.frame = newScrollViewFrame
-            window.setFrame(newWindowFrame, display: true)
-        }
-    }
     
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
         Log.error("[LaunchController] WebView navigation failed: \(error.localizedDescription)")
@@ -1291,18 +938,19 @@ extension LaunchController: LoginPageManagerDelegate {
     func loginPageManager(_ manager: LoginPageManager, executeLoginWithUsername username: String, password: String, otp: String, recaptchaToken: String) {
         Log.information("[LaunchController] WebView login initiated for user: \(username)")
         
-        // 顯示登入進度視窗（與舊版 UI 登入一致）
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-            self.view.window?.beginSheet(self.loginSheetWinController!.window!)
-        }
-        
         // 儲存登入資訊到 Settings
         Settings.credentials = LoginCredentials(
             username: username,
             password: password,
             oneTimePassword: otp
         )
+        
+        // 安裝檢查已在 WebView 載入完成時執行，此處不再需要
+        // 顯示登入進度視窗並執行登入
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.view.window?.beginSheet(self.loginSheetWinController!.window!)
+        }
         
         // 呼叫既有的登入流程
         // executeLogin 會處理所有錯誤（透過 NSAlert）並在成功時啟動遊戲

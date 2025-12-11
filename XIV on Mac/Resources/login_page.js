@@ -51,6 +51,14 @@ class LoginForm {
     this.username.addEventListener('change', this.onAccountChange.bind(this));
     this.username.addEventListener('input', this.onAccountInput.bind(this));
     
+    // 即時表單驗證：監聽所有輸入框變化
+    this.username.addEventListener('input', this.checkFormValidity.bind(this));
+    this.password.addEventListener('input', this.checkFormValidity.bind(this));
+    this.otp.addEventListener('input', this.checkFormValidity.bind(this));
+    
+    // 初始檢查表單狀態
+    this.checkFormValidity();
+    
     // 自動 OTP 核選框
     this.autoOTP.addEventListener('change', this.onAutoOTPToggle.bind(this));
     
@@ -89,7 +97,8 @@ class LoginForm {
    * 接收已儲存的帳號列表（由 Swift 調用）
    */
   receiveAccounts(accounts) {
-    console.log('[LoginPage] Received accounts:', accounts);
+    console.log('[LoginPage] Received', accounts.length, 'saved account(s)');
+    // Note: Account names are not logged for security reasons
     
     const dropdown = this.accountDropdown;
     dropdown.innerHTML = '';
@@ -97,7 +106,7 @@ class LoginForm {
     if (accounts.length === 0) {
       const emptyItem = document.createElement('div');
       emptyItem.className = 'account-dropdown-empty';
-      emptyItem.textContent = '尚無已儲存的帳號';
+      emptyItem.textContent = 'No saved accounts';
       dropdown.appendChild(emptyItem);
     } else {
       // 填充下拉選單
@@ -117,7 +126,7 @@ class LoginForm {
       // 自動填入第一個帳號（最後使用的帳號）
       if (accounts.length > 0) {
         this.username.value = accounts[0];
-        console.log('[LoginPage] Auto-filled account:', accounts[0]);
+        console.log('[LoginPage] Auto-filled first saved account');
         // 密碼會由 Swift 端在 loginPageManagerRequestAccounts 中自動發送
       }
     }
@@ -142,7 +151,8 @@ class LoginForm {
    */
   onAccountChange(event) {
     const selectedAccount = event.target.value;
-    console.log('[LoginPage] Account changed:', selectedAccount);
+    console.log('[LoginPage] Account changed');
+    // Note: Account name is not logged for security reasons
     
     if (selectedAccount) {
       this.requestPasswordForAccount(selectedAccount);
@@ -160,7 +170,8 @@ class LoginForm {
    * 請求指定帳號的密碼
    */
   requestPasswordForAccount(account) {
-    console.log('[LoginPage] Requesting password for:', account);
+    console.log('[LoginPage] Requesting password for selected account');
+    // Note: Account name is not logged for security reasons
     if (window.webkit && window.webkit.messageHandlers.requestPassword) {
       window.webkit.messageHandlers.requestPassword.postMessage(account);
     }
@@ -173,11 +184,14 @@ class LoginForm {
     console.log('[LoginPage] Password received');
     this.password.value = password;
     
+    // 檢查表單有效性，更新登入按鈕狀態
+    this.checkFormValidity();
+    
     // 如果 OTP checkbox 已勾選，重新檢查新帳號的 OTP 金鑰
     if (this.autoOTP.checked) {
       const currentAccount = this.username.value;
       if (currentAccount) {
-        console.log('[LoginPage] Re-checking OTP for new account:', currentAccount);
+        console.log('[LoginPage] Re-checking OTP for new account');
         // 先停止舊的倒數計時
         this.stopOTPCountdown();
         // 清空 OTP
@@ -197,26 +211,27 @@ class LoginForm {
     const checked = event.target.checked;
     console.log('[LoginPage] Auto OTP toggled:', checked);
     
-    // 通知 Swift 儲存設定
-    if (window.webkit && window.webkit.messageHandlers.updateAutoOtp) {
-      window.webkit.messageHandlers.updateAutoOtp.postMessage(checked);
-    }
-    
     if (checked) {
-      // 檢查是否已有儲存的金鑰
+      // checked 時不立即更新設定，先檢查是否已有儲存的金鑰
       const currentAccount = this.username.value;
       if (currentAccount) {
         this.checkOTPKey(currentAccount);
       } else {
-        // 沒有選擇帳號，直接展開金鑰輸入框
+        // 沒有選擇帳號，直接展開金鑰輸入框（不更新設定）
         this.showOTPKeyGroup();
       }
     } else {
-      // 取消勾選：停止倒數計時、隱藏金鑰輸入框、清空內容
+      // 取消勾選：更新設定為 false，停止倒數計時、隱藏金鑰輸入框、清空內容
+      if (window.webkit && window.webkit.messageHandlers.updateAutoOtp) {
+        window.webkit.messageHandlers.updateAutoOtp.postMessage(false);
+      }
       this.stopOTPCountdown();
       this.hideOTPKeyGroup();
       this.otpKey.value = '';
       this.otp.value = '';
+      
+      // 檢查表單有效性，更新登入按鈕狀態（OTP 被清空）
+      this.checkFormValidity();
     }
   }
   
@@ -224,7 +239,8 @@ class LoginForm {
    * 檢查帳號是否有已儲存的 OTP 金鑰
    */
   checkOTPKey(account) {
-    console.log('[LoginPage] Checking OTP key for:', account);
+    console.log('[LoginPage] Checking OTP key for selected account');
+    // Note: Account name is not logged for security reasons
     if (window.webkit && window.webkit.messageHandlers.checkOTPKey) {
       window.webkit.messageHandlers.checkOTPKey.postMessage(account);
     }
@@ -235,6 +251,10 @@ class LoginForm {
    */
   onExistingOTPKey() {
     console.log('[LoginPage] Existing OTP key found');
+    // 有金鑰時更新設定為 true
+    if (window.webkit && window.webkit.messageHandlers.updateAutoOtp) {
+      window.webkit.messageHandlers.updateAutoOtp.postMessage(true);
+    }
     // 隱藏金鑰輸入框
     this.hideOTPKeyGroup();
     // 不需要手動請求 OTP，Swift 會在 checkOTPKey 時自動發送
@@ -246,14 +266,10 @@ class LoginForm {
   onNoOTPKey() {
     console.log('[LoginPage] No OTP key found');
     
-    // 如果是切換帳號導致的（checkbox 已勾選但新帳號沒有金鑰）
+    // 只要 checkbox 是勾選狀態，就展開金鑰輸入框讓使用者輸入
     if (this.autoOTP.checked) {
-      // 取消勾選
-      this.autoOTP.checked = false;
-      console.log('[LoginPage] Auto-unchecked OTP (no key for this account)');
-    } else {
-      // 如果是首次勾選，展開金鑰輸入框
       this.showOTPKeyGroup();
+      console.log('[LoginPage] Showing OTP key input (no key found)');
     }
   }
   
@@ -318,6 +334,10 @@ class LoginForm {
     if (window.webkit && window.webkit.messageHandlers.saveOTPKey) {
       window.webkit.messageHandlers.saveOTPKey.postMessage(key);
     }
+    // 儲存金鑰後，更新 auto OTP 設定為 true
+    if (window.webkit && window.webkit.messageHandlers.updateAutoOtp) {
+      window.webkit.messageHandlers.updateAutoOtp.postMessage(true);
+    }
   }
   
   /**
@@ -335,21 +355,27 @@ class LoginForm {
    */
   receiveOTP(otp, remainingSeconds) {
     console.log('[LoginPage] OTP received, remaining:', remainingSeconds, 's');
+    // Note: OTP value is not logged for security reasons
     
-    // 填入 OTP
-    this.otp.value = otp;
+    // 只有在自動 OTP 模式下才填入（避免覆蓋手動輸入）
+    if (this.autoOTP.checked) {
+      this.otp.value = otp;
+      
+      // 檢查表單有效性，更新登入按鈕狀態
+      this.checkFormValidity();
+      
+      // 視覺提示（只在自動填入時顯示）
+      this.otp.classList.add('otp-updated');
+      setTimeout(() => {
+        this.otp.classList.remove('otp-updated');
+      }, 500);
+    }
     
     // 隱藏金鑰輸入框
     this.hideOTPKeyGroup();
     
     // 使用實際的剩餘秒數開始倒數
     this.startOTPCountdown(remainingSeconds);
-    
-    // 視覺提示
-    this.otp.classList.add('otp-updated');
-    setTimeout(() => {
-      this.otp.classList.remove('otp-updated');
-    }, 500);
   }
   
   // ===== 登入流程 =====
@@ -363,7 +389,7 @@ class LoginForm {
     // 禁用按鈕，顯示載入狀態
     this.loginButton.disabled = true;
     this.loginButton.classList.add('loading');
-    this.loginButton.textContent = '登入中...';
+    this.loginButton.textContent = 'Login...';
     
     try {
       // 1. 驗證表單
@@ -401,17 +427,49 @@ class LoginForm {
   validateForm() {
     if (!this.username.value.trim()) {
       console.warn('[LoginPage] Username is empty');
-      alert('請輸入帳號');
+      alert('Please enter your login account');
       return false;
     }
     
     if (!this.password.value) {
       console.warn('[LoginPage] Password is empty');
-      alert('請輸入密碼');
+      alert('Please enter your password');
+      return false;
+    }
+    
+    if (!this.otp.value.trim()) {
+      console.warn('[LoginPage] OTP is empty');
+      alert('Please enter 6-digit OTP');
+      return false;
+    }
+    
+    // 驗證 OTP 格式（6 位數字）
+    if (!/^\d{6}$/.test(this.otp.value)) {
+      console.warn('[LoginPage] OTP format invalid');
+      alert('OTP must be 6 digits');
       return false;
     }
     
     return true;
+  }
+  
+  /**
+   * 即時檢查表單有效性，控制登入按鈕啟用/禁用
+   */
+  checkFormValidity() {
+    const isValid = 
+      this.username.value.trim() !== '' &&
+      this.password.value !== '' &&
+      this.otp.value.trim() !== '';
+    
+    this.loginButton.disabled = !isValid;
+    
+    // 更新按鈕樣式
+    if (isValid) {
+      this.loginButton.classList.remove('disabled');
+    } else {
+      this.loginButton.classList.add('disabled');
+    }
   }
   
   /**
@@ -422,7 +480,7 @@ class LoginForm {
     
     return new Promise((resolve, reject) => {
       if (typeof grecaptcha === 'undefined' || !grecaptcha.enterprise) {
-        reject(new Error('reCAPTCHA SDK 未載入'));
+        reject(new Error('reCAPTCHA SDK not loaded'));
         return;
       }
       
@@ -445,6 +503,7 @@ class LoginForm {
    */
   executeLogin(credentials) {
     console.log('[LoginPage] Executing login...');
+    // Note: Username, password and OTP are not logged for security reasons
     if (window.webkit && window.webkit.messageHandlers.executeLogin) {
       window.webkit.messageHandlers.executeLogin.postMessage(credentials);
     } else {
@@ -472,7 +531,7 @@ class LoginForm {
     console.log('[LoginPage] Resetting login button');
     this.loginButton.disabled = false;
     this.loginButton.classList.remove('loading');
-    this.loginButton.textContent = '登入';
+    this.loginButton.textContent = 'Login';
   }
   
   /**
@@ -588,7 +647,7 @@ class LoginForm {
     // Disable 登入按鈕並更新文字
     this.loginButton.disabled = true;
     this.loginButton.classList.remove('loading'); // 移除旋轉圖示
-    this.loginButton.textContent = '遊戲進行中...';
+    this.loginButton.textContent = 'Game Running...';
     this.loginButton.classList.add('button-disabled');
   }
   
@@ -602,7 +661,7 @@ class LoginForm {
     this.loginButton.disabled = false;
     this.loginButton.classList.remove('loading'); // 確保移除旋轉圖示
     this.loginButton.classList.remove('button-disabled');
-    this.loginButton.textContent = '登入';
+    this.loginButton.textContent = 'Login';
     
     // 如果自動 OTP 已啟用且有帳號，重新啟動計時
     if (this.autoOTP.checked && this.username.value) {

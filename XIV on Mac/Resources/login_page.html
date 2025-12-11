@@ -22,14 +22,14 @@
       <div class="login-form">
         <!-- 帳號輸入 -->
         <div class="form-group">
-          <label for="username">帳號</label>
+          <label for="username">Login Account</label>
           <div class="account-selector">
             <input type="text" 
                    id="username" 
-                   placeholder="請輸入帳號"
+                   placeholder="Please enter your login account"
                    autocomplete="username"
                    required />
-            <button type="button" id="accountDropdownBtn" class="account-dropdown-btn" title="選擇已儲存的帳號">
+            <button type="button" id="accountDropdownBtn" class="account-dropdown-btn" title="Select a saved account">
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                 <path d="M2 4L6 8L10 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
@@ -42,25 +42,24 @@
         
         <!-- 密碼輸入 -->
         <div class="form-group">
-          <label for="password">密碼</label>
+          <label for="password">Password</label>
           <input type="password" 
                  id="password" 
-                 placeholder="請輸入密碼"
+                 placeholder="Please enter your password"
                  autocomplete="current-password"
                  required />
         </div>
         
         <!-- OTP 輸入框 -->
         <div class="form-group" id="otpGroup">
-          <label for="otp">一次性密碼</label>
+          <label for="otp">One-Time Password</label>
           <div class="otp-input-container">
             <input type="text" 
                    id="otp" 
-                   placeholder="勾選自動OTP以生成"
+                   placeholder="Please enter your OTP"
                    maxlength="6"
                    pattern="[0-9]{6}"
-                   autocomplete="one-time-code"
-                   readonly />
+                   autocomplete="one-time-code" />
             <!-- 環形進度指示器 -->
             <div class="otp-timer-circle" id="otpTimerCircle">
               <svg viewBox="0 0 36 36" class="circular-chart">
@@ -78,20 +77,20 @@
         <!-- 自動 OTP 核選框 -->
         <div class="form-group checkbox-group">
           <input type="checkbox" id="autoOTP" />
-          <label for="autoOTP" class="checkbox-label">自動生成 OTP</label>
+          <label for="autoOTP" class="checkbox-label">Auto-generate OTP</label>
         </div>
         
         <!-- OTP 金鑰輸入（展開式） -->
         <div class="form-group otp-key-group" id="otpKeyGroup" style="display:none;">
-          <label for="otpKey">OTP 金鑰</label>
+          <label for="otpKey">OTP Key</label>
           <input type="text" 
                  id="otpKey" 
-                 placeholder="請輸入 Base32 格式金鑰" />
-          <button type="button" id="confirmOtpKey" class="btn-secondary">確認金鑰</button>
+                 placeholder="Please enter your Base32 format key" />
+          <button type="button" id="confirmOtpKey" class="btn-secondary">Confirm Key</button>
         </div>
         
         <!-- 登入按鈕 -->
-        <button type="button" id="loginButton" class="btn-primary">登入</button>
+        <button type="button" id="loginButton" class="btn-primary">Login</button>
         
         <!-- reCAPTCHA 容器（隱藏） -->
         <div id="recaptchaContainer" style="display:none;"></div>

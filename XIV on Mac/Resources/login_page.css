@@ -49,9 +49,11 @@ body {
   flex: 1;
   min-width: 350px;
   max-width: 450px;
-  background: linear-gradient(135deg, #2c2c2c 0%, #1a1a1a 100%); /* 維持原本的深色漸層背景 */
+  background: linear-gradient(135deg, rgba(44, 44, 44, 0.1) 0%, rgba(26, 26, 26, 0.1) 100%); /* 10% 透明度 */
   border-radius: 12px; /* 圓角 */
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 4px 16px rgba(0, 0, 0, 0.2); /* 陰影效果 */
+  backdrop-filter: blur(5px); /* 背景模糊效果 */
+  -webkit-backdrop-filter: blur(5px); /* Safari 支援 */
   display: flex;
   align-items: flex-start; /* 靠上對齊 */
   justify-content: center;
@@ -62,7 +64,9 @@ body {
 /* 支援深色模式 */
 @media (prefers-color-scheme: light) {
   .login-section {
-    background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+    background: linear-gradient(135deg, rgba(245, 245, 245, 0.1) 0%, rgba(232, 232, 232, 0.1) 100%); /* 10% 透明度 */
+    backdrop-filter: blur(5px); /* 背景模糊效果 */
+    -webkit-backdrop-filter: blur(5px); /* Safari 支援 */
   }
   
   body {
@@ -347,9 +351,18 @@ input[type="checkbox"] {
   box-shadow: 0 1px 3px rgba(0, 122, 255, 0.2);
 }
 
-.btn-primary:disabled {
+.btn-primary:disabled,
+.btn-primary.disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  transform: none;
+  pointer-events: none;
+}
+
+.btn-primary:disabled:hover,
+.btn-primary.disabled:hover {
+  background: linear-gradient(180deg, #007aff 0%, #0051d5 100%);
+  box-shadow: 0 2px 6px rgba(0, 122, 255, 0.3);
   transform: none;
 }
 
