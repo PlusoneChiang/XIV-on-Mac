@@ -24,6 +24,9 @@ class LoginForm {
     this.accountDropdownBtn = document.getElementById('accountDropdownBtn');
     this.accountDropdown = document.getElementById('accountDropdown');
     
+    // OTP 倒數計時器
+    this.otpCountdownTimer = null;
+    
     // 初始化
     this.init();
   }
@@ -97,6 +100,7 @@ class LoginForm {
       emptyItem.textContent = '尚無已儲存的帳號';
       dropdown.appendChild(emptyItem);
     } else {
+      // 填充下拉選單
       accounts.forEach(account => {
         const item = document.createElement('div');
         item.className = 'account-dropdown-item';
@@ -104,10 +108,18 @@ class LoginForm {
         item.addEventListener('click', () => {
           this.username.value = account;
           this.accountDropdown.style.display = 'none';
-          this.onAccountChange({ target: { value: account } });
+          // 切換帳號時請求密碼
+          this.requestPasswordForAccount(account);
         });
         dropdown.appendChild(item);
       });
+      
+      // 自動填入第一個帳號（最後使用的帳號）
+      if (accounts.length > 0) {
+        this.username.value = accounts[0];
+        console.log('[LoginPage] Auto-filled account:', accounts[0]);
+        // 密碼會由 Swift 端在 loginPageManagerRequestAccounts 中自動發送
+      }
     }
   }
   
@@ -160,6 +172,20 @@ class LoginForm {
   receivePassword(password) {
     console.log('[LoginPage] Password received');
     this.password.value = password;
+    
+    // 如果 OTP checkbox 已勾選，重新檢查新帳號的 OTP 金鑰
+    if (this.autoOTP.checked) {
+      const currentAccount = this.username.value;
+      if (currentAccount) {
+        console.log('[LoginPage] Re-checking OTP for new account:', currentAccount);
+        // 先停止舊的倒數計時
+        this.stopOTPCountdown();
+        // 清空 OTP
+        this.otp.value = '';
+        // 檢查新帳號的 OTP 金鑰
+        this.checkOTPKey(currentAccount);
+      }
+    }
   }
   
   // ===== OTP 管理 =====
@@ -171,6 +197,11 @@ class LoginForm {
     const checked = event.target.checked;
     console.log('[LoginPage] Auto OTP toggled:', checked);
     
+    // 通知 Swift 儲存設定
+    if (window.webkit && window.webkit.messageHandlers.updateAutoOtp) {
+      window.webkit.messageHandlers.updateAutoOtp.postMessage(checked);
+    }
+    
     if (checked) {
       // 檢查是否已有儲存的金鑰
       const currentAccount = this.username.value;
@@ -181,7 +212,8 @@ class LoginForm {
         this.showOTPKeyGroup();
       }
     } else {
-      // 取消勾選：隱藏金鑰輸入框，但保持 OTP 輸入框可見
+      // 取消勾選：停止倒數計時、隱藏金鑰輸入框、清空內容
+      this.stopOTPCountdown();
       this.hideOTPKeyGroup();
       this.otpKey.value = '';
       this.otp.value = '';
@@ -205,17 +237,24 @@ class LoginForm {
     console.log('[LoginPage] Existing OTP key found');
     // 隱藏金鑰輸入框
     this.hideOTPKeyGroup();
-    // 請求生成 OTP
-    this.requestOTP();
+    // 不需要手動請求 OTP，Swift 會在 checkOTPKey 時自動發送
   }
   
   /**
    * 沒有已儲存的金鑰（由 Swift 調用）
    */
   onNoOTPKey() {
-    console.log('[LoginPage] No OTP key found, showing input');
-    // 展開金鑰輸入框（使用平滑動畫）
-    this.showOTPKeyGroup();
+    console.log('[LoginPage] No OTP key found');
+    
+    // 如果是切換帳號導致的（checkbox 已勾選但新帳號沒有金鑰）
+    if (this.autoOTP.checked) {
+      // 取消勾選
+      this.autoOTP.checked = false;
+      console.log('[LoginPage] Auto-unchecked OTP (no key for this account)');
+    } else {
+      // 如果是首次勾選，展開金鑰輸入框
+      this.showOTPKeyGroup();
+    }
   }
   
   /**
@@ -292,14 +331,25 @@ class LoginForm {
   }
   
   /**
-   * 接收生成的 OTP（由 Swift 調用）
+   * 接收生成的 OTP 和剩餘秒數（由 Swift 調用）
    */
-  receiveOTP(otp) {
-    console.log('[LoginPage] OTP received');
+  receiveOTP(otp, remainingSeconds) {
+    console.log('[LoginPage] OTP received, remaining:', remainingSeconds, 's');
+    
     // 填入 OTP
     this.otp.value = otp;
+    
     // 隱藏金鑰輸入框
     this.hideOTPKeyGroup();
+    
+    // 使用實際的剩餘秒數開始倒數
+    this.startOTPCountdown(remainingSeconds);
+    
+    // 視覺提示
+    this.otp.classList.add('otp-updated');
+    setTimeout(() => {
+      this.otp.classList.remove('otp-updated');
+    }, 500);
   }
   
   // ===== 登入流程 =====
@@ -432,6 +482,136 @@ class LoginForm {
     console.log('[LoginPage] Login successful');
     // 可選：顯示過渡動畫
     document.querySelector('.login-form').style.opacity = '0.5';
+  }
+  
+  // ===== OTP 倒數計時管理 =====
+  
+  /**
+   * 開始 OTP 倒數計時
+   */
+  startOTPCountdown(initialRemaining) {
+    // 清除舊的計時器
+    if (this.otpCountdownTimer) {
+      clearInterval(this.otpCountdownTimer);
+    }
+    
+    let remaining = initialRemaining;
+    
+    // 立即更新一次
+    this.updateOTPProgress(remaining);
+    
+    // 每秒更新
+    this.otpCountdownTimer = setInterval(() => {
+      remaining--;
+      
+      if (remaining <= 0) {
+        // 倒數到 0，主動請求新的 OTP
+        console.log('[LoginPage] OTP expired, requesting new one...');
+        this.requestOTP();
+        // 暫時顯示 30 秒，等待 Swift 回應
+        remaining = 30;
+      }
+      
+      this.updateOTPProgress(remaining);
+    }, 1000);
+  }
+  
+  /**
+   * 更新 OTP 進度條和剩餘時間顯示
+   */
+  updateOTPProgress(remaining) {
+    const circle = document.getElementById('otpTimerCircle');
+    const progressPath = document.getElementById('otpCircleProgress');
+    const text = document.getElementById('otpRemainingTime');
+    
+    if (!circle || !progressPath || !text) return;
+    
+    // 顯示環形進度
+    circle.classList.add('active');
+    
+    // 更新文字
+    text.textContent = remaining;
+    
+    // 計算進度百分比 (0-100)
+    const percentage = (remaining / 30) * 100;
+    progressPath.setAttribute('stroke-dasharray', `${percentage}, 100`);
+    
+    // 剩餘 5 秒時變紅色
+    if (remaining <= 5) {
+      progressPath.classList.add('expiring');
+    } else {
+      progressPath.classList.remove('expiring');
+    }
+  }
+  
+  /**
+   * 停止 OTP 倒數計時
+   */
+  stopOTPCountdown() {
+    if (this.otpCountdownTimer) {
+      clearInterval(this.otpCountdownTimer);
+      this.otpCountdownTimer = null;
+      console.log('[LoginPage] OTP countdown stopped');
+    }
+    
+    // 隱藏環形進度
+    const circle = document.getElementById('otpTimerCircle');
+    if (circle) {
+      circle.classList.remove('active');
+    }
+  }
+  
+  // ===== 遊戲狀態管理 =====
+  
+  /**
+   * 接收自動 OTP 設定（由 Swift 調用）
+   */
+  receiveAutoOtpSetting(enabled) {
+    console.log('[LoginPage] Received auto OTP setting:', enabled);
+    this.autoOTP.checked = enabled;
+    
+    // 如果啟用且有帳號，觸發檢查
+    if (enabled && this.username.value) {
+      this.checkOTPKey(this.username.value);
+    }
+  }
+  
+  /**
+   * 遊戲已啟動（由 Swift 調用）
+   */
+  onGameStarted() {
+    console.log('[LoginPage] Game started - pausing OTP, disabling login');
+    
+    // 暫停 OTP 倒數計時
+    this.stopOTPCountdown();
+    
+    // Disable 登入按鈕並更新文字
+    this.loginButton.disabled = true;
+    this.loginButton.classList.remove('loading'); // 移除旋轉圖示
+    this.loginButton.textContent = '遊戲進行中...';
+    this.loginButton.classList.add('button-disabled');
+  }
+  
+  /**
+   * 遊戲已結束（由 Swift 調用）
+   */
+  onGameExited(exitCode) {
+    console.log('[LoginPage] Game exited with code:', exitCode);
+    
+    // 恢復登入按鈕（確保移除所有狀態類）
+    this.loginButton.disabled = false;
+    this.loginButton.classList.remove('loading'); // 確保移除旋轉圖示
+    this.loginButton.classList.remove('button-disabled');
+    this.loginButton.textContent = '登入';
+    
+    // 如果自動 OTP 已啟用且有帳號，重新啟動計時
+    if (this.autoOTP.checked && this.username.value) {
+      console.log('[LoginPage] Restarting OTP countdown after game exit');
+      // 請求新的 OTP
+      if (window.webkit && window.webkit.messageHandlers.requestOTP) {
+        window.webkit.messageHandlers.requestOTP.postMessage(null);
+      }
+    }
   }
 }
 

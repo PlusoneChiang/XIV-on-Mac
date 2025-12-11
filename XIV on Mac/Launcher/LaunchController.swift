@@ -8,6 +8,7 @@
 import Cocoa
 import WebKit
 import XIVLauncher
+import KeychainAccess
 
 // 自定義視圖：上方點擊穿透，下方100px可互動
 class ClickThroughView: NSView {
@@ -709,6 +710,12 @@ class LaunchController: NSViewController, WKNavigationDelegate {
                     userInfo: [Notification.status.info: "Starting Game"])
                 let process = try loginResult.startGame(
                     dalamudInstallState == .ok)
+                
+                // 通知 WebView 遊戲已啟動
+                DispatchQueue.main.async { [self] in
+                    loginPageManager?.notifyGameStarted()
+                }
+                
                 DispatchQueue.main.async { [self] in
                     loginSheetWinController?.window?.close()
                     view.window?.close()
@@ -716,6 +723,12 @@ class LaunchController: NSViewController, WKNavigationDelegate {
                 AddOn.launchNotify()
                 let exitCode = process.exitCode
                 Log.information("Game exited with exit code \(exitCode)")
+                
+                // 通知 WebView 遊戲已結束
+                DispatchQueue.main.async { [self] in
+                    loginPageManager?.notifyGameExited(exitCode: exitCode)
+                }
+                
                 DispatchQueue.main.async {
                     // Exit codes 0 and 1 are considered normal (1 = user quit from title screen)
                     if exitCode != 0 && exitCode != 1 && Settings.nonZeroExitError {
@@ -960,6 +973,41 @@ final class AnimatingScrollView: NSScrollView {
 
 // MARK: - WKNavigationDelegate
 extension LaunchController {
+    func webView(_ webView: WKWebView, 
+                 decidePolicyFor navigationAction: WKNavigationAction, 
+                 decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        
+        // 只攔截用戶點擊的連結（linkActivated），不影響 iframe 的初始載入（.other）
+        if navigationAction.navigationType == .linkActivated {
+            if navigationAction.targetFrame == nil || navigationAction.targetFrame?.isMainFrame == false {
+                // iframe 內的連結點擊，在系統瀏覽器中打開
+                if let url = navigationAction.request.url {
+                    Log.information("[LaunchController] Opening iframe link in browser: \(url.absoluteString)")
+                    NSWorkspace.shared.open(url)
+                    decisionHandler(.cancel)
+                    return
+                }
+            }
+        }
+        
+        // 其他導航正常處理（包括 iframe 的初始載入）
+        decisionHandler(.allow)
+    }
+    
+    func webView(_ webView: WKWebView, 
+                 createWebViewWith configuration: WKWebViewConfiguration, 
+                 for navigationAction: WKNavigationAction, 
+                 windowFeatures: WKWindowFeatures) -> WKWebView? {
+        
+        // 處理 target="_blank" 連結，在系統瀏覽器中打開
+        if let url = navigationAction.request.url {
+            Log.information("[LaunchController] Opening target=_blank URL in browser: \(url.absoluteString)")
+            NSWorkspace.shared.open(url)
+        }
+        
+        return nil
+    }
+    
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         // 檢查是否為 loginPageWebView
         if webView == loginPageWebView {
@@ -1128,55 +1176,137 @@ extension LaunchController {
 
 extension LaunchController: LoginPageManagerDelegate {
     func loginPageManagerRequestAccounts(_ manager: LoginPageManager) {
-        // 測試階段：返回空列表
         Log.information("[LaunchController] Requesting saved accounts")
-        manager.sendAccounts([])
+        
+        // 從 Keychain 讀取所有已儲存的帳號
+        let allAccounts = LoginCredentials.accounts
+        var accountUsernames = allAccounts.map { $0.username }
+        
+        // 檢查最後使用的帳號是否還存在於 Keychain 中
+        if let lastUsedAccount = Settings.credentials?.username {
+            if !accountUsernames.contains(lastUsedAccount) {
+                // 最後使用的帳號不在 Keychain 中，清空 Settings
+                Log.information("[LaunchController] Last used account '\(lastUsedAccount)' not in Keychain, clearing")
+                Settings.credentials = nil
+            } else {
+                // 將最後使用的帳號移到第一位
+                accountUsernames.removeAll { $0 == lastUsedAccount }
+                accountUsernames.insert(lastUsedAccount, at: 0)
+                Log.information("[LaunchController] Last used account: \(lastUsedAccount)")
+            }
+        }
+        
+        Log.information("[LaunchController] Sending \(accountUsernames.count) accounts to JS")
+        manager.sendAccounts(accountUsernames)
+        
+        // 發送自動 OTP 設定狀態
+        manager.sendAutoOtpSetting(Settings.usesOneTimePassword)
+        
+        // 如果有帳號，自動發送第一個帳號的密碼（最後使用的或第一個）
+        if let firstAccount = accountUsernames.first,
+           let credentials = LoginCredentials.storedLogin(username: firstAccount) {
+            Log.information("[LaunchController] Auto-filling password for: \(firstAccount)")
+            manager.sendPassword(credentials.password)
+        }
     }
     
     func loginPageManager(_ manager: LoginPageManager, requestPasswordForAccount account: String) {
-        // 測試階段：返回空密碼
         Log.information("[LaunchController] Requesting password for: \(account)")
-        manager.sendPassword("")
+        
+        // 從 Keychain 讀取指定帳號的密碼
+        if let credentials = LoginCredentials.storedLogin(username: account) {
+            manager.sendPassword(credentials.password)
+        } else {
+            // 帳號不存在或沒有密碼，返回空字串
+            manager.sendPassword("")
+        }
     }
     
     func loginPageManager(_ manager: LoginPageManager, checkOTPKeyForAccount account: String) {
-        // 測試階段：告知沒有 OTP 金鑰
         Log.information("[LaunchController] Checking OTP key for: \(account)")
-        manager.notifyNoOTPKey()
+        
+        // 檢查 Keychain 是否有儲存的 OTP 金鑰
+        if OTP.secretStored(username: account) {
+            // 有金鑰：通知 JS 並立即生成 OTP
+            Log.information("[LaunchController] OTP key found for: \(account)")
+            manager.notifyExistingOTPKey()
+            
+            // 生成 OTP 並發送
+            if let (otp, remaining) = generateOTPWithRemaining(for: account) {
+                manager.sendOTP(otp, remainingSeconds: remaining)
+            }
+        } else {
+            // 沒有金鑰：通知 JS 顯示輸入框
+            Log.information("[LaunchController] No OTP key found for: \(account)")
+            manager.notifyNoOTPKey()
+        }
     }
     
     func loginPageManager(_ manager: LoginPageManager, saveOTPKey key: String, forAccount account: String) {
-        // 測試階段：僅記錄
         Log.information("[LaunchController] Saving OTP key for: \(account)")
+        
+        // 儲存金鑰到 Keychain（使用現有的驗證方式）
+        OTP.store(username: account, secret: key)
+        Log.information("[LaunchController] OTP key saved successfully")
+        
+        // 通知 JS 已有金鑰
         manager.notifyExistingOTPKey()
+        
+        // 立即生成並發送 OTP
+        if let (otp, remaining) = generateOTPWithRemaining(for: account) {
+            manager.sendOTP(otp, remainingSeconds: remaining)
+        }
     }
     
     func loginPageManager(_ manager: LoginPageManager, requestOTPForAccount account: String) {
-        // 測試階段：返回測試 OTP
         Log.information("[LaunchController] Requesting OTP for: \(account)")
-        manager.sendOTP("123456")
+        
+        // 生成 OTP 並發送
+        if let (otp, remaining) = generateOTPWithRemaining(for: account) {
+            manager.sendOTP(otp, remainingSeconds: remaining)
+        } else {
+            Log.error("[LaunchController] Failed to generate OTP - no secret stored")
+        }
+    }
+    
+    // MARK: - OTP Helper Methods
+    
+    /// 生成指定帳號的 OTP 並返回剩餘秒數
+    private func generateOTPWithRemaining(for username: String) -> (otp: String, remaining: Int)? {
+        let keychain = Keychain(server: "https://www.ffxiv.com.tw", protocolType: .https)
+        guard let secretData = keychain[data: "\(username)(OTP secret)"] else {
+            return nil
+        }
+        
+        let totp = TOTP(secret: secretData)
+        let otp = totp.token
+        
+        // 計算當前週期的剩餘秒數
+        let now = Date().timeIntervalSince1970
+        let remaining = 30 - Int(now.truncatingRemainder(dividingBy: 30))
+        
+        return (otp, remaining)
     }
     
     func loginPageManager(_ manager: LoginPageManager, executeLoginWithUsername username: String, password: String, otp: String, recaptchaToken: String) {
-        // 測試階段：記錄 token 並通知成功
-        Log.information("[LaunchController] Login executed with reCAPTCHA token (length: \(recaptchaToken.count))")
-        Log.information("[LaunchController] Username: \(username), OTP: \(otp)")
+        Log.information("[LaunchController] WebView login initiated for user: \(username)")
         
-        // 顯示 token 前 20 個字符
-        let tokenPreview = String(recaptchaToken.prefix(20))
-        Log.information("[LaunchController] Token preview: \(tokenPreview)...")
-        
-        // 測試：顯示成功訊息
-        DispatchQueue.main.async {
-            let alert = NSAlert()
-            alert.messageText = "測試成功"
-            alert.informativeText = "reCAPTCHA Token 長度: \(recaptchaToken.count)\n預覽: \(tokenPreview)..."
-            alert.alertStyle = .informational
-            alert.addButton(withTitle: "確定")
-            alert.runModal()
-            
-            manager.notifyLoginSuccess()
+        // 顯示登入進度視窗（與舊版 UI 登入一致）
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.view.window?.beginSheet(self.loginSheetWinController!.window!)
         }
+        
+        // 儲存登入資訊到 Settings
+        Settings.credentials = LoginCredentials(
+            username: username,
+            password: password,
+            oneTimePassword: otp
+        )
+        
+        // 呼叫既有的登入流程
+        // executeLogin 會處理所有錯誤（透過 NSAlert）並在成功時啟動遊戲
+        executeLogin(repair: false, recaptchaToken: recaptchaToken)
     }
     
     func loginPageManager(_ manager: LoginPageManager, recaptchaErrorOccurred message: String) {

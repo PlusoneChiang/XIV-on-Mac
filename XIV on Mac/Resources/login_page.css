@@ -202,6 +202,80 @@ input[type="checkbox"] {
   }
 }
 
+/* ===== OTP 輸入容器和環形進度條 ===== */
+.otp-input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.otp-timer-circle {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.otp-timer-circle.active {
+  opacity: 1;
+}
+
+.circular-chart {
+  width: 100%;
+  height: 100%;
+}
+
+.circle-bg {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.1);
+  stroke-width: 2.5;
+}
+
+.circle-progress {
+  fill: none;
+  stroke: #34C759;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+  transition: stroke 0.3s ease;
+}
+
+.circle-progress.expiring {
+  stroke: #FF453A;
+}
+
+.circle-text {
+  fill: #ffffff;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  text-anchor: middle;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-color-scheme: light) {
+  .circle-bg {
+    stroke: rgba(0, 0, 0, 0.1);
+  }
+  
+  .circle-text {
+    fill: #1a1a1a;
+  }
+}
+
+/* OTP 更新動畫 */
+.otp-updated {
+  animation: otpFlash 0.5s ease;
+}
+
+@keyframes otpFlash {
+  0%, 100% { background-color: transparent; }
+  50% { background-color: rgba(52, 199, 89, 0.2); }
+}
+
 /* ===== OTP 金鑰輸入區域（展開式） ===== */
 .otp-key-group {
   background: rgba(255, 255, 255, 0.05);

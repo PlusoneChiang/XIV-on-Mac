@@ -19,6 +19,7 @@ enum LoginPageMessage: String {
     case requestOTP            // JS → Swift: 請求生成 OTP
     case executeLogin          // JS → Swift: 執行登入
     case recaptchaError        // JS → Swift: reCAPTCHA 獲取失敗
+    case updateAutoOtp         // JS → Swift: 更新自動 OTP 設定
 }
 
 /// 登入頁面管理器
@@ -57,7 +58,8 @@ class LoginPageManager: NSObject {
             .saveOTPKey,
             .requestOTP,
             .executeLogin,
-            .recaptchaError
+            .recaptchaError,
+            .updateAutoOtp
         ] {
             contentController.add(self, name: message.rawValue)
         }
@@ -77,7 +79,8 @@ class LoginPageManager: NSObject {
             .saveOTPKey,
             .requestOTP,
             .executeLogin,
-            .recaptchaError
+            .recaptchaError,
+            .updateAutoOtp
         ] {
             contentController.removeScriptMessageHandler(forName: message.rawValue)
         }
@@ -116,11 +119,11 @@ class LoginPageManager: NSObject {
         Log.information("[LoginPageManager] Notified JS: no OTP key")
     }
     
-    /// 發送生成的 OTP 到 JS
-    func sendOTP(_ otp: String) {
-        let script = "window.loginForm.receiveOTP(\"\(otp)\");"
+    /// 發送生成的 OTP 和剩餘秒數到 JS
+    func sendOTP(_ otp: String, remainingSeconds: Int) {
+        let script = "window.loginForm.receiveOTP('\(otp)', \(remainingSeconds));"
         executeJavaScript(script)
-        Log.information("[LoginPageManager] Sent OTP to JS")
+        Log.information("[LoginPageManager] Sent OTP to JS (remaining: \(remainingSeconds)s)")
     }
     
     /// 重置登入按鈕狀態
@@ -190,6 +193,11 @@ extension LoginPageManager: WKScriptMessageHandler {
             if let errorMessage = message.body as? String {
                 handleRecaptchaError(message: errorMessage)
             }
+            
+        case .updateAutoOtp:
+            if let enabled = message.body as? Bool {
+                handleUpdateAutoOtp(enabled: enabled)
+            }
         }
     }
     
@@ -245,6 +253,11 @@ extension LoginPageManager: WKScriptMessageHandler {
     private func handleRecaptchaError(message: String) {
         delegate?.loginPageManager(self, recaptchaErrorOccurred: message)
     }
+    
+    private func handleUpdateAutoOtp(enabled: Bool) {
+        Log.information("[LoginPageManager] Updating auto OTP setting: \(enabled)")
+        Settings.usesOneTimePassword = enabled
+    }
 }
 
 // MARK: - Delegate Protocol
@@ -274,4 +287,28 @@ protocol LoginPageManagerDelegate: AnyObject {
     
     /// reCAPTCHA 錯誤發生
     func loginPageManager(_ manager: LoginPageManager, recaptchaErrorOccurred message: String)
+}
+
+// MARK: - 遊戲狀態管理擴展
+extension LoginPageManager {
+    /// 通知 JS 遊戲已啟動（暫停 OTP、disable 登入按鈕）
+    func notifyGameStarted() {
+        let script = "window.loginForm.onGameStarted();"
+        executeJavaScript(script)
+        Log.information("[LoginPageManager] Notified JS: game started")
+    }
+    
+    /// 通知 JS 遊戲已結束（恢復 OTP、enable 登入按鈕）
+    func notifyGameExited(exitCode: Int32) {
+        let script = "window.loginForm.onGameExited(\(exitCode));"
+        executeJavaScript(script)
+        Log.information("[LoginPageManager] Notified JS: game exited with code \(exitCode)")
+    }
+    
+    /// 發送自動 OTP 設定狀態到 JS
+    func sendAutoOtpSetting(_ enabled: Bool) {
+        let script = "window.loginForm.receiveAutoOtpSetting(\(enabled));"
+        executeJavaScript(script)
+        Log.information("[LoginPageManager] Sent auto OTP setting: \(enabled)")
+    }
 }
