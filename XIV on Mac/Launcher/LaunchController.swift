@@ -10,6 +10,18 @@ import WebKit
 import XIVLauncher
 import KeychainAccess
 
+// MARK: - Helper Functions
+
+/// 遮罩用戶名以保護隱私（顯示前3個字符，其餘用 * 代替）
+fileprivate func maskUsername(_ username: String) -> String {
+    guard username.count > 3 else {
+        return String(repeating: "*", count: username.count)
+    }
+    let prefix = username.prefix(3)
+    let masked = String(repeating: "*", count: username.count - 3)
+    return "\(prefix)\(masked)"
+}
+
 // 自定義視圖：上方點擊穿透，下方100px可互動
 class ClickThroughView: NSView {
     var interactiveHeight: CGFloat = 100 // 下方100px可互動
@@ -365,6 +377,15 @@ class LaunchController: NSViewController, WKNavigationDelegate {
     }
 
     private func executeLogin(repair: Bool, recaptchaToken: String) {
+        // 檢查配置問題（需在主線程執行，因為可能會顯示 FirstAid UI）
+        if problemConfigurationCheck() {
+            Log.warning("Login cancelled due to configuration problems")
+            DispatchQueue.main.async { [weak self] in
+                self?.loginPageManager?.resetLoginButton()
+            }
+            return
+        }
+        
         DispatchQueue.global(qos: .default).async {
             do {
                 // 安裝檢查已在 loginPageManager 中執行，此處不再需要
@@ -833,13 +854,13 @@ extension LaunchController: LoginPageManagerDelegate {
         if let lastUsedAccount = Settings.credentials?.username {
             if !accountUsernames.contains(lastUsedAccount) {
                 // 最後使用的帳號不在 Keychain 中，清空 Settings
-                Log.information("[LaunchController] Last used account '\(lastUsedAccount)' not in Keychain, clearing")
+                Log.information("[LaunchController] Last used account '\(maskUsername(lastUsedAccount))' not in Keychain, clearing")
                 Settings.credentials = nil
             } else {
                 // 將最後使用的帳號移到第一位
                 accountUsernames.removeAll { $0 == lastUsedAccount }
                 accountUsernames.insert(lastUsedAccount, at: 0)
-                Log.information("[LaunchController] Last used account: \(lastUsedAccount)")
+                Log.information("[LaunchController] Last used account: \(maskUsername(lastUsedAccount))")
             }
         }
         
@@ -852,13 +873,13 @@ extension LaunchController: LoginPageManagerDelegate {
         // 如果有帳號，自動發送第一個帳號的密碼（最後使用的或第一個）
         if let firstAccount = accountUsernames.first,
            let credentials = LoginCredentials.storedLogin(username: firstAccount) {
-            Log.information("[LaunchController] Auto-filling password for: \(firstAccount)")
+            Log.information("[LaunchController] Auto-filling password for: \(maskUsername(firstAccount))")
             manager.sendPassword(credentials.password)
         }
     }
     
     func loginPageManager(_ manager: LoginPageManager, requestPasswordForAccount account: String) {
-        Log.information("[LaunchController] Requesting password for: \(account)")
+        Log.information("[LaunchController] Requesting password for: \(maskUsername(account))")
         
         // 從 Keychain 讀取指定帳號的密碼
         if let credentials = LoginCredentials.storedLogin(username: account) {
@@ -870,12 +891,12 @@ extension LaunchController: LoginPageManagerDelegate {
     }
     
     func loginPageManager(_ manager: LoginPageManager, checkOTPKeyForAccount account: String) {
-        Log.information("[LaunchController] Checking OTP key for: \(account)")
+        Log.information("[LaunchController] Checking OTP key for: \(maskUsername(account))")
         
         // 檢查 Keychain 是否有儲存的 OTP 金鑰
         if OTP.secretStored(username: account) {
             // 有金鑰：通知 JS 並立即生成 OTP
-            Log.information("[LaunchController] OTP key found for: \(account)")
+            Log.information("[LaunchController] OTP key found for: \(maskUsername(account))")
             manager.notifyExistingOTPKey()
             
             // 生成 OTP 並發送
@@ -884,13 +905,13 @@ extension LaunchController: LoginPageManagerDelegate {
             }
         } else {
             // 沒有金鑰：通知 JS 顯示輸入框
-            Log.information("[LaunchController] No OTP key found for: \(account)")
+            Log.information("[LaunchController] No OTP key found for: \(maskUsername(account))")
             manager.notifyNoOTPKey()
         }
     }
     
     func loginPageManager(_ manager: LoginPageManager, saveOTPKey key: String, forAccount account: String) {
-        Log.information("[LaunchController] Saving OTP key for: \(account)")
+        Log.information("[LaunchController] Saving OTP key for: \(maskUsername(account))")
         
         // 儲存金鑰到 Keychain（使用現有的驗證方式）
         OTP.store(username: account, secret: key)
@@ -906,7 +927,7 @@ extension LaunchController: LoginPageManagerDelegate {
     }
     
     func loginPageManager(_ manager: LoginPageManager, requestOTPForAccount account: String) {
-        Log.information("[LaunchController] Requesting OTP for: \(account)")
+        Log.information("[LaunchController] Requesting OTP for: \(maskUsername(account))")
         
         // 生成 OTP 並發送
         if let (otp, remaining) = generateOTPWithRemaining(for: account) {
@@ -936,7 +957,7 @@ extension LaunchController: LoginPageManagerDelegate {
     }
     
     func loginPageManager(_ manager: LoginPageManager, executeLoginWithUsername username: String, password: String, otp: String, recaptchaToken: String) {
-        Log.information("[LaunchController] WebView login initiated for user: \(username)")
+        Log.information("[LaunchController] WebView login initiated for user: \(maskUsername(username))")
         
         // 儲存登入資訊到 Settings
         Settings.credentials = LoginCredentials(
