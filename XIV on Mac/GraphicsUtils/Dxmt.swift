@@ -19,6 +19,7 @@ enum Dxmt {
     }
 
     static func uninstall() {
+        GraphicsInstaller.restore(dllName: d3d11Dll.lastPathComponent)
         GraphicsInstaller.restore(dllName: dxgiDll.lastPathComponent)
     }
 }

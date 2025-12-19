@@ -983,7 +983,7 @@ Gw
                         <rect key="frame" x="0.0" y="0.0" width="965" height="439"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
-                            <visualEffectView fixedFrame="YES" blendingMode="behindWindow" material="popover" state="followsWindowActiveState" translatesAutoresizingMaskIntoConstraints="NO" id="wY2-dv-E6t">
+                            <visualEffectView fixedFrame="YES" blendingMode="behindWindow" material="HUDWindow" state="followsWindowActiveState" maskImage="snowflake_x2" translatesAutoresizingMaskIntoConstraints="NO" id="wY2-dv-E6t">
                                 <rect key="frame" x="0.0" y="0.0" width="965" height="442"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
@@ -1588,5 +1588,6 @@ Gw
         <image name="flag.pattern.checkered.2.crossed" catalog="system" width="34" height="22"/>
         <image name="gear" catalog="system" width="17" height="16"/>
         <image name="puzzlepiece.fill" catalog="system" width="22" height="15"/>
+        <image name="snowflake_x2" width="1930" height="884"/>
     </resources>
 </document>
