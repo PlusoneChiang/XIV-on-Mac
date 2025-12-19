@@ -5,7 +5,7 @@
 
 // reCAPTCHA Site Key
 const SITE_KEY = "6Ld6VmorAAAAANQdQeqkaOeScR42qHC7Hyalq00r";
-
+const VERSION = "v0.4.1";
 /**
  * 登入表單管理類
  */
@@ -687,6 +687,41 @@ function initLoginPage() {
   console.log('[LoginPage] DOM ready, initializing...');
   window.loginForm = new LoginForm();
 }
+
+// ===== 檢查版本 =====
+
+async function checkUpdate() {
+    const apiUrl = "https://api.github.com/repos/PlusoneChiang/XIV-on-Mac-in-TC/releases/latest";
+    const container = document.getElementById("last-version");
+
+    try {
+        const response = await fetch(apiUrl);
+        if (!response.ok) return; // 失敗時靜默處理，不干擾使用者
+
+        const data = await response.json();
+        const latestVersion = data.tag_name;
+        const downloadUrl = data.html_url;
+
+        // 比對版本：如果最新版號不等於目前版本，則顯示連結
+        if (latestVersion !== VERSION) {
+            container.innerHTML = `
+                <div style="background: #fff3cd; padding: 10px; border: 1px solid #ffeeba; border-radius: 4px;">
+                    發現新版本！最新為 ${latestVersion}，
+                    <a href="${downloadUrl}" target="_blank" rel="noopener">點此前往下載頁面</a>
+                </div>
+            `;
+        } else {
+            // 如果版本相同，則清空 div (或保持隱藏)
+            container.innerHTML = "";
+            console.log("目前已是最新版本");
+        }
+
+    } catch (error) {
+        console.error("檢查更新失敗:", error);
+    }
+}
+
+checkUpdate();
 
 // ===== 全域錯誤處理 =====
 
