@@ -725,7 +725,7 @@ extension LaunchController {
             if navigationAction.targetFrame == nil || navigationAction.targetFrame?.isMainFrame == false {
                 // iframe 內的連結點擊，在系統瀏覽器中打開
                 if let url = navigationAction.request.url {
-                    Log.information("[LaunchController] Opening iframe link in browser: \(url.absoluteString)")
+
                     NSWorkspace.shared.open(url)
                     decisionHandler(.cancel)
                     return
@@ -744,7 +744,7 @@ extension LaunchController {
         
         // 處理 target="_blank" 連結，在系統瀏覽器中打開
         if let url = navigationAction.request.url {
-            Log.information("[LaunchController] Opening target=_blank URL in browser: \(url.absoluteString)")
+
             NSWorkspace.shared.open(url)
         }
         
@@ -761,9 +761,6 @@ extension LaunchController {
             
             // 加上 20px 緩衝
             let heightWithBuffer = originalHeight + 20
-            
-            Log.information("[LaunchController] Login page original scrollHeight: \(originalHeight)px")
-            Log.information("[LaunchController] Login page height with 20px buffer: \(heightWithBuffer)px")
             
             DispatchQueue.main.async {
                 self.adjustLoginPageContainerAndWindow(for: heightWithBuffer)
@@ -816,8 +813,6 @@ extension LaunchController {
             context.duration = 0.3
             context.allowsImplicitAnimation = true
             window.setFrame(newWindowFrame, display: true, animate: true)
-        } completionHandler: {
-            Log.information("[LaunchController] Window adjustment completed")
         }
     }
     
@@ -832,11 +827,9 @@ extension LaunchController {
     }
     
     func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
-        Log.information("[LaunchController] WebView started loading")
     }
     
     func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
-        Log.information("[LaunchController] WebView committed navigation")
     }
 }
 
@@ -879,8 +872,6 @@ extension LaunchController: LoginPageManagerDelegate {
     }
     
     func loginPageManager(_ manager: LoginPageManager, requestPasswordForAccount account: String) {
-        Log.information("[LaunchController] Requesting password for: \(maskUsername(account))")
-        
         // 從 Keychain 讀取指定帳號的密碼
         if let credentials = LoginCredentials.storedLogin(username: account) {
             manager.sendPassword(credentials.password)
@@ -891,8 +882,6 @@ extension LaunchController: LoginPageManagerDelegate {
     }
     
     func loginPageManager(_ manager: LoginPageManager, checkOTPKeyForAccount account: String) {
-        Log.information("[LaunchController] Checking OTP key for: \(maskUsername(account))")
-        
         // 檢查 Keychain 是否有儲存的 OTP 金鑰
         if OTP.secretStored(username: account) {
             // 有金鑰：通知 JS 並立即生成 OTP
@@ -927,8 +916,6 @@ extension LaunchController: LoginPageManagerDelegate {
     }
     
     func loginPageManager(_ manager: LoginPageManager, requestOTPForAccount account: String) {
-        Log.information("[LaunchController] Requesting OTP for: \(maskUsername(account))")
-        
         // 生成 OTP 並發送
         if let (otp, remaining) = generateOTPWithRemaining(for: account) {
             manager.sendOTP(otp, remainingSeconds: remaining)

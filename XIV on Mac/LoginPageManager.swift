@@ -63,8 +63,6 @@ class LoginPageManager: NSObject {
         ] {
             contentController.add(self, name: message.rawValue)
         }
-        
-        Log.information("[LoginPageManager] Message handlers registered")
     }
     
     private func removeMessageHandlers() {
@@ -93,7 +91,6 @@ class LoginPageManager: NSObject {
         let accountsJSON = accounts.map { "\"\($0)\"" }.joined(separator: ",")
         let script = "window.loginForm.receiveAccounts([\(accountsJSON)]);"
         executeJavaScript(script)
-        Log.information("[LoginPageManager] Sent \(accounts.count) accounts to JS")
     }
     
     /// 發送密碼到 JS
@@ -102,42 +99,36 @@ class LoginPageManager: NSObject {
                                       .replacingOccurrences(of: "\"", with: "\\\"")
         let script = "window.loginForm.receivePassword(\"\(escapedPassword)\");"
         executeJavaScript(script)
-        Log.information("[LoginPageManager] Sent password to JS")
     }
     
     /// 通知 JS 該帳號有已儲存的 OTP 金鑰
     func notifyExistingOTPKey() {
         let script = "window.loginForm.onExistingOTPKey();"
         executeJavaScript(script)
-        Log.information("[LoginPageManager] Notified JS: existing OTP key")
     }
     
     /// 通知 JS 該帳號沒有已儲存的 OTP 金鑰
     func notifyNoOTPKey() {
         let script = "window.loginForm.onNoOTPKey();"
         executeJavaScript(script)
-        Log.information("[LoginPageManager] Notified JS: no OTP key")
     }
     
     /// 發送生成的 OTP 和剩餘秒數到 JS
     func sendOTP(_ otp: String, remainingSeconds: Int) {
         let script = "window.loginForm.receiveOTP('\(otp)', \(remainingSeconds));"
         executeJavaScript(script)
-        Log.information("[LoginPageManager] Sent OTP to JS (remaining: \(remainingSeconds)s)")
     }
     
     /// 重置登入按鈕狀態
     func resetLoginButton() {
         let script = "window.loginForm.resetLoginButton();"
         executeJavaScript(script)
-        Log.information("[LoginPageManager] Reset login button")
     }
     
     /// 通知登入成功
     func notifyLoginSuccess() {
         let script = "window.loginForm.onLoginSuccess();"
         executeJavaScript(script)
-        Log.information("[LoginPageManager] Notified login success")
     }
     
     // MARK: - Helper
@@ -159,8 +150,6 @@ extension LoginPageManager: WKScriptMessageHandler {
             Log.warning("[LoginPageManager] Unknown message: \(message.name)")
             return
         }
-        
-        Log.information("[LoginPageManager] Received message: \(messageType.rawValue)")
         
         switch messageType {
         case .requestAccounts:
@@ -255,7 +244,6 @@ extension LoginPageManager: WKScriptMessageHandler {
     }
     
     private func handleUpdateAutoOtp(enabled: Bool) {
-        Log.information("[LoginPageManager] Updating auto OTP setting: \(enabled)")
         Settings.usesOneTimePassword = enabled
     }
 }
@@ -309,6 +297,5 @@ extension LoginPageManager {
     func sendAutoOtpSetting(_ enabled: Bool) {
         let script = "window.loginForm.receiveAutoOtpSetting(\(enabled));"
         executeJavaScript(script)
-        Log.information("[LoginPageManager] Sent auto OTP setting: \(enabled)")
     }
 }
