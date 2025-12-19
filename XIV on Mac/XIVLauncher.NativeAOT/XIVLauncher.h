@@ -1,6 +1,6 @@
 #include <stdbool.h>
 
-void initXL(const char* appName, const char *storagePath, bool verboseLogging, const char *frontierURL);
+void initXL(const char* appName, const char *storagePath, bool verboseLogging, const char *frontierURL, const char* betaKind, const char* betaKey);
 
 const char *generateAcceptLanguage(int seed);
 
@@ -29,3 +29,5 @@ const char *getBootPatches(void);
 const char *installPatch(const char *patch, const char *repo);
 
 bool checkPatchValidity(const char *path, long patchLength, long hashBlockSize, const char *hashType, const char *hashes);
+
+void updateDalamud(const char* betaKind, const char* betaKey);
