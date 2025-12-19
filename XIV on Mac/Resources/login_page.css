@@ -63,14 +63,22 @@ body {
 
 /* 支援深色模式 */
 @media (prefers-color-scheme: light) {
+  .news-section {
+    background: rgba(255, 255, 255, 0.4); /* 半透明白色背景 */
+    backdrop-filter: blur(10px) saturate(150%); /* 毛玻璃效果 */
+    -webkit-backdrop-filter: blur(10px) saturate(150%); /* Safari 支援 */
+    border: 1px solid rgba(255, 255, 255, 0.5); /* 半透明邊框 */
+  }
+  
   .login-section {
-    background: linear-gradient(135deg, rgba(245, 245, 245, 0.05) 0%, rgba(232, 232, 232, 0.05) 100%); /* 降低到 5% 透明度 */
-    backdrop-filter: blur(1px); /* 降低背景模糊效果到 1px */
-    -webkit-backdrop-filter: blur(1px); /* Safari 支援 */
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(240, 240, 240, 0.2) 100%); /* 降低到 15-20% 不透明度 */
+    backdrop-filter: blur(10px) saturate(180%); /* 降低模糊到 5px */
+    -webkit-backdrop-filter: blur(10px) saturate(180%); /* Safari 支援 */
+    border: 1px solid rgba(255, 255, 255, 0.3); /* 添加邊框增強毛玻璃感 */
   }
   
   body {
-    background: #f0f0f0;
+    background: transparent;
   }
 }
 

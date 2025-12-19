@@ -98,6 +98,7 @@
 		50F6CBAA27A975A000013301 /* Wine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50F6CBA927A975A000013301 /* Wine.swift */; };
 		50FC2DFF27F974D300871760 /* DxvkStateCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50FC2DFE27F974D300871760 /* DxvkStateCache.swift */; };
 		50FC2E0127F9751600871760 /* DxvkError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50FC2E0027F9751600871760 /* DxvkError.swift */; };
+		CC9A36932EF5A81800F66D3C /* snowflake_x3.png in Resources */ = {isa = PBXBuildFile; fileRef = CC9A36922EF5A81800F66D3C /* snowflake_x3.png */; };
 		CC9B3FA62EDF5E7C0029BF87 /* FFXIV-TcDefault.cfg in Resources */ = {isa = PBXBuildFile; fileRef = CC9B3FA52EDF5E7C0029BF87 /* FFXIV-TcDefault.cfg */; };
 		CCFF04AA2EEAB05D0009A0EA /* LoginPageSchemeHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFF04A92EEAB05D0009A0EA /* LoginPageSchemeHandler.swift */; };
 		CCFF04AB2EEAB05D0009A0EA /* LoginPageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFF04A82EEAB05D0009A0EA /* LoginPageManager.swift */; };
@@ -224,6 +225,7 @@
 		50F6CBA927A975A000013301 /* Wine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Wine.swift; sourceTree = "<group>"; };
 		50FC2DFE27F974D300871760 /* DxvkStateCache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DxvkStateCache.swift; sourceTree = "<group>"; };
 		50FC2E0027F9751600871760 /* DxvkError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DxvkError.swift; sourceTree = "<group>"; };
+		CC9A36922EF5A81800F66D3C /* snowflake_x3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = snowflake_x3.png; sourceTree = "<group>"; };
 		CC9B3FA52EDF5E7C0029BF87 /* FFXIV-TcDefault.cfg */ = {isa = PBXFileReference; lastKnownFileType = text; path = "FFXIV-TcDefault.cfg"; sourceTree = "<group>"; };
 		CCFF04A82EEAB05D0009A0EA /* LoginPageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginPageManager.swift; sourceTree = "<group>"; };
 		CCFF04A92EEAB05D0009A0EA /* LoginPageSchemeHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginPageSchemeHandler.swift; sourceTree = "<group>"; };
@@ -276,6 +278,7 @@
 				073649AE281E393000DA41F7 /* PrefsGeneral.tiff */,
 				07E8A6652BD05698005AD41B /* ChocoboWalk1.tiff */,
 				07E8A6642BD05698005AD41B /* ChocoboWalk2.tiff */,
+				CC9A36922EF5A81800F66D3C /* snowflake_x3.png */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -609,6 +612,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CC9A36932EF5A81800F66D3C /* snowflake_x3.png in Resources */,
 				CCFF04AF2EEAB6890009A0EA /* login_page.html in Resources */,
 				CCFF04B02EEAB6890009A0EA /* login_page.js in Resources */,
 				CCFF04B12EEAB6890009A0EA /* login_page.css in Resources */,
