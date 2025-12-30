@@ -2,9 +2,9 @@
   "assemblyVersion": "25-12-26-01",
   "supportedGameVer": "2025.12.05.0000.0000",
   "runtimeRequired": true,
-  "runtimeVersion": "10.0.0",
+  "runtimeVersion": "9.0.2",
   "downloadUrl": "https://github.com/yanmucorp/Dalamud/releases/download/25-12-26-01/latest.7z",
   "track": "custom",
-  "displayName": "XIV on Mac Custom",
+  "displayName": "XIV on Mac in TC",
   "key": null
 }
