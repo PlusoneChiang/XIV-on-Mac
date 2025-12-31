@@ -19,29 +19,19 @@ struct SettingsPluginsTabView: View {
                 .padding([.top, .leading, .trailing])
                 .frame(maxWidth: .infinity, alignment: .leading)
             HStack {
-                // TEMPORARILY DISABLED: Dalamud functionality UI
-                // To re-enable: Remove the 'if false' condition below
-                if false {
-                    Toggle(isOn: $viewModel.dalamudEnabled) {
-                        Text("SETTINGS_PLUGINS_DALAMUD_ENABLE")
-                    }
-                    .padding(.leading)
+                Toggle(isOn: $viewModel.dalamudEnabled) {
+                    Text("SETTINGS_PLUGINS_DALAMUD_ENABLE")
                 }
+                .padding(.leading)
                 Spacer()
-                // TEMPORARILY DISABLED: Dalamud entry point functionality UI
-                // To re-enable: Remove the 'if false' condition below
-                if false {
-                    Toggle(isOn: $viewModel.dalamudEntryPoint) {
-                        Text("SETTINGS_PLUGINS_DALAMUD_ENTRYPOINT")
-                    }
-                    .padding(.leading)
-                    .disabled(!viewModel.dalamudEnabled)
+                Toggle(isOn: $viewModel.dalamudEntryPoint) {
+                    Text("SETTINGS_PLUGINS_DALAMUD_ENTRYPOINT")
                 }
+                .padding(.leading)
+                .disabled(!viewModel.dalamudEnabled)
                 Spacer()
             }
-            // TEMPORARILY DISABLED: Dalamud delay settings UI
-            // To re-enable: Remove the 'if false' condition below
-            if false && !viewModel.dalamudEntryPoint {
+            if !viewModel.dalamudEntryPoint {
                 Text("SETTINGS_PLUGINS_DALAMUD_DELAY_BLURB")
                     .multilineTextAlignment(.leading)
                     .lineLimit(nil)
@@ -157,21 +147,15 @@ private struct DalamudBranch: Identifiable, Codable, Equatable {
 
 extension SettingsPluginsTabView {
     @MainActor class ViewModel: ObservableObject {
-        // TEMPORARILY DISABLED: Dalamud functionality
-        // To re-enable: Change back to 'Settings.dalamudEnabled' and remove UI hiding
-        @Published var dalamudEnabled: Bool = false {
+        @Published var dalamudEnabled: Bool = Settings.dalamudEnabled {
             didSet { Settings.dalamudEnabled = dalamudEnabled }
         }
 
-        // TEMPORARILY DISABLED: Dalamud entry point functionality
-        // To re-enable: Change back to 'Settings.dalamudEntryPoint'
-        @Published var dalamudEntryPoint: Bool = false {
+        @Published var dalamudEntryPoint: Bool = Settings.dalamudEntryPoint {
             didSet { Settings.dalamudEntryPoint = dalamudEntryPoint }
         }
 
-        // TEMPORARILY DISABLED: Dalamud delay settings
-        // To re-enable: Change back to '.init(Settings.injectionDelay)'
-        @Published var dalamudDelay: String = "0" {
+        @Published var dalamudDelay: String = .init(Settings.injectionDelay) {
             didSet { Settings.injectionDelay = Double(dalamudDelay) ?? 0 }
         }
 
