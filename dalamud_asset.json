@@ -1,0 +1,215 @@
+{
+    "version": 2,
+    "assets": [
+        {
+            "url": "https://raw.githubusercontent.com/yanmucorp/DalamudAssets/master/UIRes/defaultIcon.png",
+            "fileName": "UIRes/defaultIcon.png",
+            "hash": "81185C2BCC5DF0B52B610187EB3B9671C7FB0568"
+        },
+        {
+            "url": "https://raw.githubusercontent.com/yanmucorp/DalamudAssets/master/UIRes/outdatedInstallableIcon.png",
+            "fileName": "UIRes/outdatedInstallableIcon.png",
+            "hash": "BA96E817FE8EE2FCC976DEC986973C78BE3A37AE"
+        },
+        {
+            "url": "https://raw.githubusercontent.com/yanmucorp/DalamudAssets/master/UIRes/NotoSansKR-Regular.otf",
+            "fileName": "UIRes/NotoSansKR-Regular.otf",
+            "hash": "5F533D0D5CAF3847AFA2D78301E7B87B3485ECBC"
+        },
+        {
+            "url": "https://raw.githubusercontent.com/yanmucorp/DalamudAssets/master/UIRes/installedIcon.png",
+            "fileName": "UIRes/installedIcon.png",
+            "hash": "F9A7E334CB719CF36B265A212B3D32A4578429B4"
+        },
+        {
+            "url": "https://raw.githubusercontent.com/yanmucorp/DalamudAssets/master/UIRes/LodestoneGameSymbol.ttf",
+            "fileName": "UIRes/LodestoneGameSymbol.ttf",
+            "hash": "89BC6B5015EF0EDFA5AE272B3A406B54CF61C6F1"
+        },
+        {
+            "url": "https://raw.githubusercontent.com/yanmucorp/DalamudAssets/master/UIRes/disabledIcon.png",
+            "fileName": "UIRes/disabledIcon.png",
+            "hash": "3AFC19400A6475198503DCC25314BCBCDC03B929"
+        },
+        {
+            "url": "https://raw.githubusercontent.com/yanmucorp/DalamudAssets/master/UIRes/troubleIcon.png",
+            "fileName": "UIRes/troubleIcon.png",
+            "hash": "82F7C168A9C712BFCBADD7CFD49060BBC446A634"
+        },
+        {
+            "url": "https://raw.githubusercontent.com/yanmucorp/DalamudAssets/master/UIRes/missingFont.png",
+            "fileName": "UIRes/missingFont.png",
+            "hash": "15CEFA7E00E86A3E47D93B557D574B3A3B272AC8"
+        },
+        {
+            "url": "https://raw.githubusercontent.com/yanmucorp/DalamudAssets/master/UIRes/thirdIcon.png",
+            "fileName": "UIRes/thirdIcon.png",
+            "hash": "2DFA794867B1ABFEFFF2923FF3C1E06801F9CBC1"
+        },
+        {
+            "url": "https://raw.githubusercontent.com/yanmucorp/DalamudAssets/master/UIRes/thirdInstalledIcon.png",
+            "fileName": "UIRes/thirdInstalledIcon.png",
+            "hash": "05E2B4508517646F0FC4E55A821F9A990B2559F7"
+        },
+        {
+            "url": "https://raw.githubusercontent.com/yanmucorp/DalamudAssets/master/UIRes/gamesym.ttf",
+            "fileName": "UIRes/gamesym.ttf",
+            "hash": "89BC6B5015EF0EDFA5AE272B3A406B54CF61C6F1"
+        },
+        {
+            "url": "https://mirrors.ustc.edu.cn/CTAN/fonts/notocjksc/NotoSansCJKsc-Medium.otf",
+            "fileName": "UIRes/NotoSansCJKsc-Medium.otf",
+            "hash": "C8AC9E680749BF31536971BC51DB257DDBAF3E68"
+        },
+        {
+            "url": "https://raw.githubusercontent.com/yanmucorp/DalamudAssets/master/UIRes/logo.png",
+            "fileName": "UIRes/logo.png",
+            "hash": "0F6323DDFA3665639142252281D22C675D8CD617"
+        },
+        {
+            "url": "https://raw.githubusercontent.com/yanmucorp/DalamudAssets/master/UIRes/changelogApiBump.png",
+            "fileName": "UIRes/changelogApiBump.png",
+            "hash": "16BB14DEF2AD9894C9DA37483A6B0B9AADFCD72D"
+        },
+        {
+            "url": "https://raw.githubusercontent.com/yanmucorp/DalamudAssets/master/UIRes/NotoSansCJKjp-Medium.otf",
+            "fileName": "UIRes/NotoSansCJKjp-Medium.otf",
+            "hash": "7334F0BADA3A7D52E1C642217EB7EA21BE700421"
+        },
+        {
+            "url": "https://raw.githubusercontent.com/yanmucorp/DalamudAssets/master/UIRes/FontAwesomeFreeSolid.otf",
+            "fileName": "UIRes/FontAwesomeFreeSolid.otf",
+            "hash": "4860698FEE75A5481CB00C744B7EB297ABDC455D"
+        },
+        {
+            "url": "https://raw.githubusercontent.com/yanmucorp/DalamudAssets/master/UIRes/tsmShade.png",
+            "fileName": "UIRes/tsmShade.png",
+            "hash": "AB7EE2E20955CDC4B98886BE7AEE962A98105D4B"
+        },
+        {
+            "url": "https://raw.githubusercontent.com/yanmucorp/DalamudAssets/master/UIRes/bannedplugin.json",
+            "fileName": "UIRes/bannedplugin.json",
+            "hash": "1DF26D0719AEA1187C49D40C733FAE437E9C642A"
+        },
+        {
+            "url": "https://raw.githubusercontent.com/yanmucorp/DalamudAssets/master/UIRes/devPluginIcon.png",
+            "fileName": "UIRes/devPluginIcon.png",
+            "hash": "DC33AC5B811D32815BCB4C4261563EFFE532638E"
+        },
+        {
+            "url": "https://raw.githubusercontent.com/yanmucorp/DalamudAssets/master/UIRes/clientopcode.json",
+            "fileName": "UIRes/clientopcode.json",
+            "hash": "DFC1B0814E54B7BEAEE317E437C3EE16207F0A13"
+        },
+        {
+            "url": "https://raw.githubusercontent.com/yanmucorp/DalamudAssets/master/UIRes/tsmLogo.png",
+            "fileName": "UIRes/tsmLogo.png",
+            "hash": "DAC17EE20C63A0CD0C5040A8A900E3CA1B67C5CC"
+        },
+        {
+            "url": "https://raw.githubusercontent.com/yanmucorp/DalamudAssets/master/UIRes/welcome.png",
+            "fileName": "UIRes/welcome.png",
+            "hash": "E2383290520BBFCF92893A6043712374ACF44CA5"
+        },
+        {
+            "url": "https://raw.githubusercontent.com/yanmucorp/DalamudAssets/master/UIRes/serveropcode.json",
+            "fileName": "UIRes/serveropcode.json",
+            "hash": "3ADA4B06642F5830C3C905E1DD27A8086FDFB6EA"
+        },
+        {
+            "url": "https://raw.githubusercontent.com/yanmucorp/DalamudAssets/master/UIRes/Inconsolata-Regular.ttf",
+            "fileName": "UIRes/Inconsolata-Regular.ttf",
+            "hash": "FBE9E14427D84CE3F25F4D6A8EF57F527DB5A154"
+        },
+        {
+            "url": "https://raw.githubusercontent.com/yanmucorp/DalamudAssets/master/UIRes/updateIcon.png",
+            "fileName": "UIRes/updateIcon.png",
+            "hash": "544DA1125ADC03D63610127DC76E1FC5175615D3"
+        },
+        {
+            "url": "https://raw.githubusercontent.com/yanmucorp/DalamudAssets/master/UIRes/FontAwesome710FreeSolid.otf",
+            "fileName": "UIRes/FontAwesome710FreeSolid.otf",
+            "hash": "4E4A7F0BF14D5E30DA71A3B697C2D7919D8FF5C1"
+        },
+        {
+            "url": "https://raw.githubusercontent.com/yanmucorp/DalamudAssets/master/UIRes/loc/dalamud/dalamud_es.json",
+            "fileName": "UIRes/loc/dalamud/dalamud_es.json",
+            "hash": "DDE399AAAADE01484332BB99E78AD8E8D319F191"
+        },
+        {
+            "url": "https://raw.githubusercontent.com/yanmucorp/DalamudAssets/master/UIRes/loc/dalamud/dalamud_si.json",
+            "fileName": "UIRes/loc/dalamud/dalamud_si.json",
+            "hash": "D542BBFE7FB0A073879FFFB771AAB098DB9476CB"
+        },
+        {
+            "url": "https://raw.githubusercontent.com/yanmucorp/DalamudAssets/master/UIRes/loc/dalamud/dalamud_zh.json",
+            "fileName": "UIRes/loc/dalamud/dalamud_zh.json",
+            "hash": "44940E0F526CE5A3D31D1DE095250BF6AC26DE74"
+        },
+        {
+            "url": "https://raw.githubusercontent.com/yanmucorp/DalamudAssets/master/UIRes/loc/dalamud/dalamud_it.json",
+            "fileName": "UIRes/loc/dalamud/dalamud_it.json",
+            "hash": "7017B0D86C4BDE52BD174734FBA70BF9153857B6"
+        },
+        {
+            "url": "https://raw.githubusercontent.com/yanmucorp/DalamudAssets/master/UIRes/loc/dalamud/dalamud_fr.json",
+            "fileName": "UIRes/loc/dalamud/dalamud_fr.json",
+            "hash": "A097143B99721AE888744B4C0031883C74C3BB9F"
+        },
+        {
+            "url": "https://raw.githubusercontent.com/yanmucorp/DalamudAssets/master/UIRes/loc/dalamud/dalamud_pt.json",
+            "fileName": "UIRes/loc/dalamud/dalamud_pt.json",
+            "hash": "C9DDDE3097E93B54F2E6EEE1B23B0AB07C5F41E3"
+        },
+        {
+            "url": "https://raw.githubusercontent.com/yanmucorp/DalamudAssets/master/UIRes/loc/dalamud/dalamud_de.json",
+            "fileName": "UIRes/loc/dalamud/dalamud_de.json",
+            "hash": "7F16B1FA1E676865F9ED1C02210CEE6977305FF4"
+        },
+        {
+            "url": "https://raw.githubusercontent.com/yanmucorp/DalamudAssets/master/UIRes/loc/dalamud/dalamud_sv.json",
+            "fileName": "UIRes/loc/dalamud/dalamud_sv.json",
+            "hash": "AD2804D84F7ED883F6CB6A20D836F69273F67980"
+        },
+        {
+            "url": "https://raw.githubusercontent.com/yanmucorp/DalamudAssets/master/UIRes/loc/dalamud/dalamud_ko.json",
+            "fileName": "UIRes/loc/dalamud/dalamud_ko.json",
+            "hash": "DCF22B056009267D937B4115F4EB6B0AF85EAD9D"
+        },
+        {
+            "url": "https://raw.githubusercontent.com/yanmucorp/DalamudAssets/master/UIRes/loc/dalamud/dalamud_ur.json",
+            "fileName": "UIRes/loc/dalamud/dalamud_ur.json",
+            "hash": "D542BBFE7FB0A073879FFFB771AAB098DB9476CB"
+        },
+        {
+            "url": "https://raw.githubusercontent.com/yanmucorp/DalamudAssets/master/UIRes/loc/dalamud/dalamud_no.json",
+            "fileName": "UIRes/loc/dalamud/dalamud_no.json",
+            "hash": "2272FFAAE4FB6E884EC1F841F85C7BB2B64E544D"
+        },
+        {
+            "url": "https://raw.githubusercontent.com/yanmucorp/DalamudAssets/master/UIRes/loc/dalamud/dalamud_ja.json",
+            "fileName": "UIRes/loc/dalamud/dalamud_ja.json",
+            "hash": "FF5F90EBEEF0EAA83AD7B42A31FF103828A6E43D"
+        },
+        {
+            "url": "https://raw.githubusercontent.com/yanmucorp/DalamudAssets/master/UIRes/loc/dalamud/dalamud_tw.json",
+            "fileName": "UIRes/loc/dalamud/dalamud_tw.json",
+            "hash": "BE121E08E1AF48056282D92363832993CB9A90DF"
+        },
+        {
+            "url": "https://raw.githubusercontent.com/yanmucorp/DalamudAssets/master/UIRes/loc/dalamud/dalamud_ru.json",
+            "fileName": "UIRes/loc/dalamud/dalamud_ru.json",
+            "hash": "DF814C1E5061D96E13A6409288FDD7A2E43A0435"
+        },
+        {
+            "url": "https://raw.githubusercontent.com/yanmucorp/DalamudAssets/master/UIRes/loc/dalamud/dalamud_nl.json",
+            "fileName": "UIRes/loc/dalamud/dalamud_nl.json",
+            "hash": "AD6DBDCF48483B03A5E1B56A4B5DDA001600BEE5"
+        },
+        {
+            "url": "https://raw.githubusercontent.com/yanmucorp/DalamudAssets/master/UIRes/loc/dalamud/dalamud_hu.json",
+            "fileName": "UIRes/loc/dalamud/dalamud_hu.json",
+            "hash": "EA4928307D7D2FFDD4DBB97B994A14B7EF5E6E12"
+        }
+    ]
+}
