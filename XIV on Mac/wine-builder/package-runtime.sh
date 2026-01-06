@@ -174,3 +174,23 @@ find "$targetDir" -type f | while read file; do
     fi
 done
 
+# Copy GStreamer plugins
+echo "note: Copying GStreamer plugins..."
+gstPluginDir="$libDir/gstreamer-1.0"
+mkdir -p "$gstPluginDir"
+
+for pluginStore in /nix/store/*gstreamer-*/lib/gstreamer-1.0 /nix/store/*gst-plugins-*/lib/gstreamer-1.0 /nix/store/*gst-libav-*/lib/gstreamer-1.0; do
+    if [[ -d "$pluginStore" ]]; then
+        echo "note: Processing plugins from $pluginStore"
+        for plugin in "$pluginStore"/*.dylib; do
+            if [[ -f "$plugin" && ! -L "$plugin" ]]; then
+                pluginName=$(basename "$plugin")
+                cp "$plugin" "$gstPluginDir/"
+                chmod +w "$gstPluginDir/$pluginName"
+                codesign --remove-signature "$gstPluginDir/$pluginName" 2>/dev/null || true
+                process_binary "$gstPluginDir/$pluginName"
+            fi
+        done
+    fi
+done
+

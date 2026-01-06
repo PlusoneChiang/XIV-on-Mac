@@ -49,6 +49,18 @@ enum Wine {
         addEnvironmentVariable("DOTNET_EnableWriteXorExecute", "0")  // XXX Required for Apple Silicon and .NET 7+
         addEnvironmentVariable(
             "MTL_HUD_ENABLED", Settings.metal3PerformanceOverlay ? "1" : "0")
+        // Set GStreamer plugin path to bundled plugins
+        let gstPluginPath = wineDllURL.deletingLastPathComponent().appendingPathComponent("gstreamer-1.0").path
+        addEnvironmentVariable(
+            "GST_PLUGIN_PATH",
+            FileManager.default.fileSystemRepresentation(withPath: gstPluginPath))
+        addEnvironmentVariable("GST_PLUGIN_SYSTEM_PATH_1_0", "")  // Disable system plugin paths
+        addEnvironmentVariable("GST_PLUGIN_SCANNER_1_0", "")  // Disable plugin scanner
+        addEnvironmentVariable("GST_REGISTRY_FORK", "no")  // Disable registry forking
+        // Enable GStreamer debug logging
+        addEnvironmentVariable("GST_DEBUG", "3")
+        addEnvironmentVariable("GST_DEBUG_FILE", "/tmp/gstreamer-debug.log")
+        addEnvironmentVariable("WINEDEBUG", "+mf,+mfplat,+winegstreamer")
         createCompatToolsInstance(
             FileManager.default.fileSystemRepresentation(
                 withPath: wineBinURL.path), debug, esync)
@@ -59,6 +71,7 @@ enum Wine {
             ensurePrefix()
             installFontIfNeeded()
             setLocaleToZhTW()
+            configureMediaFoundation()
         }
     }
     
@@ -186,6 +199,25 @@ enum Wine {
             value: "sCountry",
             data: "Taiwan"
         )
+    }
+
+    /// 配置 Wine MediaFoundation 以支援影片播放
+    static func configureMediaFoundation() {
+        // 啟用 winegstreamer.dll 作為 MediaFoundation 後端
+        override(dll: "winegstreamer.dll", type: "native,builtin")
+        override(dll: "mfplat.dll", type: "native,builtin")
+        override(dll: "mf.dll", type: "native,builtin")
+        override(dll: "mfreadwrite.dll", type: "native,builtin")
+
+        // 確保 GStreamer 不會被禁用
+        // 注意：不設定 DisableGstByteStreamHandler，或明確設為 0
+        addReg(
+            key: "HKEY_CURRENT_USER\\Software\\Wine\\MediaFoundation",
+            value: "DisableGstByteStreamHandler",
+            data: "0"
+        )
+
+        Log.information("[Wine] MediaFoundation configured with GStreamer support")
     }
 
     static func launch(
