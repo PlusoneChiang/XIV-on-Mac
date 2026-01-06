@@ -292,10 +292,6 @@ class LaunchController: NSViewController, WKNavigationDelegate {
         // 使用持久化 DataStore（保留 reCAPTCHA Cookie）
         config.websiteDataStore = WKWebsiteDataStore.default()
 
-        // 允許內嵌媒體播放（某些 reCAPTCHA 挑戰需要）
-        config.allowsInlineMediaPlayback = true
-        config.mediaTypesRequiringUserActionForPlayback = []
-
         // 建立 WebView
         loginPageWebView = WKWebView(frame: .zero, configuration: config)
         loginPageWebView.translatesAutoresizingMaskIntoConstraints = false
