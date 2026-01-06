@@ -474,6 +474,7 @@ class LoginForm {
 
   /**
    * 獲取 reCAPTCHA token
+   * 增加延遲讓 reCAPTCHA 有更多時間收集行為數據
    */
   async getRecaptchaToken() {
     console.log('[LoginPage] Getting reCAPTCHA token...');
