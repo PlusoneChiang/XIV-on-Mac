@@ -275,25 +275,38 @@ class LaunchController: NSViewController, WKNavigationDelegate {
     private func setupLoginPageContainer() {
         // 創建 WKWebViewConfiguration
         let config = WKWebViewConfiguration()
-        
+
         // 設置內容控制器
         let contentController = WKUserContentController()
         config.userContentController = contentController
-        
+
         // 註冊自訂 URL Scheme Handler
         config.setURLSchemeHandler(LoginPageSchemeHandler(), forURLScheme: "ffxivlogin")
-        
+
         // 允許 JavaScript
         config.preferences.javaScriptEnabled = true
-        
+
+        // 允許 JavaScript 開啟視窗（reCAPTCHA 可能需要）
+        config.preferences.javaScriptCanOpenWindowsAutomatically = true
+
+        // 使用持久化 DataStore（保留 reCAPTCHA Cookie）
+        config.websiteDataStore = WKWebsiteDataStore.default()
+
+        // 允許內嵌媒體播放（某些 reCAPTCHA 挑戰需要）
+        config.allowsInlineMediaPlayback = true
+        config.mediaTypesRequiringUserActionForPlayback = []
+
         // 建立 WebView
         loginPageWebView = WKWebView(frame: .zero, configuration: config)
         loginPageWebView.translatesAutoresizingMaskIntoConstraints = false
         loginPageWebView.navigationDelegate = self
-        
+
+        // 設置 Chrome-like UserAgent 提升 reCAPTCHA 信任度
+        loginPageWebView.customUserAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+
         // 設置透明背景
         loginPageWebView.setValue(false, forKey: "drawsBackground")
-        
+
         // 啟用檢查器以便調試
         if #available(macOS 13.3, *) {
             loginPageWebView.isInspectable = true
