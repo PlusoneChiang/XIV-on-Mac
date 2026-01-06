@@ -296,10 +296,15 @@ class LaunchController: NSViewController, WKNavigationDelegate {
         loginPageWebView = WKWebView(frame: .zero, configuration: config)
         loginPageWebView.translatesAutoresizingMaskIntoConstraints = false
         loginPageWebView.navigationDelegate = self
+           
+        // 允許 JavaScript 開啟視窗（reCAPTCHA 可能需要）
+        config.preferences.javaScriptCanOpenWindowsAutomatically = true
 
-        // 設置 Chrome-like UserAgent 提升 reCAPTCHA 信任度
-        loginPageWebView.customUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        // 使用持久化 DataStore（保留 reCAPTCHA Cookie）
+        config.websiteDataStore = WKWebsiteDataStore.default()
 
+        // 設置 WebView2-like UserAgent 提升 reCAPTCHA 信任度
+        loginPageWebView.customUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0"
         // 設置透明背景
         loginPageWebView.setValue(false, forKey: "drawsBackground")
 
@@ -537,8 +542,8 @@ class LaunchController: NSViewController, WKNavigationDelegate {
                         self.installerWinController!.window!)
                 }
             } catch let XLError.loginError(errorMessage) {
-                DispatchQueue.main.async { [self] in
-                    loginSheetWinController?.window?.close()
+                DispatchQueue.main.async { [weak self] in
+                    self?.loginSheetWinController?.window?.close()
                     let alert = NSAlert()
                     alert.addButton(
                         withTitle: NSLocalizedString("BUTTON_OK", comment: ""))
@@ -547,10 +552,11 @@ class LaunchController: NSViewController, WKNavigationDelegate {
                         "LOGIN_ERROR", comment: "")
                     alert.informativeText = errorMessage
                     alert.runModal()
+                    self?.loginPageManager?.resetLoginButton()
                 }
             } catch let XLError.startError(errorMessage) {
-                DispatchQueue.main.async { [self] in
-                    loginSheetWinController?.window?.close()
+                DispatchQueue.main.async { [weak self] in
+                    self?.loginSheetWinController?.window?.close()
                     let alert = NSAlert()
                     alert.addButton(
                         withTitle: NSLocalizedString("BUTTON_OK", comment: ""))
@@ -559,10 +565,11 @@ class LaunchController: NSViewController, WKNavigationDelegate {
                         "START_ERROR", comment: "")
                     alert.informativeText = errorMessage
                     alert.runModal()
+                    self?.loginPageManager?.resetLoginButton()
                 }
             } catch let error as FFXIVLoginError {
-                DispatchQueue.main.async { [self] in
-                    loginSheetWinController?.window?.close()
+                DispatchQueue.main.async { [weak self] in
+                    self?.loginSheetWinController?.window?.close()
                     let alert = NSAlert()
                     alert.addButton(
                         withTitle: NSLocalizedString("BUTTON_OK", comment: ""))
@@ -570,10 +577,11 @@ class LaunchController: NSViewController, WKNavigationDelegate {
                     alert.messageText = error.failureReason ?? "Error"
                     alert.informativeText = error.localizedDescription
                     alert.runModal()
+                    self?.loginPageManager?.resetLoginButton()
                 }
             } catch {  // should not reach
-                DispatchQueue.main.async { [self] in
-                    loginSheetWinController?.window?.close()
+                DispatchQueue.main.async { [weak self] in
+                    self?.loginSheetWinController?.window?.close()
                     let alert = NSAlert()
                     alert.addButton(
                         withTitle: NSLocalizedString("BUTTON_OK", comment: ""))
@@ -581,6 +589,7 @@ class LaunchController: NSViewController, WKNavigationDelegate {
                     alert.messageText = "Error"
                     alert.informativeText = error.localizedDescription
                     alert.runModal()
+                    self?.loginPageManager?.resetLoginButton()
                 }
             }
         }
