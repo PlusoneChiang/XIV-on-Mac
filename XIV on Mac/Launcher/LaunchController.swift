@@ -347,14 +347,46 @@ class LaunchController: NSViewController, WKNavigationDelegate {
         // 建立 LoginPageManager
         loginPageManager = LoginPageManager(webView: loginPageWebView)
         loginPageManager?.delegate = self
-        
-        // 載入登入頁面
-        if let url = URL(string: "ffxivlogin://user.ffxiv.com.tw/login_page.html") {
-            let request = URLRequest(url: url)
-            loginPageWebView.load(request)
-            Log.information("[LaunchController] Login page WebView loading: \(url.absoluteString)")
-        } else {
-            Log.error("[LaunchController] Failed to create login page URL")
+
+        // 載入登入頁面（使用 HTTPS baseURL 提升 reCAPTCHA 信任度）
+        loadLoginPageWithHTTPSOrigin()
+    }
+
+    /// 使用 HTTPS Origin 載入登入頁面
+    /// 將 HTML、CSS、JS 內聯後以 loadHTMLString + baseURL 方式載入
+    /// 讓 reCAPTCHA 看到 https://user.ffxiv.com.tw 作為 Origin
+    private func loadLoginPageWithHTTPSOrigin() {
+        guard let htmlURL = Bundle.main.url(forResource: "login_page", withExtension: "html"),
+              let cssURL = Bundle.main.url(forResource: "login_page", withExtension: "css"),
+              let jsURL = Bundle.main.url(forResource: "login_page", withExtension: "js") else {
+            Log.error("[LaunchController] Failed to find login page resources")
+            return
+        }
+
+        do {
+            var html = try String(contentsOf: htmlURL, encoding: .utf8)
+            let css = try String(contentsOf: cssURL, encoding: .utf8)
+            let js = try String(contentsOf: jsURL, encoding: .utf8)
+
+            // 將外部 CSS 引用替換為內聯樣式
+            html = html.replacingOccurrences(
+                of: "<link rel=\"stylesheet\" href=\"login_page.css\" />",
+                with: "<style>\n\(css)\n</style>"
+            )
+
+            // 將外部 JS 引用替換為內聯腳本
+            html = html.replacingOccurrences(
+                of: "<script src=\"login_page.js\"></script>",
+                with: "<script>\n\(js)\n</script>"
+            )
+
+            // 使用 HTTPS baseURL 載入，讓 reCAPTCHA 信任此 Origin
+            let baseURL = URL(string: "https://user.ffxiv.com.tw/")!
+            loginPageWebView.loadHTMLString(html, baseURL: baseURL)
+            Log.information("[LaunchController] Login page loaded with HTTPS origin: \(baseURL.absoluteString)")
+
+        } catch {
+            Log.error("[LaunchController] Failed to load login page resources: \(error)")
         }
     }
 
