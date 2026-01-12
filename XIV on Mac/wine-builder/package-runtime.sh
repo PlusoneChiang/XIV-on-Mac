@@ -212,6 +212,7 @@ REQUIRED_PLUGINS=(
     "libgstavi.dylib"              # AVI 容器
     "libgstisomp4.dylib"           # MP4/MOV 容器
     "libgstmatroska.dylib"         # MKV 容器 (備用)
+    "libaom.3.dylib"               # AV1 解碼器 (備用)
 
     # 視頻解碼 (基礎)
     "libgstlibav.dylib"            # FFmpeg 解碼器 (支持 H.264/HEVC/VC-1/WMA 等)

@@ -49,18 +49,25 @@ enum Wine {
         addEnvironmentVariable("DOTNET_EnableWriteXorExecute", "0")  // XXX Required for Apple Silicon and .NET 7+
         addEnvironmentVariable(
             "MTL_HUD_ENABLED", Settings.metal3PerformanceOverlay ? "1" : "0")
-        // Set GStreamer plugin path to bundled plugins
-        let gstPluginPath = wineDllURL.deletingLastPathComponent().appendingPathComponent("gstreamer-1.0").path
+        // GStreamer 配置：使用 bundle 真實路徑，registry 存放在 wineprefix
+        let gstLibPath = wineDllURL.deletingLastPathComponent().path
+        let gstPluginPath = "\(gstLibPath)/gstreamer-1.0"
+        let gstRegistryPath = prefix.appendingPathComponent("gstreamer-registry.bin").path
+        
+        addEnvironmentVariable("GST_PLUGIN_PATH", gstPluginPath)
+        addEnvironmentVariable("GST_REGISTRY", gstRegistryPath)
+        // DYLD_FALLBACK_LIBRARY_PATH 作為最後備援
         addEnvironmentVariable(
-            "GST_PLUGIN_PATH",
-            FileManager.default.fileSystemRepresentation(withPath: gstPluginPath))
+            "DYLD_FALLBACK_LIBRARY_PATH",
+            FileManager.default.fileSystemRepresentation(withPath: gstLibPath))
         addEnvironmentVariable("GST_PLUGIN_SYSTEM_PATH_1_0", "")  // Disable system plugin paths
         addEnvironmentVariable("GST_PLUGIN_SCANNER_1_0", "")  // Disable plugin scanner
         addEnvironmentVariable("GST_REGISTRY_FORK", "no")  // Disable registry forking
+        
         // Enable GStreamer debug logging
-        addEnvironmentVariable("GST_DEBUG", "3")
-        addEnvironmentVariable("GST_DEBUG_FILE", "/tmp/gstreamer-debug.log")
-        addEnvironmentVariable("WINEDEBUG", "+mf,+mfplat,+winegstreamer")
+        // addEnvironmentVariable("GST_DEBUG", "3")
+        // addEnvironmentVariable("GST_DEBUG_FILE", "/tmp/xomit-gstreamer-support/gstreamer-debug.log")
+        // addEnvironmentVariable("WINEDEBUG", "+mf,+mfplat,+winegstreamer")
         createCompatToolsInstance(
             FileManager.default.fileSystemRepresentation(
                 withPath: wineBinURL.path), debug, esync)
