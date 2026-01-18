@@ -103,9 +103,6 @@ build_archive() {
         -configuration "$CONFIGURATION" \
         -archivePath "$ARCHIVE_PATH" \
         -destination "generic/platform=macOS" \
-        CODE_SIGN_IDENTITY="-" \
-        CODE_SIGNING_REQUIRED=NO \
-        CODE_SIGNING_ALLOWED=NO \
         | grep -E "^(Archive|Signing|Compiling|Linking|Processing|warning:|error:)" || true
 
     if [ ! -d "$ARCHIVE_PATH" ]; then
@@ -156,6 +153,9 @@ EOF
         print_error "App 匯出失敗"
         exit 1
     fi
+
+    # 移除隔離屬性（避免 Gatekeeper 阻擋）
+    xattr -cr "${EXPORT_PATH}/${APP_NAME}" 2>/dev/null || true
 
     echo "  ✓ App 匯出完成: ${EXPORT_PATH}/${APP_NAME}"
 }

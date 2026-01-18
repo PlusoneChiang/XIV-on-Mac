@@ -18,7 +18,7 @@ import XIVLauncher
     private var launchWinController: NSWindowController?
     private var benchmarkWindow: NSWindow?
     private var screenCapture: ScreenCapture?
-    @IBOutlet private var sparkle: SPUStandardUpdaterController!
+    private lazy var sparkle = SPUStandardUpdaterController(startingUpdater: true, updaterDelegate: self, userDriverDelegate: nil)
     @IBOutlet private var bhAutoLaunch: NSMenuItem!
 
     func applicationWillFinishLaunching(_ notification: Notification) {
@@ -182,6 +182,10 @@ import XIVLauncher
                 )
             }
         }
+    }
+
+    @IBAction func checkForUpdates(_ sender: Any) {
+        sparkle.checkForUpdates(sender)
     }
 
     @IBAction func openPrefix(_ sender: Any) {

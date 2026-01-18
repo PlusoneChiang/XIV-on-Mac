@@ -28,7 +28,7 @@
                                         <menuItem title="Check for Updates..." id="Jeg-Jn-PWU">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
-                                                <action selector="checkForUpdates:" target="qOL-NO-bUp" id="upd-Chk-001"/>
+                                                <action selector="checkForUpdates:" target="Voe-Tx-rLC" id="upd-Chk-001"/>
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="VOq-y0-SEH"/>
@@ -420,10 +420,8 @@
                 <customObject id="Voe-Tx-rLC" customClass="AppDelegate" customModule="XIV_on_Mac_in_TC" customModuleProvider="target">
                     <connections>
                         <outlet property="bhAutoLaunch" destination="1Do-e8-DyE" id="Sif-eR-Xui"/>
-                        <outlet property="sparkle" destination="qOL-NO-bUp" id="spk-out-001"/>
                     </connections>
                 </customObject>
-                <customObject id="qOL-NO-bUp" customClass="SPUStandardUpdaterController" customModule="Sparkle"/>
                 <customObject id="YLy-65-1bz" customClass="NSFontManager"/>
                 <customObject id="Ady-hI-5gd" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
