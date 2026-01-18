@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
+<plist version="0.6.0">
 <dict>
 	<key>SUEnableAutomaticChecks</key>
 	<true/>
 	<key>SUFeedURL</key>
-	<string>https://softwareupdate.xivmac.com/sites/default/files/update_data/xivonmac_appcast.xml</string>
+	<string>https://plusonechiang.github.io/XIV-on-Mac-in-TC/appcast.xml</string>
 	<key>SUPublicEDKey</key>
-	<string>bIfpzHYfcNKzabG5e14h/Y6dX4/u3zF2hMSQec7e5JA=</string>
+	<string>9bRuQallwKzxkgSqmy0HRaCo5mC/C7vShI8O6LtXXOg=</string>
 </dict>
 </plist>
