@@ -1,4 +1,6 @@
 #!/bin/bash
+# 精簡版的 GStreamer 打包腳本
+# 只包含 FFXIV 過場動畫所需的最小插件集
 
 nixResult="result"
 sourceDir="$nixResult/nix/store"
@@ -11,9 +13,9 @@ if [[ ! -d $sourceDir ]]; then
     cd "$PROJECT_DIR"/XIV\ on\ Mac/
     [ -d "wine" ] && exit 0
     echo "note: No prexisting wine package. Attempting archive download..."
-    curl -LO https://github.com/marzent/winecx/releases/download/ff-wine-9.12.1/wine.tar.xz
-    tar -xf wine.tar.xz
-    rm wine.tar.xz
+    curl -LO https://github.com/cycleapple/XIV-on-Mac-in-TC/releases/download/ff-wine-10.0.0-optimized/wine-optimized.tar.xz
+    tar -xf wine-optimized.tar.xz
+    rm wine-optimized.tar.xz
     exit 0
 fi
 
@@ -34,7 +36,7 @@ fi
 
 echo "$nixResultTarget" > "$receipt"
 echo "note: Updated receipt $receipt with Nix store result: $nixResultTarget"
-echo "note: Packaging wine..."
+echo "note: Packaging wine with minimal GStreamer plugins..."
 
 subDir=$(find $sourceDir -type d -mindepth 1 -maxdepth 1 | head -n 1)
 
@@ -129,7 +131,7 @@ process_dylib_dependecy() {
             done
         fi
     done <<< "$dylibRpaths"
-    
+
     remove_nix_rpaths "$libDir/$dylibName"
 }
 
@@ -158,7 +160,7 @@ process_binary() {
             done
         fi
     done <<< "$binaryRpaths"
-    
+
     remove_nix_rpaths "$binaryPath"
 
     install_name_tool -add_rpath "@executable_path/../lib" "$binaryPath"
@@ -174,3 +176,78 @@ find "$targetDir" -type f | while read file; do
     fi
 done
 
+# Copy GStreamer core libraries first - 這些是所有插件的依賴
+echo "note: Copying GStreamer core libraries..."
+for gstLibStore in /nix/store/*gstreamer-*/lib /nix/store/*gst-plugins-*/lib; do
+    if [[ -d "$gstLibStore" ]]; then
+        for gstLib in "$gstLibStore"/libgst*.dylib; do
+            if [[ -f "$gstLib" && ! -L "$gstLib" ]]; then
+                gstLibName=$(basename "$gstLib")
+                if [[ ! -f "$libDir/$gstLibName" ]]; then
+                    echo "note: Copying core library: $gstLibName"
+                    cp "$gstLib" "$libDir/"
+                    chmod +w "$libDir/$gstLibName"
+                    codesign --remove-signature "$libDir/$gstLibName" 2>/dev/null || true
+                    process_dylib_dependecy "$gstLib"
+                fi
+            fi
+        done
+    fi
+done
+
+# Copy minimal GStreamer plugins - 只包含視頻播放必需的插件
+echo "note: Copying minimal GStreamer plugins for video playback..."
+gstPluginDir="$libDir/gstreamer-1.0"
+mkdir -p "$gstPluginDir"
+
+# 定義 FFXIV 過場動畫所需的最小插件集
+# 這些插件足以支持常見的視頻格式 (H.264/HEVC in AVI/MP4)
+REQUIRED_PLUGINS=(
+    # 核心插件
+    "libgstcoreelements.dylib"     # 基礎元素 (filesrc, typefind 等)
+    "libgstplayback.dylib"         # 播放支援
+
+    # 容器格式
+    "libgstasf.dylib"              # ASF/WMV 容器 (FFXIV 過場動畫)
+    "libgstavi.dylib"              # AVI 容器
+    "libgstisomp4.dylib"           # MP4/MOV 容器
+    "libgstmatroska.dylib"         # MKV 容器 (備用)
+    "libaom.3.dylib"               # AV1 解碼器 (備用)
+
+    # 視頻解碼 (基礎)
+    "libgstlibav.dylib"            # FFmpeg 解碼器 (支持 H.264/HEVC/VC-1/WMA 等)
+    "libgstvideoparsersbad.dylib"  # 視頻解析器
+    "libgstdeinterlace.dylib"      # 視頻去交錯
+
+    # 音頻解碼 (基礎)
+    "libgstaudioparsers.dylib"     # 音頻解析器
+    "libgstaudioconvert.dylib"     # 音頻轉換
+    "libgstaudioresample.dylib"    # 音頻重採樣
+
+    # 類型檢測
+    "libgsttypefindfunctions.dylib" # 自動檢測檔案類型
+
+    # 視頻處理
+    "libgstvideoconvertscale.dylib" # 視頻縮放和轉換
+    "libgstvideofilter.dylib"       # 視頻濾鏡 (包含 videoflip)
+)
+
+for pluginStore in /nix/store/*gstreamer-*/lib/gstreamer-1.0 /nix/store/*gst-plugins-*/lib/gstreamer-1.0 /nix/store/*gst-libav-*/lib/gstreamer-1.0; do
+    if [[ -d "$pluginStore" ]]; then
+        for requiredPlugin in "${REQUIRED_PLUGINS[@]}"; do
+            plugin="$pluginStore/$requiredPlugin"
+            if [[ -f "$plugin" && ! -L "$plugin" ]]; then
+                pluginName=$(basename "$plugin")
+                if [[ ! -f "$gstPluginDir/$pluginName" ]]; then
+                    echo "note: Copying required plugin: $pluginName"
+                    cp "$plugin" "$gstPluginDir/"
+                    chmod +w "$gstPluginDir/$pluginName"
+                    codesign --remove-signature "$gstPluginDir/$pluginName" 2>/dev/null || true
+                    process_binary "$gstPluginDir/$pluginName"
+                fi
+            fi
+        done
+    fi
+done
+
+echo "note: Packaged $(ls -1 "$gstPluginDir" | wc -l) GStreamer plugins (minimal set)"

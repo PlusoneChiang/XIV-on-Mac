@@ -87,7 +87,21 @@ pkgs.stdenv.mkDerivation rec {
     libiconv
     gettext
     SDL2
-  ] ++ 
+    pkgs.gst_all_1.gstreamer
+    pkgs.gst_all_1.gst-plugins-base
+    pkgs.gst_all_1.gst-plugins-good
+    pkgs.gst_all_1.gst-plugins-bad
+    # Use gst-libav with minimal FFmpeg (only decoders, no video encoders)
+    (pkgs.gst_all_1.gst-libav.override {
+      ffmpeg-headless = pkgs.ffmpeg-headless.override {
+        # Disable video encoder libraries (we only need decoders for WMV playback)
+        withX264 = false;    # H.264 encoder
+        withX265 = false;    # H.265/HEVC encoder
+        withAom = false;     # AV1 encoder
+        withSvtav1 = false;  # SVT-AV1 encoder
+      };
+    })
+  ] ++
   map addDarwinDepsRecursive
   [
     pkgs.libinotify-kqueue
@@ -139,7 +153,7 @@ pkgs.stdenv.mkDerivation rec {
     "--without-krb5"
     "--with-vulkan"
     "--without-x"
-    "--without-gstreamer"
+    "--with-gstreamer"
   ];
 
   buildPhase = ''
