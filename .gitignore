@@ -51,3 +51,4 @@ DerivedData/
 # Temporary files
 *.tmp
 *.temp
+.claude
