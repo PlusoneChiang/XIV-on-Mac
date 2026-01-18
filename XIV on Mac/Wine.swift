@@ -47,6 +47,12 @@ enum Wine {
         addEnvironmentVariable("DXVK_STATE_CACHE_PATH", "C:\\")
         addEnvironmentVariable("DXVK_LOG_PATH", "C:\\")
         addEnvironmentVariable("DOTNET_EnableWriteXorExecute", "0")  // XXX Required for Apple Silicon and .NET 7+
+        // Dalamud dotnet runtime 路徑設定（如果啟用 Dalamud，預先設定以避免 inject 時讀取不到）
+        if Settings.dalamudEnabled {
+            let runtimePath = Util.applicationSupport.appendingPathComponent("runtime").path
+            addEnvironmentVariable("DALAMUD_RUNTIME", runtimePath)
+            addEnvironmentVariable("DOTNET_ROOT", runtimePath)
+        }
         addEnvironmentVariable(
             "MTL_HUD_ENABLED", Settings.metal3PerformanceOverlay ? "1" : "0")
         // GStreamer 配置：使用 bundle 真實路徑，registry 存放在 wineprefix

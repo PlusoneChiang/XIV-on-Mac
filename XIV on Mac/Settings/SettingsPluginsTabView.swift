@@ -70,51 +70,47 @@ struct SettingsPluginsTabView: View {
                     .padding([.top, .trailing])
                     .frame(maxWidth: .infinity, alignment: .leading)
 
-                HStack(alignment: .center, spacing: 12) {
-                    Picker(selection: $viewModel.dalamudBetaKind, label: Text("SETTINGS_PLUGINS_DALAMUD_BRANCH_LABEL")) {
-                        ForEach(viewModel.branches) { branch in
-                            Text(branch.displayNameWithAvailability).tag(branch.track as String?)
+                // TC Region: 顯示自訂 Dalamud 版本資訊
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(spacing: 12) {
+                        Text("Dalamud 版本:")
+                            .font(.footnote)
+                            .fontWeight(.medium)
+                        if viewModel.isFetching {
+                            ProgressView()
+                                .scaleEffect(0.7)
+                        } else if let version = viewModel.customDalamudVersion {
+                            Text(version.displayName)
+                                .font(.footnote)
                         }
                     }
-                    .frame(minWidth: 260)
-                    .disabled(viewModel.isFetching)
-
-                    Button("SETTINGS_PLUGINS_DALAMUD_ENTER_BETA_KEY") {
-                        viewModel.promptForBetaKey()
-                    }
-                    .disabled(viewModel.isFetching)
-                }
-
-                if let selected = viewModel.selectedBranch {
-                    VStack(alignment: .leading, spacing: 4) {
-                        if !(selected.isApplicableForCurrentGameVer ?? true) {
-                            Text("SETTINGS_PLUGINS_DALAMUD_BRANCH_UNAVAILABLE")
-                                .foregroundColor(.red)
-                        }
-                        if let desc = selected.description, !desc.isEmpty {
-                            Text(desc)
+                    if let version = viewModel.customDalamudVersion {
+                        HStack(spacing: 12) {
+                            Text("組件版本: \(version.assemblyVersion ?? "N/A")")
                                 .font(.footnote)
                                 .foregroundColor(.secondary)
-                                .fixedSize(horizontal: false, vertical: true)
+                            Text("支援遊戲版本: \(version.supportedGameVer ?? "N/A")")
+                                .font(.footnote)
+                                .foregroundColor(.secondary)
                         }
-                        HStack(spacing: 12) {
-                            Text(String(format: NSLocalizedString("SETTINGS_PLUGINS_DALAMUD_TRACK_FORMAT", comment: ""), selected.track)).font(.footnote)
-                            Text(String(format: NSLocalizedString("SETTINGS_PLUGINS_DALAMUD_KEY_FORMAT", comment: ""), selected.key)).font(.footnote)
+                        if let runtime = version.runtimeVersion {
+                            Text(".NET Runtime: \(runtime)")
+                                .font(.footnote)
+                                .foregroundColor(.secondary)
                         }
                     }
-                    .padding(.top, 4)
+                    if let error = viewModel.fetchError {
+                        Text(error)
+                            .foregroundColor(.red)
+                            .font(.footnote)
+                    }
                 }
-
-                if let error = viewModel.fetchError {
-                    Text(error)
-                        .foregroundColor(.red)
-                        .font(.footnote)
-                }
-            }.disabled(viewModel.isFetching)
+                .padding(.top, 4)
+            }
             .padding(.horizontal)
             Spacer()
         }
-        .onAppear { viewModel.refreshBranches() }
+        .onAppear { viewModel.fetchCustomDalamudVersion() }
     }
 }
 
@@ -124,25 +120,16 @@ struct SettingsPluginsTabView_Previews: PreviewProvider {
     }
 }
 
-private struct DalamudBranch: Identifiable, Codable, Equatable {
-    let displayName: String
-    let description: String?
-    let track: String
-    let hidden: Bool
-    let key: String
+// TC Region: 自訂 Dalamud 版本資訊結構
+private struct CustomDalamudVersion: Codable {
     let assemblyVersion: String?
-    let runtimeVersion: String?
-    let runtimeRequired: Bool?
     let supportedGameVer: String?
-    let isApplicableForCurrentGameVer: Bool?
+    let runtimeRequired: Bool?
+    let runtimeVersion: String?
     let downloadUrl: String?
-
-    var id: String { track }
-
-    var displayNameWithAvailability: String {
-        if isApplicableForCurrentGameVer ?? true { return displayName }
-        return "\(displayName) \(NSLocalizedString("SETTINGS_PLUGINS_DALAMUD_UNAVAILABLE_SUFFIX", comment: ""))"
-    }
+    let track: String?
+    let displayName: String
+    let key: String?
 }
 
 extension SettingsPluginsTabView {
@@ -163,30 +150,19 @@ extension SettingsPluginsTabView {
             didSet { DiscordBridge.enabled = discordBridge }
         }
 
-        @Published fileprivate var branches: [DalamudBranch] = []
-
-        @Published var dalamudBetaKind: String = Settings.dalamudBetaKind {
-            didSet {
-                Settings.dalamudBetaKind = dalamudBetaKind
-                if let betaKey = selectedBranch?.key {
-                    Settings.dalamudBetaKey = betaKey
-                }
-                updateDalamud(dalamudBetaKind, Settings.dalamudBetaKey)
-            }
-        }
-
+        // TC Region: 自訂 Dalamud 版本
+        @Published fileprivate var customDalamudVersion: CustomDalamudVersion? = nil
         @Published var isFetching: Bool = false
         @Published var fetchError: String? = nil
 
-        fileprivate var selectedBranch: DalamudBranch? {
-            return branches.first { $0.track == dalamudBetaKind }
+        // TC Region: 自訂 Dalamud 版本來源 URL
+        private static let customDalamudVersionURL = "https://plusonechiang.github.io/XIV-on-Mac-in-TC/dalamud_version.json"
+
+        func fetchCustomDalamudVersion() {
+            Task { await fetchCustomDalamudVersionAsync() }
         }
 
-        func refreshBranches() {
-            Task { await fetchBranchesAsync() }
-        }
-
-        private func fetchBranchesAsync() async {
+        private func fetchCustomDalamudVersionAsync() async {
             await MainActor.run {
                 self.isFetching = true
                 self.fetchError = nil
@@ -195,90 +171,33 @@ extension SettingsPluginsTabView {
                 Task { @MainActor in self.isFetching = false }
             }
 
-            guard
-                let url = URL(
-                    string: "https://kamori.goats.dev/Dalamud/Release/Meta"
-                )
-            else {
-                await MainActor.run { self.fetchError = NSLocalizedString("SETTINGS_PLUGINS_DALAMUD_FETCH_ERROR_INVALID_URL", comment: "") }
+            guard let url = URL(string: Self.customDalamudVersionURL) else {
+                await MainActor.run {
+                    self.fetchError = NSLocalizedString("SETTINGS_PLUGINS_DALAMUD_FETCH_ERROR_INVALID_URL", comment: "")
+                }
                 return
             }
 
             do {
-                let (data, response) = try await URLSession.shared.data(
-                    from: url
-                )
-                if let http = response as? HTTPURLResponse,
-                    http.statusCode != 200
-                {
+                let (data, response) = try await URLSession.shared.data(from: url)
+                if let http = response as? HTTPURLResponse, http.statusCode != 200 {
                     await MainActor.run {
                         self.fetchError = String(format: NSLocalizedString("SETTINGS_PLUGINS_DALAMUD_FETCH_ERROR_HTTP", comment: ""), http.statusCode)
                     }
                     return
                 }
+
                 let decoder = JSONDecoder()
-                let dict = try decoder.decode(
-                    [String: DalamudBranch].self,
-                    from: data
-                )
-                let allBranches = Array(dict.values)
-                let betaKey = Settings.dalamudBetaKey
-                let filtered = allBranches.filter { br in
-                    return !br.hidden
-                        || (br.hidden && br.key == betaKey)
-                }
+                let version = try decoder.decode(CustomDalamudVersion.self, from: data)
 
                 await MainActor.run {
-                    self.branches = filtered
-                    if filtered.first(where: {
-                        $0.track == dalamudBetaKind && $0.key == Settings.dalamudBetaKey
-                    }) != nil {
-                        Log.information("Selected active Dalamud branch \(dalamudBetaKind)")
-                    } else if let selectedBranch = filtered.first(where: {
-                        $0.key == Settings.dalamudBetaKey
-                    }) {
-                        Log.information("Selected active Dalamud branch \(selectedBranch.track)")
-                        self.dalamudBetaKind = selectedBranch.track
-                    } else if let release = filtered.first(where: {
-                        $0.track.lowercased() == "release"
-                    }) {
-                        Log.information("Falling back to latest stable Dalamud release")
-                        self.dalamudBetaKind = release.track
-                    } else {
-                        Log.warning("Could not find a suitable Dalamud release or beta key")
-                        self.dalamudBetaKind = ""
-                    }
+                    self.customDalamudVersion = version
+                    Log.information("Loaded custom Dalamud version: \(version.displayName) (\(version.assemblyVersion ?? "unknown"))")
                 }
-                updateDalamud(dalamudBetaKind, Settings.dalamudBetaKey)
-                
             } catch {
                 await MainActor.run {
                     self.fetchError = String(format: NSLocalizedString("SETTINGS_PLUGINS_DALAMUD_FETCH_ERROR_GENERIC", comment: ""), error.localizedDescription)
                 }
-            }
-        }
-
-        func promptForBetaKey() {
-            let alert: NSAlert = .init()
-            alert.messageText = NSLocalizedString("SETTINGS_PLUGINS_DALAMUD_ENTER_BETA_KEY_TITLE", comment: "")
-            alert.informativeText = NSLocalizedString("SETTINGS_PLUGINS_DALAMUD_ENTER_BETA_KEY_INFO", comment: "")
-            alert.alertStyle = .informational
-            let input = NSTextField(string: Settings.dalamudBetaKey)
-            input.frame = NSRect(x: 0, y: 0, width: 280, height: 24)
-            alert.accessoryView = input
-            alert.addButton(
-                withTitle: NSLocalizedString("BUTTON_OK", comment: "")
-            )
-            alert.addButton(
-                withTitle: NSLocalizedString("BUTTON_CANCEL", comment: "")
-            )
-            let result = alert.runModal()
-            if result == .alertFirstButtonReturn {
-                let newKey = input.stringValue.trimmingCharacters(
-                    in: .whitespacesAndNewlines
-                )
-                Settings.dalamudBetaKey = newKey
-                refreshBranches()
             }
         }
     }

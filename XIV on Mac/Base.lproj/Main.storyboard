@@ -352,17 +352,17 @@
                                     </items>
                                 </menu>
                             </menuItem>
-                            <menuItem title="Add On" enabled="NO" id="ngK-lv-alc">
+                            <menuItem title="Add On" id="ngK-lv-alc">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <menu key="submenu" title="Add On" id="A9a-u7-hsU">
                                     <items>
-                                        <menuItem title="Start Bunny HUD" hidden="YES" enabled="NO" id="lTa-gf-Qso">
+                                        <menuItem title="Start Bunny HUD" id="lTa-gf-Qso">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
                                                 <action selector="startBH:" target="Voe-Tx-rLC" id="RLt-PI-tKQ"/>
                                             </connections>
                                         </menuItem>
-                                        <menuItem title="Auto-Launch Bunny HUD" hidden="YES" enabled="NO" id="1Do-e8-DyE">
+                                        <menuItem title="Auto-Launch Bunny HUD" id="1Do-e8-DyE">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
                                                 <action selector="toggleBH:" target="Voe-Tx-rLC" id="JYB-PA-S2z"/>

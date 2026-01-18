@@ -19,7 +19,8 @@ public enum Settings {
         let loadMethod: Dalamud.LoadMethod =
             dalamudEnabled
             ? (dalamudEntryPoint ? .entryPoint : .dllInject) : .ACLonly
-        let delayMs = dalamudEntryPoint ? 0 : Int32(injectionDelay * 1000)
+        // 統一使用注入方式，不論是 entryPoint 還是 dllInject 都需要延時
+        let delayMs = Int32(injectionDelay * 1000)
         loadConfig(
             acceptLanguage, gamePathCString, gameConfigPathCString,
             language.rawValue, encryptedArguments, freeTrial, platform.rawValue,
@@ -256,7 +257,7 @@ public enum Settings {
         }
     }
 
-    public static let defaultInjectionDelay = 4.0
+    public static let defaultInjectionDelay = 5.0
     private static let injectionSettingKey = "InjectionDelaySetting"
     static var injectionDelay: Double {
         get {
