@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <channel>
+        <title>XIV on Mac in TC</title>
+        <link>https://plusonechiang.github.io/XIV-on-Mac-in-TC/</link>
+        <description>XIV on Mac in TC</description>
+        <language>zh-TW</language>
+
+        <!-- 最新版本 -->
+        <item>
+            <title>版本 0.6.1</title>
+            <pubDate>Sat, 18 Jan 2025 12:00:00 +0800</pubDate>
+            <sparkle:version>0.6.1</sparkle:version>
+            <sparkle:shortVersionString>0.6.1</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <description><![CDATA[
+                <h2>XIV on Mac in TC v0.6.1-beta</h2>
+                <p>XoMiT Release Note:</p>
+                <ul>
+                    <li>Add Dalamud Support</li>
+                    <li>Add Auto-Update Support</li>
+                </ul>
+            ]]></description>
+            <enclosure
+                url="https://github.com/plusonechiang/XIV-on-Mac-in-TC/releases/download/v0.6.1/XIV-on-Mac-in-TC-0.6.1.dmg"
+                type="application/octet-stream"
+                sparkle:edSignature="Jigrb4DluKd/FvqdMlvEHStWFNTJzOKhTomJTeSMChwgPxVt6vDzN4DZQ0prnaCkvXT8/BYiM2Amp67UY4xVAg=="
+                length="171337375"
+            />
+        </item>
+
+        <!--
+        新增版本範本：
+        <item>
+            <title>版本 X.Y.Z</title>
+            <pubDate>Day, DD Mon YYYY HH:MM:SS +0800</pubDate>
+            <sparkle:version>X.Y.Z</sparkle:version>
+            <sparkle:shortVersionString>X.Y.Z</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <description><![CDATA[
+                <h2>更新內容</h2>
+                <ul>
+                    <li>新功能說明</li>
+                </ul>
+            ]]></description>
+            <enclosure
+                url="https://github.com/plusonechiang/XIV-on-Mac-in-TC/releases/download/vX.Y.Z/XIV-on-Mac-TC-X.Y.Z.dmg"
+                type="application/octet-stream"
+                sparkle:edSignature="簽名值"
+                length="檔案大小"
+            />
+        </item>
+        -->
+
+    </channel>
+</rss>
