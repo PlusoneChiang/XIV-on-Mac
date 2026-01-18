@@ -87,8 +87,14 @@ import XIVLauncher
             // The final piece of migration has to happen after wine is ready for use.
             PrefixMigrator.migrateWineRegistrySettings()
         }
-        // Auto-update check
-        sparkle.updater.checkForUpdatesInBackground()
+        // Auto-update check (延遲執行確保 Sparkle 完全初始化)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) { [weak self] in
+            guard let self = self else { return }
+            Log.information("[Sparkle] Checking for updates...")
+            Log.information("[Sparkle] Feed URL: \(self.sparkle.updater.feedURL?.absoluteString ?? "nil")")
+            Log.information("[Sparkle] Can check: \(self.sparkle.updater.canCheckForUpdates)")
+            self.sparkle.updater.checkForUpdatesInBackground()
+        }
         Util.make(dir: Util.cache.path)
         #if DEBUG
             Log.debug("Running in debug mode")
@@ -185,6 +191,12 @@ import XIVLauncher
     }
 
     @IBAction func checkForUpdates(_ sender: Any) {
+        Log.information("[Sparkle] Manual check triggered")
+        Log.information("[Sparkle] Feed URL: \(sparkle.updater.feedURL?.absoluteString ?? "nil")")
+        Log.information("[Sparkle] Can check: \(sparkle.updater.canCheckForUpdates)")
+        let bundleVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "unknown"
+        let buildNumber = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "unknown"
+        Log.information("[Sparkle] Current app version: \(bundleVersion) (build \(buildNumber))")
         sparkle.checkForUpdates(sender)
     }
 
@@ -281,5 +293,23 @@ import XIVLauncher
                 delegate: nil)
         }
         benchmarkWindow?.makeKeyAndOrderFront(sender)
+    }
+
+    // MARK: - SPUUpdaterDelegate
+
+    func updater(_ updater: SPUUpdater, didFindValidUpdate item: SUAppcastItem) {
+        Log.information("[Sparkle] Found valid update: \(item.displayVersionString) (build \(item.versionString))")
+    }
+
+    func updaterDidNotFindUpdate(_ updater: SPUUpdater, error: Error) {
+        Log.information("[Sparkle] No update found or error: \(error.localizedDescription)")
+    }
+
+    func updater(_ updater: SPUUpdater, didAbortWithError error: Error) {
+        Log.error("[Sparkle] Aborted with error: \(error.localizedDescription)")
+    }
+
+    func updater(_ updater: SPUUpdater, failedToDownloadUpdate item: SUAppcastItem, error: Error) {
+        Log.error("[Sparkle] Failed to download update: \(error.localizedDescription)")
     }
 }
