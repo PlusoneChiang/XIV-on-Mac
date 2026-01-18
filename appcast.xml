@@ -8,13 +8,13 @@
 
         <!-- 最新版本 -->
         <item>
-            <title>XIV on Mac in TC 版本 0.7.0-beta</title>
+            <title>XIV on Mac in TC 版本 0.7.1-beta</title>
             <pubDate>Sat, 18 Jan 2025 12:00:00 +0800</pubDate>
             <sparkle:version>4</sparkle:version>
-            <sparkle:shortVersionString>0.7.0</sparkle:shortVersionString>
+            <sparkle:shortVersionString>0.7.1</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
             <description><![CDATA[
-                <h2>XIV on Mac in TC v0.7.0-beta</h2>
+                <h2>XIV on Mac in TC v0.7.1-beta</h2>
                 <p>XoMiT Release Note:</p>
                 <ul>
                     <li>Add Dalamud Support</li>
@@ -22,7 +22,7 @@
                 </ul>
             ]]></description>
             <enclosure
-                url="https://github.com/plusonechiang/XIV-on-Mac-in-TC/releases/download/v0.7.0/XIV-on-Mac-in-TC-0.7.0.dmg"
+                url="https://github.com/plusonechiang/XIV-on-Mac-in-TC/releases/download/v0.7.1/XIV-on-Mac-in-TC-0.7.1.dmg"
                 type="application/octet-stream"
                 sparkle:edSignature="+74lwF/DpXsLbayUcHVmw+DJy6KSTHnwMkmnV4erXdf55JaPpbjPmqRBxZBX1H/rtESjg9feO3IO7Hl40WRzBg=="
                 length="171972225"
