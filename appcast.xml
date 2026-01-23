@@ -8,23 +8,24 @@
 
         <!-- 最新版本 -->
         <item>
-            <title>XIV on Mac in TC 版本 0.8.0 pre-release</title>
+            <title>XIV on Mac in TC 版本 0.8.1 pre-release</title>
             <pubDate>Sat, 18 Jan 2025 12:00:00 +0800</pubDate>
-            <sparkle:version>6</sparkle:version>
-            <sparkle:shortVersionString>0.8.0</sparkle:shortVersionString>
+            <sparkle:version>7</sparkle:version>
+            <sparkle:shortVersionString>0.8.1</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
             <description><![CDATA[
-                <h2>XIV on Mac in TC v0.8.0 pre-release</h2>
+                <h2>XIV on Mac in TC v0.8.1 pre-release</h2>
                 <p>XoMiT Release Note:</p>
                 <ul>
-                    <li>1. 調整程式視覺效果</li>
+                    <li>1. 修復未啟用Dalamud卻仍嘗試更新/載入的問題</li>
+                    <li>2. 修改背景</li>
                 </ul>
             ]]></description>
             <enclosure
-                url="https://github.com/plusonechiang/XIV-on-Mac-in-TC/releases/download/v0.8.0/XIV-on-Mac-in-TC-0.8.0.dmg"
+                url="https://github.com/plusonechiang/XIV-on-Mac-in-TC/releases/download/v0.8.1/XIV-on-Mac-in-TC-0.8.1.dmg"
                 type="application/octet-stream"
-                sparkle:edSignature="FXHDf5h5DAY1J9Qj0nohO/Oj3VNs3Tcp5MaMoZGL7nt653IPb3sqamv+wUu6WcksF+c7m9dcNTLrOynZ3oakBg=="
-                length="171189593"
+                sparkle:edSignature="ywg/qSip4+zQTHyu/jd03XxxJxFmTE6hfpnI3JdHcY3XZIy5y/Eg7v9hY/Z0anyL1YZ+OgXZC4hhe1znTVd+Ag=="
+                length="171578167"
             />
         </item>
 
