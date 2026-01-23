@@ -229,7 +229,8 @@
 		CC198FD32F23AD7A0054593A /* AudioDeviceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioDeviceManager.swift; sourceTree = "<group>"; };
 		CC198FD42F23AD7A0054593A /* GameAudioRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameAudioRouter.swift; sourceTree = "<group>"; };
 		CC198FDA2F23ADF90054593A /* SettingsAudioTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsAudioTabView.swift; sourceTree = "<group>"; };
-		CC198FDC2F2415590054593A /* zh-TW */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-TW"; path = "zh-TW.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		CC198FE42F241F1E0054593A /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		CC198FE52F241F1F0054593A /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Main.strings"; sourceTree = "<group>"; };
 		CC9B3FA52EDF5E7C0029BF87 /* FFXIV-TcDefault.cfg */ = {isa = PBXFileReference; lastKnownFileType = text; path = "FFXIV-TcDefault.cfg"; sourceTree = "<group>"; };
 		CCADF0FA2F1E27CB0030CD11 /* pony.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = pony.png; sourceTree = "<group>"; };
 		CCE6C2072F232FF3007CC7D0 /* love.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = love.png; sourceTree = "<group>"; };
@@ -600,7 +601,8 @@
 				ja,
 				fr,
 				de,
-				"zh-tw",
+				"zh-Hant",
+				"zh-TW",
 			);
 			mainGroup = 50511EB82770E085003A1E9F;
 			packageReferences = (
@@ -816,7 +818,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				07B529D627D97D2B005B78BF /* en */,
-				CC198FDC2F2415590054593A /* zh-TW */,
+				CC198FE42F241F1E0054593A /* zh-Hant */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
@@ -829,6 +831,7 @@
 				504DF38B28C2BEA000535ED4 /* en */,
 				F46BBF18291C0494000C4672 /* fr */,
 				508C6790294324BC0046AA38 /* de */,
+				CC198FE52F241F1F0054593A /* zh-Hant */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";

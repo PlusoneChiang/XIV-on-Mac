@@ -3,7 +3,7 @@
 "0Rv-P7-893.title" = "一般";
 
 /* Class = "NSButtonCell"; title = "Launch with Dalamud Plugin Support"; ObjectID = "0ZX-g7-76H"; */
-"0ZX-g7-76H.title" = "啟動時使用 Dalamud 框架"
+"0ZX-g7-76H.title" = "啟動時使用 Dalamud 框架";
 
 /* Class = "NSTextFieldCell"; title = "Point XIV on Mac towards a custom folder."; ObjectID = "0iQ-Qw-vtu"; */
 "0iQ-Qw-vtu.title" = "將 XIV on Mac 指向自訂資料夾。";
@@ -417,7 +417,7 @@
 "YOz-MM-jki.title" = "裝置資訊";
 
 /* Class = "NSTextFieldCell"; title = "MoltenVK is one of the graphics libraries used by Final Fantasy XIV. Different versions may be needed on certain Macs for best results. If you're finding that your game is crashing - particularly in Azys Lla - try changing this value."; ObjectID = "Ybh-kW-gyy"; */
-"Ybh-kW-gyy.title" = "MoltenVK 是 Final Fantasy XIV 使用的圖形函式庫之一。某些 Mac 可能需要不同版本才能獲得最佳結果。如果你發現遊戲崩潰，特別是在阿濟茲拉 Azys Lla，請嘗試更改此數值。
+"Ybh-kW-gyy.title" = "MoltenVK 是 Final Fantasy XIV 使用的圖形函式庫之一。某些 Mac 可能需要不同版本才能獲得最佳結果。如果你發現遊戲崩潰，特別是在阿濟茲拉 Azys Lla，請嘗試更改此數值。";
 
 /* Class = "NSMenuItem"; title = "Start Speaking"; ObjectID = "Ynk-f8-cLZ"; */
 "Ynk-f8-cLZ.title" = "開始語音";

@@ -15,11 +15,11 @@
                 <application id="hnw-xV-0zn" sceneMemberID="viewController">
                     <menu key="mainMenu" title="Main Menu" systemMenu="main" id="AYu-sK-qS6">
                         <items>
-                            <menuItem title="XIV on Mac" id="1Xt-HY-uBw">
+                            <menuItem title="XIV on Mac in TC" id="1Xt-HY-uBw">
                                 <modifierMask key="keyEquivalentModifierMask"/>
-                                <menu key="submenu" title="XIV on Mac" systemMenu="apple" id="uQy-DD-JDr">
+                                <menu key="submenu" title="XIV on Mac in TC" systemMenu="apple" id="uQy-DD-JDr">
                                     <items>
-                                        <menuItem title="About XIV on Mac" id="5kV-Vb-QxS">
+                                        <menuItem title="About XIV on Mac in TC" id="5kV-Vb-QxS">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
                                                 <action selector="orderFrontStandardAboutPanel:" target="Ady-hI-5gd" id="Exp-CZ-Vem"/>
