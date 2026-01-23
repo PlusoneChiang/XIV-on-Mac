@@ -89,6 +89,9 @@ enum Wine {
             // XIV on Mac: 在 Wine 初始化完成後啟動音訊路由
             if Settings.audioRoutingEnabled {
                 GameAudioRouter.shared.start()
+            } else {
+                // 即使未啟用音訊路由，也要標記為已嘗試初始化，避免等待超時
+                GameAudioRouter.shared.markAsSkipped()
             }
         }
     }

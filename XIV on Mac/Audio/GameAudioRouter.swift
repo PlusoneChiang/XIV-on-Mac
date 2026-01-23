@@ -30,6 +30,9 @@ class GameAudioRouter {
     /// 是否正在運作
     private(set) var isRunning: Bool = false
 
+    /// Wine 初始化是否已完成（包含音訊路由啟動或跳過）
+    private(set) var bootCompleted: Bool = false
+
     /// 已知裝置的 GUID 快取 (CoreAudio UID -> Wine GUID)
     private var deviceGUIDCache: [String: String] = [:]
 
@@ -44,6 +47,11 @@ class GameAudioRouter {
     /// - Returns: 是否成功啟動
     @discardableResult
     func start() -> Bool {
+        defer {
+            // 不論成功或失敗，都標記為已完成
+            bootCompleted = true
+        }
+
         guard !isRunning else { return true }
 
         // 1. 取得當前系統預設裝置
@@ -72,6 +80,36 @@ class GameAudioRouter {
         let deviceName = AudioDeviceManager.getDeviceName(deviceID: defaultDevice) ?? "未知"
         Log.information("[Audio] 音訊路由已啟動，輸出: \(deviceName)")
         return true
+    }
+
+    /// 等待音訊路由初始化完成（使用輪詢）
+    /// - Parameter timeout: 最大等待時間（秒）
+    /// - Returns: 是否在超時前完成
+    @discardableResult
+    func waitForReady(timeout: TimeInterval = 10.0) -> Bool {
+        // 如果已經完成，直接返回
+        if bootCompleted {
+            return isRunning
+        }
+
+        // 輪詢等待
+        let startTime = Date()
+        let pollInterval: TimeInterval = 0.1
+
+        while Date().timeIntervalSince(startTime) < timeout {
+            if bootCompleted {
+                return isRunning
+            }
+            Thread.sleep(forTimeInterval: pollInterval)
+        }
+
+        // 超時
+        return bootCompleted && isRunning
+    }
+
+    /// 標記為已跳過初始化（當音訊路由未啟用時呼叫）
+    func markAsSkipped() {
+        bootCompleted = true
     }
 
     /// 停止音訊路由
