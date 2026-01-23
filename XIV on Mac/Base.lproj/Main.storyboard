@@ -986,7 +986,7 @@ Gw
                         <rect key="frame" x="0.0" y="0.0" width="965" height="650"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <visualEffectView blendingMode="behindWindow" material="HUDWindow" state="followsWindowActiveState" maskImage="pony" id="wY2-dv-E6t">
+                            <visualEffectView blendingMode="behindWindow" material="HUDWindow" state="followsWindowActiveState" maskImage="love" id="wY2-dv-E6t">
                                 <rect key="frame" x="0.0" y="0.0" width="965" height="650"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
@@ -1590,7 +1590,7 @@ Gw
         <image name="chevron.right" catalog="system" width="12" height="17"/>
         <image name="flag.pattern.checkered.2.crossed" catalog="system" width="34" height="22"/>
         <image name="gear" catalog="system" width="17" height="16"/>
-        <image name="pony" width="2000" height="1500"/>
+        <image name="love" width="2000" height="1500"/>
         <image name="puzzlepiece.fill" catalog="system" width="22" height="15"/>
     </resources>
 </document>

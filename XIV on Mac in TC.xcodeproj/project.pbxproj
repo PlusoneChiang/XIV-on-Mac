@@ -99,6 +99,7 @@
 		50FC2E0127F9751600871760 /* DxvkError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50FC2E0027F9751600871760 /* DxvkError.swift */; };
 		CC9B3FA62EDF5E7C0029BF87 /* FFXIV-TcDefault.cfg in Resources */ = {isa = PBXBuildFile; fileRef = CC9B3FA52EDF5E7C0029BF87 /* FFXIV-TcDefault.cfg */; };
 		CCADF0FB2F1E27CB0030CD11 /* pony.png in Resources */ = {isa = PBXBuildFile; fileRef = CCADF0FA2F1E27CB0030CD11 /* pony.png */; };
+		CCE6C2082F232FF3007CC7D0 /* love.png in Resources */ = {isa = PBXBuildFile; fileRef = CCE6C2072F232FF3007CC7D0 /* love.png */; };
 		CCFF04AA2EEAB05D0009A0EA /* LoginPageSchemeHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFF04A92EEAB05D0009A0EA /* LoginPageSchemeHandler.swift */; };
 		CCFF04AB2EEAB05D0009A0EA /* LoginPageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFF04A82EEAB05D0009A0EA /* LoginPageManager.swift */; };
 		CCFF04AF2EEAB6890009A0EA /* login_page.html in Resources */ = {isa = PBXBuildFile; fileRef = CCFF04AD2EEAB6890009A0EA /* login_page.html */; };
@@ -225,6 +226,7 @@
 		50FC2E0027F9751600871760 /* DxvkError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DxvkError.swift; sourceTree = "<group>"; };
 		CC9B3FA52EDF5E7C0029BF87 /* FFXIV-TcDefault.cfg */ = {isa = PBXFileReference; lastKnownFileType = text; path = "FFXIV-TcDefault.cfg"; sourceTree = "<group>"; };
 		CCADF0FA2F1E27CB0030CD11 /* pony.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = pony.png; sourceTree = "<group>"; };
+		CCE6C2072F232FF3007CC7D0 /* love.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = love.png; sourceTree = "<group>"; };
 		CCFF04A82EEAB05D0009A0EA /* LoginPageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginPageManager.swift; sourceTree = "<group>"; };
 		CCFF04A92EEAB05D0009A0EA /* LoginPageSchemeHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginPageSchemeHandler.swift; sourceTree = "<group>"; };
 		CCFF04AC2EEAB6890009A0EA /* login_page.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = login_page.css; sourceTree = "<group>"; };
@@ -261,6 +263,7 @@
 		07A349882805689200A9D7D0 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				CCE6C2072F232FF3007CC7D0 /* love.png */,
 				CCFF04AC2EEAB6890009A0EA /* login_page.css */,
 				CCFF04AD2EEAB6890009A0EA /* login_page.html */,
 				CCFF04AE2EEAB6890009A0EA /* login_page.js */,
@@ -636,6 +639,7 @@
 				07A3498B2805689200A9D7D0 /* CfgCheckGood.tiff in Resources */,
 				07C876DD280B7DD500CB0D8E /* FFXIV-MacDefault.cfg in Resources */,
 				07B3507329A4829C0010C1F5 /* ffxivbenchmarklauncher-Default.ini in Resources */,
+				CCE6C2082F232FF3007CC7D0 /* love.png in Resources */,
 				07E8A67A2BD0AA11005AD41B /* DISCORD_TEAM_FLEET_03.dat in Resources */,
 				07E8A6762BD0A535005AD41B /* DISCORD_TEAM_SEATHASKY_02.dat in Resources */,
 				507D8F2127766F52000F0CB0 /* dxvk in Resources */,
