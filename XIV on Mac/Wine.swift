@@ -85,6 +85,12 @@ enum Wine {
             installFontIfNeeded()
             setLocaleToZhTW()
             configureMediaFoundation()
+
+            // XIV on Mac: 在 Wine 初始化完成後啟動音訊路由
+            if Settings.audioRoutingEnabled {
+                Log.information("[Audio] Wine ready, 啟動音訊路由...")
+                GameAudioRouter.shared.start()
+            }
         }
     }
     

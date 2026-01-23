@@ -84,11 +84,6 @@ import XIVLauncher
         checkGPUSupported()
         Wine.boot()
 
-        // 啟動音訊路由（如果設定啟用）
-        if Settings.audioRoutingEnabled {
-            Log.information("[Audio] 音訊路由已啟用，正在啟動...")
-            GameAudioRouter.shared.start()
-        }
         if migrated {
             // The final piece of migration has to happen after wine is ready for use.
             PrefixMigrator.migrateWineRegistrySettings()

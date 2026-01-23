@@ -33,7 +33,7 @@ struct SettingsView: View {
                 SettingsTabItem.Advanced)
         }
         .padding(.top)
-        .frame(minWidth: 780, minHeight: 590)
+        .frame(minWidth: 940, minHeight: 590)
         .background(VisualEffectView())
     }
 }
