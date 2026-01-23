@@ -110,7 +110,18 @@ struct SettingsPluginsTabView: View {
             .padding(.horizontal)
             Spacer()
         }
-        .onAppear { viewModel.fetchCustomDalamudVersion() }
+        .onAppear {
+            // 只在 Dalamud 啟用時才檢查版本
+            if viewModel.dalamudEnabled {
+                viewModel.fetchCustomDalamudVersion()
+            }
+        }
+        .onChange(of: viewModel.dalamudEnabled) { enabled in
+            // 當 Dalamud 被啟用時，檢查版本
+            if enabled && viewModel.customDalamudVersion == nil {
+                viewModel.fetchCustomDalamudVersion()
+            }
+        }
     }
 }
 
@@ -192,7 +203,6 @@ extension SettingsPluginsTabView {
 
                 await MainActor.run {
                     self.customDalamudVersion = version
-                    Log.information("Loaded custom Dalamud version: \(version.displayName) (\(version.assemblyVersion ?? "unknown"))")
                 }
             } catch {
                 await MainActor.run {

@@ -44,42 +44,33 @@ class GameAudioRouter {
     /// - Returns: 是否成功啟動
     @discardableResult
     func start() -> Bool {
-        guard !isRunning else {
-            Log.warning("GameAudioRouter: 已經在運作中")
-            return true
-        }
-
-        Log.information("GameAudioRouter: 開始啟動音訊路由（mmdevapi 模式）")
+        guard !isRunning else { return true }
 
         // 1. 取得當前系統預設裝置
         let defaultDevice = AudioDeviceManager.getDefaultOutputDevice()
         guard let uid = AudioDeviceManager.getDeviceUID(deviceID: defaultDevice) else {
-            Log.error("GameAudioRouter: 無法取得預設輸出裝置 UID")
+            Log.error("[Audio] 無法取得預設輸出裝置")
             return false
         }
         currentOutputDeviceUID = uid
 
-        let deviceName = AudioDeviceManager.getDeviceName(deviceID: defaultDevice) ?? "未知裝置"
-        Log.information("GameAudioRouter: 當前預設輸出裝置: \(deviceName) (\(uid))")
-
         // 2. 取得或建立此裝置的 Wine GUID
         let guid = getOrCreateWineGUID(for: uid)
         currentWineGUID = guid
-        Log.information("GameAudioRouter: Wine GUID: \(guid)")
 
         // 3. 設定 Wine 預設輸出裝置
         setWineDefaultOutput(guid: guid)
 
         // 4. 記錄當前已知的裝置列表
         knownDeviceUIDs = Set(AudioDeviceManager.getAllOutputDeviceUIDs())
-        Log.information("GameAudioRouter: 記錄 \(knownDeviceUIDs.count) 個已知裝置")
 
         // 5. 註冊裝置變更監聽
         registerDeviceChangeListener()
         registerDeviceListChangeListener()
 
         isRunning = true
-        Log.information("GameAudioRouter: 音訊路由啟動成功")
+        let deviceName = AudioDeviceManager.getDeviceName(deviceID: defaultDevice) ?? "未知"
+        Log.information("[Audio] 音訊路由已啟動，輸出: \(deviceName)")
         return true
     }
 
@@ -87,15 +78,12 @@ class GameAudioRouter {
     func stop() {
         guard isRunning else { return }
 
-        Log.information("GameAudioRouter: 停止音訊路由")
-
-        // 移除監聽
         AudioDeviceManager.removeDefaultOutputListener()
         AudioDeviceManager.removeDevicesListener()
 
         isRunning = false
         knownDeviceUIDs.removeAll()
-        Log.information("GameAudioRouter: 音訊路由已停止")
+        Log.information("[Audio] 音訊路由已停止")
     }
 
     /// 取得當前輸出裝置名稱
@@ -112,13 +100,11 @@ class GameAudioRouter {
     private func getOrCreateWineGUID(for coreAudioUID: String) -> String {
         // 檢查快取
         if let cachedGUID = deviceGUIDCache[coreAudioUID] {
-            Log.information("GameAudioRouter: 使用快取的 GUID: \(cachedGUID)")
             return cachedGUID
         }
 
         // 嘗試從 Wine Registry 讀取已存在的 GUID
         if let existingGUID = readExistingWineGUID(for: coreAudioUID) {
-            Log.information("GameAudioRouter: 從 Wine Registry 讀取到已存在的 GUID: \(existingGUID)")
             deviceGUIDCache[coreAudioUID] = existingGUID
             return existingGUID
         }
@@ -130,8 +116,6 @@ class GameAudioRouter {
         // 寫入 Wine Registry 建立對應關係
         let deviceKey = #"HKEY_CURRENT_USER\Software\Wine\Drivers\winecoreaudio.drv\devices\0,\#(coreAudioUID)"#
         let hexData = guidToHexString(guid)
-
-        Log.information("GameAudioRouter: 建立新的裝置 GUID 對應: \(coreAudioUID) -> \(guid)")
         Wine.addRegBinary(key: deviceKey, value: "guid", hexData: hexData)
 
         return guid
@@ -146,7 +130,6 @@ class GameAudioRouter {
             .appendingPathComponent("user.reg")
 
         guard let content = try? String(contentsOf: userRegPath, encoding: .utf8) else {
-            Log.warning("GameAudioRouter: 無法讀取 user.reg")
             return nil
         }
 
@@ -157,7 +140,6 @@ class GameAudioRouter {
 
         // 搜尋對應的 section
         guard let sectionRange = content.range(of: sectionPattern, options: .regularExpression) else {
-            Log.information("GameAudioRouter: 在 user.reg 中未找到裝置 \(coreAudioUID) 的 section")
             return nil
         }
 
@@ -177,7 +159,6 @@ class GameAudioRouter {
         // 搜尋 "guid"=hex:XX,XX,XX,...
         let guidPattern = #""guid"=hex:([0-9a-fA-F,]+)"#
         guard let guidMatch = sectionContent.range(of: guidPattern, options: .regularExpression) else {
-            Log.information("GameAudioRouter: 在 section 中未找到 guid 值")
             return nil
         }
 
@@ -197,10 +178,7 @@ class GameAudioRouter {
     /// - Returns: 標準 GUID 字串（如 "A1B2C3D4-E5F6-..."）
     private func hexStringToGUID(_ hexData: String) -> String? {
         let clean = hexData.uppercased()
-        guard clean.count == 32 else {
-            Log.warning("GameAudioRouter: hex 資料長度不正確: \(clean.count)")
-            return nil
-        }
+        guard clean.count == 32 else { return nil }
 
         // Data1 (8 chars) - reverse byte order back
         let data1Bytes = String(clean.prefix(8))
@@ -235,7 +213,6 @@ class GameAudioRouter {
     /// - Parameter guid: Wine GUID
     private func setWineDefaultOutput(guid: String) {
         let deviceID = "{0.0.0.00000000}.{\(guid)}"
-        Log.information("GameAudioRouter: 設定 Wine 預設輸出裝置: \(deviceID)")
         Wine.addReg(key: wineDriverKey, value: "DefaultOutput", data: deviceID)
     }
 
@@ -256,53 +233,27 @@ class GameAudioRouter {
     /// 裝置列表變更時呼叫
     private func onDeviceListChanged(currentUIDs: [String]) {
         let currentSet = Set(currentUIDs)
-
-        // 找出新增的裝置
         let newDevices = currentSet.subtracting(knownDeviceUIDs)
 
         if !newDevices.isEmpty {
-            Log.information("GameAudioRouter: 偵測到 \(newDevices.count) 個新裝置連接")
-            for uid in newDevices {
-                Log.information("GameAudioRouter: 新裝置: \(uid)")
-            }
-
-            // 觸發 Wine 重新掃描音訊裝置
-            Log.information("GameAudioRouter: 觸發 Wine 重新掃描音訊裝置")
             Wine.rescanAudioDevices()
         }
 
-        // 更新已知裝置列表
         knownDeviceUIDs = currentSet
     }
 
     /// 系統預設音訊變更時呼叫
     private func onDefaultOutputChanged(newDeviceID: AudioDeviceID) {
-        // 取得新裝置的 UID
-        guard let newUID = AudioDeviceManager.getDeviceUID(deviceID: newDeviceID) else {
-            Log.warning("GameAudioRouter: 無法取得新裝置 UID")
-            return
-        }
+        guard let newUID = AudioDeviceManager.getDeviceUID(deviceID: newDeviceID) else { return }
+        guard newUID != currentOutputDeviceUID else { return }
 
-        // 如果是同一個裝置，忽略
-        guard newUID != currentOutputDeviceUID else {
-            Log.information("GameAudioRouter: 裝置未變更，忽略")
-            return
-        }
+        let deviceName = AudioDeviceManager.getDeviceName(deviceID: newDeviceID) ?? "未知"
+        Log.information("[Audio] 輸出裝置變更: \(deviceName)")
 
-        let deviceName = AudioDeviceManager.getDeviceName(deviceID: newDeviceID) ?? "未知裝置"
-        Log.information("GameAudioRouter: 系統預設輸出變更為: \(deviceName) (\(newUID))")
-
-        // 更新狀態
         currentOutputDeviceUID = newUID
-
-        // 取得或建立新裝置的 Wine GUID
         let guid = getOrCreateWineGUID(for: newUID)
         currentWineGUID = guid
-
-        // 更新 Wine Registry
         setWineDefaultOutput(guid: guid)
-
-        Log.information("GameAudioRouter: 已通知 Wine 切換到新裝置")
     }
 
     // MARK: - GUID 轉換

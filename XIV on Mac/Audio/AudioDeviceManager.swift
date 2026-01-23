@@ -24,7 +24,7 @@ enum AudioDeviceManager {
             mElement: kAudioObjectPropertyElementMain
         )
 
-        let status = AudioObjectGetPropertyData(
+        _ = AudioObjectGetPropertyData(
             AudioObjectID(kAudioObjectSystemObject),
             &address,
             0,
@@ -32,10 +32,6 @@ enum AudioDeviceManager {
             &size,
             &deviceID
         )
-
-        if status != noErr {
-            Log.error("AudioDeviceManager: 無法取得預設輸出裝置，錯誤碼: \(status)")
-        }
 
         return deviceID
     }
@@ -59,11 +55,7 @@ enum AudioDeviceManager {
             &uid
         )
 
-        if status != noErr {
-            Log.error("AudioDeviceManager: 無法取得裝置 UID，錯誤碼: \(status)")
-            return nil
-        }
-
+        if status != noErr { return nil }
         return uid as String?
     }
 
@@ -112,10 +104,7 @@ enum AudioDeviceManager {
             &size
         )
 
-        if status != noErr {
-            Log.error("AudioDeviceManager: 無法取得裝置列表大小，錯誤碼: \(status)")
-            return nil
-        }
+        if status != noErr { return nil }
 
         let deviceCount = Int(size) / MemoryLayout<AudioDeviceID>.size
         var deviceIDs = [AudioDeviceID](repeating: 0, count: deviceCount)
@@ -129,10 +118,7 @@ enum AudioDeviceManager {
             &deviceIDs
         )
 
-        if status != noErr {
-            Log.error("AudioDeviceManager: 無法取得裝置列表，錯誤碼: \(status)")
-            return nil
-        }
+        if status != noErr { return nil }
 
         // 尋找內建輸出裝置
         for deviceID in deviceIDs {
@@ -141,7 +127,6 @@ enum AudioDeviceManager {
             }
         }
 
-        Log.warning("AudioDeviceManager: 未找到內建輸出裝置")
         return nil
     }
 
@@ -288,7 +273,7 @@ enum AudioDeviceManager {
         }
 
         // 建立 Aggregate Device 描述
-        var description: [String: Any] = [
+        let description: [String: Any] = [
             kAudioAggregateDeviceNameKey: name,
             kAudioAggregateDeviceUIDKey: uid,
             kAudioAggregateDeviceSubDeviceListKey: subDevices,
@@ -297,12 +282,6 @@ enum AudioDeviceManager {
             kAudioAggregateDeviceIsStackedKey: false
         ]
 
-        // 如果有多個 sub-device 且需要 channel mapping
-        if subDeviceUIDs.count > 1, let outputUID = outputDeviceUID, outputUID != masterDeviceUID {
-            // 嘗試設定只輸出到特定裝置
-            // 注意：這個功能可能需要特定的 macOS 版本支援
-            Log.information("AudioDeviceManager: 設定 channel mapping，輸出到: \(outputUID)")
-        }
 
         var aggregateDeviceID: AudioDeviceID = 0
         let status = AudioHardwareCreateAggregateDevice(
@@ -310,12 +289,7 @@ enum AudioDeviceManager {
             &aggregateDeviceID
         )
 
-        if status != noErr {
-            Log.error("AudioDeviceManager: 建立 Aggregate Device 失敗，錯誤碼: \(status)")
-            return nil
-        }
-
-        Log.information("AudioDeviceManager: 成功建立 Aggregate Device，ID: \(aggregateDeviceID), master: \(masterDeviceUID)")
+        if status != noErr { return nil }
 
         // 建立後嘗試設定 sub-device 音量
         if subDeviceUIDs.count > 1, let outputUID = outputDeviceUID, outputUID != masterDeviceUID {
@@ -332,22 +306,17 @@ enum AudioDeviceManager {
 
     /// 將 sub-device 靜音或取消靜音（不影響系統音量）
     static func muteSubDevice(subDeviceUID: String, mute: Bool) {
-        guard let deviceID = getDeviceIDByUID(subDeviceUID) else {
-            Log.warning("AudioDeviceManager: 無法找到裝置 \(subDeviceUID)")
-            return
-        }
+        guard let deviceID = getDeviceIDByUID(subDeviceUID) else { return }
 
-        // 嘗試設定 mute 屬性
         var address = AudioObjectPropertyAddress(
             mSelector: kAudioDevicePropertyMute,
             mScope: kAudioDevicePropertyScopeOutput,
             mElement: kAudioObjectPropertyElementMain
         )
 
-        // 檢查是否支援 mute 屬性
         if AudioObjectHasProperty(deviceID, &address) {
             var muteValue: UInt32 = mute ? 1 : 0
-            let status = AudioObjectSetPropertyData(
+            _ = AudioObjectSetPropertyData(
                 deviceID,
                 &address,
                 0,
@@ -355,14 +324,6 @@ enum AudioDeviceManager {
                 UInt32(MemoryLayout<UInt32>.size),
                 &muteValue
             )
-
-            if status == noErr {
-                Log.information("AudioDeviceManager: \(mute ? "靜音" : "取消靜音") 裝置 \(subDeviceUID)")
-            } else {
-                Log.warning("AudioDeviceManager: 設定靜音失敗，錯誤碼: \(status)")
-            }
-        } else {
-            Log.warning("AudioDeviceManager: 裝置 \(subDeviceUID) 不支援靜音屬性")
         }
     }
 
@@ -403,10 +364,7 @@ enum AudioDeviceManager {
             &cfSubDevices
         )
 
-        if status != noErr {
-            Log.error("AudioDeviceManager: 更新 sub-device list 失敗，錯誤碼: \(status)")
-            return false
-        }
+        if status != noErr { return false }
 
         // 更新 master device (macOS 12+ 使用 MainSubDevice)
         address.mSelector = kAudioAggregateDevicePropertyMainSubDevice
@@ -422,12 +380,7 @@ enum AudioDeviceManager {
             &masterUID
         )
 
-        if status != noErr {
-            Log.error("AudioDeviceManager: 更新 master device 失敗，錯誤碼: \(status)")
-            return false
-        }
-
-        Log.information("AudioDeviceManager: 成功更新 Aggregate Device sub-devices, master: \(masterDeviceUID)")
+        if status != noErr { return false }
 
         // 更新靜音狀態：只讓輸出裝置有聲音
         let actualOutputUID = outputDeviceUID ?? masterDeviceUID
@@ -446,12 +399,7 @@ enum AudioDeviceManager {
 
     /// 銷毀 Aggregate Device
     static func destroyAggregateDevice(deviceID: AudioDeviceID) {
-        let status = AudioHardwareDestroyAggregateDevice(deviceID)
-        if status != noErr {
-            Log.error("AudioDeviceManager: 銷毀 Aggregate Device 失敗，錯誤碼: \(status)")
-        } else {
-            Log.information("AudioDeviceManager: 成功銷毀 Aggregate Device")
-        }
+        _ = AudioHardwareDestroyAggregateDevice(deviceID)
     }
 
     // MARK: - 裝置變更監聽
@@ -479,18 +427,13 @@ enum AudioDeviceManager {
             }
         }
 
-        let status = AudioObjectAddPropertyListenerBlock(
+        _ = AudioObjectAddPropertyListenerBlock(
             AudioObjectID(kAudioObjectSystemObject),
             &address,
             DispatchQueue.main,
             defaultOutputListenerBlock!
         )
 
-        if status != noErr {
-            Log.error("AudioDeviceManager: 註冊預設輸出裝置變更監聽失敗，錯誤碼: \(status)")
-        } else {
-            Log.information("AudioDeviceManager: 成功註冊預設輸出裝置變更監聯")
-        }
     }
 
     /// 移除預設輸出裝置變更監聽
@@ -503,18 +446,12 @@ enum AudioDeviceManager {
             mElement: kAudioObjectPropertyElementMain
         )
 
-        let status = AudioObjectRemovePropertyListenerBlock(
+        _ = AudioObjectRemovePropertyListenerBlock(
             AudioObjectID(kAudioObjectSystemObject),
             &address,
             DispatchQueue.main,
             block
         )
-
-        if status != noErr {
-            Log.error("AudioDeviceManager: 移除預設輸出裝置變更監聽失敗，錯誤碼: \(status)")
-        } else {
-            Log.information("AudioDeviceManager: 成功移除預設輸出裝置變更監聽")
-        }
 
         defaultOutputListenerBlock = nil
         defaultOutputListenerCallback = nil
@@ -593,18 +530,13 @@ enum AudioDeviceManager {
             }
         }
 
-        let status = AudioObjectAddPropertyListenerBlock(
+        _ = AudioObjectAddPropertyListenerBlock(
             AudioObjectID(kAudioObjectSystemObject),
             &address,
             DispatchQueue.main,
             devicesListenerBlock!
         )
 
-        if status != noErr {
-            Log.error("AudioDeviceManager: 註冊裝置列表變更監聽失敗，錯誤碼: \(status)")
-        } else {
-            Log.information("AudioDeviceManager: 成功註冊裝置列表變更監聽")
-        }
     }
 
     /// 移除裝置列表變更監聽
@@ -617,18 +549,12 @@ enum AudioDeviceManager {
             mElement: kAudioObjectPropertyElementMain
         )
 
-        let status = AudioObjectRemovePropertyListenerBlock(
+        _ = AudioObjectRemovePropertyListenerBlock(
             AudioObjectID(kAudioObjectSystemObject),
             &address,
             DispatchQueue.main,
             block
         )
-
-        if status != noErr {
-            Log.error("AudioDeviceManager: 移除裝置列表變更監聽失敗，錯誤碼: \(status)")
-        } else {
-            Log.information("AudioDeviceManager: 成功移除裝置列表變更監聽")
-        }
 
         devicesListenerBlock = nil
         devicesListenerCallback = nil

@@ -88,7 +88,6 @@ enum Wine {
 
             // XIV on Mac: 在 Wine 初始化完成後啟動音訊路由
             if Settings.audioRoutingEnabled {
-                Log.information("[Audio] Wine ready, 啟動音訊路由...")
                 GameAudioRouter.shared.start()
             }
         }
@@ -429,8 +428,6 @@ enum Wine {
         var toggle = UserDefaults.standard.integer(forKey: rescanCounterKey)
         toggle = (toggle == 0) ? 1 : 0
         UserDefaults.standard.set(toggle, forKey: rescanCounterKey)
-
-        Log.information("[Wine] Triggering audio device rescan (toggle: \(toggle))")
 
         addRegDword(
             key: "HKEY_CURRENT_USER\\Software\\Wine\\Drivers\\winecoreaudio.drv",

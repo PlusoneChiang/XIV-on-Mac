@@ -232,6 +232,7 @@
 "SETTINGS_PLUGINS_DALAMUD_DELAY_LABEL" = "延遲：";
 "SETTINGS_PLUGINS_DISCORD_BLURB" = "此橋接功能可讓 Discord Rich Presence Dalamud 擴充套件更新你的 Discord 狀態。如果你不打算使用這個擴充套件，可以停用這個設定。";
 "SETTINGS_PLUGINS_DISCORD_TOGGLE" = "Discord Rich Presence Wine 橋接";
+"SETTINGS_PLUGINS_DALAMUD_BRANCH_BLURB" = " ";
 
 // Advanced Settings tab items
 "SETTINGS_ADVANCED_BLURB" = "這些設定主要用於疑難排解，一般情況下不需要更改。";

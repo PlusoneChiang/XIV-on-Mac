@@ -35,13 +35,14 @@ import XIVLauncher
         let storagePath = FileManager.default.fileSystemRepresentation(
             withPath: Util.applicationSupport.path)
         registerWineAppWillActivateNotification()
+        // 只有在 Dalamud 啟用時才傳遞 beta 參數，否則傳空字串避免背景更新檢查
         initXL(
             "XIV on Mac \(version) build \(build)",
             storagePath,
             Settings.verboseLogging,
             Frontier.frontierURLTemplate,
-            Settings.dalamudBetaKind,
-            Settings.dalamudBetaKey
+            Settings.dalamudEnabled ? Settings.dalamudBetaKind : "",
+            Settings.dalamudEnabled ? Settings.dalamudBetaKey : ""
         )
         Wine.setup()
     }
@@ -120,7 +121,6 @@ import XIVLauncher
     func applicationWillTerminate(_ aNotification: Notification) {
         // 停止音訊路由
         if GameAudioRouter.shared.isRunning {
-            Log.information("[Audio] 正在停止音訊路由...")
             GameAudioRouter.shared.stop()
         }
         // Wine.kill()
