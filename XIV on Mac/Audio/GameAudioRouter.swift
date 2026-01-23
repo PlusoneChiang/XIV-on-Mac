@@ -33,6 +33,9 @@ class GameAudioRouter {
     /// 已知裝置的 GUID 快取 (CoreAudio UID -> Wine GUID)
     private var deviceGUIDCache: [String: String] = [:]
 
+    /// 已知的裝置 UID 列表（用於偵測新裝置連接）
+    private var knownDeviceUIDs: Set<String> = []
+
     private init() {}
 
     // MARK: - 公開方法
@@ -67,8 +70,13 @@ class GameAudioRouter {
         // 3. 設定 Wine 預設輸出裝置
         setWineDefaultOutput(guid: guid)
 
-        // 4. 註冊裝置變更監聽
+        // 4. 記錄當前已知的裝置列表
+        knownDeviceUIDs = Set(AudioDeviceManager.getAllOutputDeviceUIDs())
+        Log.information("GameAudioRouter: 記錄 \(knownDeviceUIDs.count) 個已知裝置")
+
+        // 5. 註冊裝置變更監聽
         registerDeviceChangeListener()
+        registerDeviceListChangeListener()
 
         isRunning = true
         Log.information("GameAudioRouter: 音訊路由啟動成功")
@@ -83,8 +91,10 @@ class GameAudioRouter {
 
         // 移除監聽
         AudioDeviceManager.removeDefaultOutputListener()
+        AudioDeviceManager.removeDevicesListener()
 
         isRunning = false
+        knownDeviceUIDs.removeAll()
         Log.information("GameAudioRouter: 音訊路由已停止")
     }
 
@@ -234,6 +244,35 @@ class GameAudioRouter {
         AudioDeviceManager.registerDefaultOutputListener { [weak self] newDeviceID in
             self?.onDefaultOutputChanged(newDeviceID: newDeviceID)
         }
+    }
+
+    /// 註冊裝置列表變更監聽（用於偵測新裝置連接）
+    private func registerDeviceListChangeListener() {
+        AudioDeviceManager.registerDevicesListener { [weak self] currentUIDs in
+            self?.onDeviceListChanged(currentUIDs: currentUIDs)
+        }
+    }
+
+    /// 裝置列表變更時呼叫
+    private func onDeviceListChanged(currentUIDs: [String]) {
+        let currentSet = Set(currentUIDs)
+
+        // 找出新增的裝置
+        let newDevices = currentSet.subtracting(knownDeviceUIDs)
+
+        if !newDevices.isEmpty {
+            Log.information("GameAudioRouter: 偵測到 \(newDevices.count) 個新裝置連接")
+            for uid in newDevices {
+                Log.information("GameAudioRouter: 新裝置: \(uid)")
+            }
+
+            // 觸發 Wine 重新掃描音訊裝置
+            Log.information("GameAudioRouter: 觸發 Wine 重新掃描音訊裝置")
+            Wine.rescanAudioDevices()
+        }
+
+        // 更新已知裝置列表
+        knownDeviceUIDs = currentSet
     }
 
     /// 系統預設音訊變更時呼叫
