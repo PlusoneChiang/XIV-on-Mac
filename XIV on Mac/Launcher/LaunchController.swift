@@ -474,30 +474,37 @@ class LaunchController: NSViewController, WKNavigationDelegate {
                 // if Frontier.gameMaintenance {
                 //     throw FFXIVLoginError.maintenance
                 // }
-                NotificationCenter.default.post(
-                    name: .loginInfo, object: nil,
-                    userInfo: [Notification.status.info: "Updating Dalamud"])
-                let dalamudInstallState = loginResult.dalamudInstallState
-                DispatchQueue.main.async {
-                    if Settings.dalamudEnabled && dalamudInstallState == .failed
-                    {
-                        let alert = NSAlert()
-                        alert.addButton(
-                            withTitle: NSLocalizedString(
-                                "BUTTON_OK", comment: ""))
-                        alert.alertStyle = .critical
-                        alert.messageText = NSLocalizedString(
-                            "DALAMUD_START_FAILURE", comment: "")
-                        alert.informativeText = NSLocalizedString(
-                            "DALAMUD_START_FAILURE_INFORMATIONAL", comment: "")
-                        alert.runModal()
+
+                // 只有在啟用 Dalamud 時才檢查更新
+                let dalamudInstallState: Dalamud.InstallState
+                if Settings.dalamudEnabled {
+                    NotificationCenter.default.post(
+                        name: .loginInfo, object: nil,
+                        userInfo: [Notification.status.info: "Updating Dalamud"])
+                    dalamudInstallState = loginResult.dalamudInstallState
+                    DispatchQueue.main.async {
+                        if dalamudInstallState == .failed {
+                            let alert = NSAlert()
+                            alert.addButton(
+                                withTitle: NSLocalizedString(
+                                    "BUTTON_OK", comment: ""))
+                            alert.alertStyle = .critical
+                            alert.messageText = NSLocalizedString(
+                                "DALAMUD_START_FAILURE", comment: "")
+                            alert.informativeText = NSLocalizedString(
+                                "DALAMUD_START_FAILURE_INFORMATIONAL", comment: "")
+                            alert.runModal()
+                        }
                     }
+                } else {
+                    dalamudInstallState = .failed
                 }
+
                 NotificationCenter.default.post(
                     name: .loginInfo, object: nil,
                     userInfo: [Notification.status.info: "Starting Game"])
                 let process = try loginResult.startGame(
-                    dalamudInstallState == .ok)
+                    Settings.dalamudEnabled && dalamudInstallState == .ok)
                 
                 // 通知 WebView 遊戲已啟動
                 DispatchQueue.main.async { [self] in
