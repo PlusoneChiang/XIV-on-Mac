@@ -315,6 +315,17 @@ enum Wine {
         addRegistryKey(key, value, data)
     }
 
+    /// 新增 REG_BINARY 類型的 Registry 值
+    /// - Parameters:
+    ///   - key: Registry 路徑
+    ///   - value: 值名稱
+    ///   - hexData: 十六進位字串（如 "D4C3B2A1F6E5..."）
+    static func addRegBinary(key: String, value: String, hexData: String) {
+        // 使用 wine reg 命令新增 REG_BINARY
+        let command = "reg add \"\(key)\" /v \"\(value)\" /t REG_BINARY /d \(hexData) /f"
+        launch(command: command, blocking: true)
+    }
+
     static func override(dll: String, type: String) {
         addReg(
             key: "HKEY_CURRENT_USER\\Software\\Wine\\DllOverrides", value: dll,
