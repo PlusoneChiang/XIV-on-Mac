@@ -140,7 +140,7 @@
 "SETTINGS_TAB_GENERAL_TITLE" = "一般";
 "SETTINGS_TAB_CAPTURE_TITLE" = "螢幕錄影";
 "SETTINGS_TAB_GRAPHICS_TITLE" = "圖形";
-"SETTINGS_TAB_PLUGINS_TITLE" = "外掛程式 (Dalamud)";
+"SETTINGS_TAB_PLUGINS_TITLE" = "Dalamud擴充套件";
 "SETTINGS_TAB_ADVANCED_TITLE" = "進階";
 
 // General Settings tab items
@@ -196,7 +196,7 @@
 
 // Graphics Settings tab items
 "DXMT_ENABLED" = "使用 DXMT 將 D3D11 直接轉譯為 Metal";
-"METALFX_SPATIAL_ENABLED" = "啟用 MetalFX 空間放大";
+"METALFX_SPATIAL_ENABLED" = "啟用 MetalFX 解析提升";
 "SETTINGS_FPS_LIMIT" = "最大幀率";
 "SETTINGS_FPS_LIMIT_PLACEHOLDER" = "0";
 "SETTINGS_FPS_LIMIT_UNITS" = "fps";
@@ -224,13 +224,13 @@
 "SETTINGS_GRAPHICS_RETINA_BUGFIX" = "全螢幕非縮放模式的錯誤修正";
 
 // Plugins/Dalamud tab items
-"SETTINGS_PLUGINS_WHAT_IS_DALAMUD_BLURB" = "外掛是由一個名為 Dalamud 的專案啟用，能為你的遊戲增加額外功能。如果你不知道為什麼需要外掛，或是不想使用外掛，可以放心地保持停用。想了解更多關於 Dalamud，請造訪：\nhttps://github.com/goatcorp/Dalamud";
+"SETTINGS_PLUGINS_WHAT_IS_DALAMUD_BLURB" = "擴充套件是由一個名為 Dalamud 的專案啟用，能為你的遊戲增加額外功能。如果你不知道為什麼需要擴充套件，或是不想使用擴充套件，可以放心地保持停用。想了解更多關於 Dalamud，請造訪：\nhttps://github.com/goatcorp/Dalamud";
 "SETTINGS_PLUGINS_DALAMUD_ENABLE" = "啟用 Dalamud";
 "SETTINGS_PLUGINS_DALAMUD_ENTRYPOINT" = "進入點";
 "SETTINGS_PLUGINS_DALAMUD_DELAY_BLURB" = "如果 Dalamud 沒有成功載入，你可以嘗試調整載入延遲的時間，增加或減少，來找到適合你 Mac 的數值。";
 "SETTINGS_PLUGINS_DALAMUD_DELAY_UNITS" = "秒";
 "SETTINGS_PLUGINS_DALAMUD_DELAY_LABEL" = "延遲：";
-"SETTINGS_PLUGINS_DISCORD_BLURB" = "此橋接功能可讓 Discord Rich Presence Dalamud 外掛更新你的 Discord 狀態。如果你不打算使用這個外掛，可以停用這個設定。";
+"SETTINGS_PLUGINS_DISCORD_BLURB" = "此橋接功能可讓 Discord Rich Presence Dalamud 擴充套件更新你的 Discord 狀態。如果你不打算使用這個擴充套件，可以停用這個設定。";
 "SETTINGS_PLUGINS_DISCORD_TOGGLE" = "Discord Rich Presence Wine 橋接";
 
 // Advanced Settings tab items
@@ -239,7 +239,7 @@
 "SETTINGS_ADVANCED_MSYNC" = "Msync 同步";
 "SETTINGS_ADVANCED_ESYNC" = "Esync 同步";
 "SETTINGS_ADVANCED_ENCRYPT_ARGS" = "加密遊戲參數";
-"SETTINGS_ADVANCED_AUTO_EXIT" = "遊戲結束時自動關閉 XIV on Mac";
+"SETTINGS_ADVANCED_AUTO_EXIT" = "遊戲結束時自動關閉 XIV on Mac in TC";
 "SETTINGS_ADVANCED_ERROR_EXIT" = "若遊戲以非零代碼結束時警告";
 "SETTINGS_ADVANCED_WINE_DEBUG" = "Wine 除錯：";
 
@@ -353,7 +353,7 @@
 "SETTINGS_AUDIO_ROUTING_DESCRIPTION" = "讓遊戲音訊自動跟隨系統預設輸出裝置切換";
 "SETTINGS_AUDIO_NOTICE_HEADER" = "注意事項";
 "SETTINGS_AUDIO_NOTICE_RESTART" = "變更此設定需要重新啟動 App 才會生效。";
-"SETTINGS_AUDIO_NOTICE_APP_STAY" = "啟用後，App 不會隨遊戲關閉而關閉。";
+"SETTINGS_AUDIO_NOTICE_APP_STAY" = "啟用後，XIV on Mac in TC 需持續運行以監控裝置變更，請勿手動關閉。";
 "SETTINGS_AUDIO_STATUS_HEADER" = "狀態資訊";
 "SETTINGS_AUDIO_STATUS_CURRENT_OUTPUT" = "當前輸出：";
 "SETTINGS_AUDIO_STATUS_STATE" = "狀態：";

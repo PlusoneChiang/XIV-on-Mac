@@ -14,6 +14,8 @@ struct SettingsGeneralTabView: View {
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
             VStack {
+                // TC 版不需要憑證和免費試玩設定，隱藏此區塊
+                /*
                 VStack {
                     HStack {
                         Text("SETTINGS_GENERAL_TITLE_LICENSE")
@@ -79,6 +81,7 @@ struct SettingsGeneralTabView: View {
                         .font(.callout)
                 }
                 .padding([.leading, .trailing, .top])
+                */
 
                 VStack {
                     HStack {

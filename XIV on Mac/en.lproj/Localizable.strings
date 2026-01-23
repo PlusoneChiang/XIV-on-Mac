@@ -366,7 +366,7 @@ Do not enable this on non-retina displays, unless for screenshot purposes.";
 "SETTINGS_AUDIO_ROUTING_DESCRIPTION" = "Automatically follow system default audio output device";
 "SETTINGS_AUDIO_NOTICE_HEADER" = "Notice";
 "SETTINGS_AUDIO_NOTICE_RESTART" = "Changing this setting requires restarting the app to take effect.";
-"SETTINGS_AUDIO_NOTICE_APP_STAY" = "When enabled, the app will not close when the game exits.";
+"SETTINGS_AUDIO_NOTICE_APP_STAY" = "When enabled, the app must stay running to monitor device changes. Please do not close it manually.";
 "SETTINGS_AUDIO_STATUS_HEADER" = "Status";
 "SETTINGS_AUDIO_STATUS_CURRENT_OUTPUT" = "Current Output:";
 "SETTINGS_AUDIO_STATUS_STATE" = "State:";

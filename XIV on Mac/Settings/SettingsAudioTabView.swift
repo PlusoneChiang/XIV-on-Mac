@@ -17,7 +17,7 @@ struct SettingsAudioTabView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("SETTINGS_AUDIO_ROUTING_ENABLED")
                     Text("SETTINGS_AUDIO_ROUTING_DESCRIPTION")
-                        .font(.caption)
+                        .font(.callout)
                         .foregroundColor(.secondary)
                 }
             }
@@ -36,7 +36,6 @@ struct SettingsAudioTabView: View {
                     }
 
                     VStack(alignment: .leading, spacing: 4) {
-                        noticeItem("SETTINGS_AUDIO_NOTICE_RESTART")
                         noticeItem("SETTINGS_AUDIO_NOTICE_APP_STAY")
                     }
                     .padding(.leading, 24)
@@ -75,7 +74,10 @@ struct SettingsAudioTabView: View {
         .padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .onAppear {
-            viewModel.updateStatus()
+            viewModel.startStatusUpdates()
+        }
+        .onDisappear {
+            viewModel.stopStatusUpdates()
         }
     }
 
@@ -83,7 +85,7 @@ struct SettingsAudioTabView: View {
         HStack(alignment: .top, spacing: 6) {
             Text("•")
             Text(key)
-                .font(.caption)
+                .font(.body)
                 .foregroundColor(.secondary)
         }
     }
@@ -91,10 +93,10 @@ struct SettingsAudioTabView: View {
     private func statusRow(label: LocalizedStringKey, value: String) -> some View {
         HStack {
             Text(label)
-                .font(.caption)
+                .font(.body)
                 .foregroundColor(.secondary)
             Text(value)
-                .font(.caption)
+                .font(.body)
         }
     }
 }
@@ -104,15 +106,45 @@ extension SettingsAudioTabView {
         @Published var audioRoutingEnabled: Bool {
             didSet {
                 Settings.audioRoutingEnabled = audioRoutingEnabled
+
+                // 立即啟動或停止音訊路由
+                if audioRoutingEnabled {
+                    DispatchQueue.global(qos: .utility).async {
+                        GameAudioRouter.shared.start()
+                        DispatchQueue.main.async { [weak self] in
+                            self?.updateStatus()
+                        }
+                    }
+                } else {
+                    GameAudioRouter.shared.stop()
+                    updateStatus()
+                }
             }
         }
 
         @Published var currentOutputDevice: String = "-"
         @Published var routerStatus: String = "-"
 
+        private var statusTimer: Timer?
+
         init() {
             audioRoutingEnabled = Settings.audioRoutingEnabled
             updateStatus()
+        }
+
+        func startStatusUpdates() {
+            updateStatus()
+            // 每 2 秒更新一次狀態
+            statusTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] _ in
+                DispatchQueue.main.async {
+                    self?.updateStatus()
+                }
+            }
+        }
+
+        func stopStatusUpdates() {
+            statusTimer?.invalidate()
+            statusTimer = nil
         }
 
         func updateStatus() {
@@ -123,7 +155,7 @@ extension SettingsAudioTabView {
                 routerStatus = "運作中"
             } else {
                 currentOutputDevice = "-"
-                routerStatus = audioRoutingEnabled ? "等待重啟 App" : "未啟用"
+                routerStatus = audioRoutingEnabled ? "啟動中..." : "未啟用"
             }
         }
     }

@@ -208,7 +208,6 @@
 		507C600027CAA72000BA3CC2 /* PatchController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PatchController.swift; sourceTree = "<group>"; };
 		507D8F2027766F52000F0CB0 /* dxvk */ = {isa = PBXFileReference; lastKnownFileType = folder; path = dxvk; sourceTree = "<group>"; };
 		508C6790294324BC0046AA38 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Main.strings; sourceTree = "<group>"; };
-		508C6791294324BC0046AA38 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
 		509FE19927E3654E008D56D6 /* FFXIVEnums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FFXIVEnums.swift; sourceTree = "<group>"; };
 		509FE19B27E39DCB008D56D6 /* FFXIVApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FFXIVApp.swift; sourceTree = "<group>"; };
 		50A4E6F02E796A8F003BAA95 /* XOM.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = XOM.icon; sourceTree = "<group>"; };
@@ -230,6 +229,7 @@
 		CC198FD32F23AD7A0054593A /* AudioDeviceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioDeviceManager.swift; sourceTree = "<group>"; };
 		CC198FD42F23AD7A0054593A /* GameAudioRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameAudioRouter.swift; sourceTree = "<group>"; };
 		CC198FDA2F23ADF90054593A /* SettingsAudioTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsAudioTabView.swift; sourceTree = "<group>"; };
+		CC198FDC2F2415590054593A /* zh-TW */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-TW"; path = "zh-TW.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		CC9B3FA52EDF5E7C0029BF87 /* FFXIV-TcDefault.cfg */ = {isa = PBXFileReference; lastKnownFileType = text; path = "FFXIV-TcDefault.cfg"; sourceTree = "<group>"; };
 		CCADF0FA2F1E27CB0030CD11 /* pony.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = pony.png; sourceTree = "<group>"; };
 		CCE6C2072F232FF3007CC7D0 /* love.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = love.png; sourceTree = "<group>"; };
@@ -240,9 +240,7 @@
 		CCFF04AE2EEAB6890009A0EA /* login_page.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = login_page.js; sourceTree = "<group>"; };
 		CCFF04B22EEB41F90009A0EA /* SarasaMonoTC-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SarasaMonoTC-Regular.ttf"; sourceTree = "<group>"; };
 		F46BBF18291C0494000C4672 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Main.strings; sourceTree = "<group>"; };
-		F46BBF19291C0494000C4672 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		FC2A0719289A5E4300C25C34 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Main.strings; sourceTree = "<group>"; };
-		FC2A071A289A5E4300C25C34 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -818,9 +816,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				07B529D627D97D2B005B78BF /* en */,
-				FC2A071A289A5E4300C25C34 /* ja */,
-				F46BBF19291C0494000C4672 /* fr */,
-				508C6791294324BC0046AA38 /* de */,
+				CC198FDC2F2415590054593A /* zh-TW */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";

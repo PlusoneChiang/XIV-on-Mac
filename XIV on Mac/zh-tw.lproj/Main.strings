@@ -3,7 +3,7 @@
 "0Rv-P7-893.title" = "一般";
 
 /* Class = "NSButtonCell"; title = "Launch with Dalamud Plugin Support"; ObjectID = "0ZX-g7-76H"; */
-"0ZX-g7-76H.title" = "啟動時使用 Dalamud 外掛"
+"0ZX-g7-76H.title" = "啟動時使用 Dalamud 框架"
 
 /* Class = "NSTextFieldCell"; title = "Point XIV on Mac towards a custom folder."; ObjectID = "0iQ-Qw-vtu"; */
 "0iQ-Qw-vtu.title" = "將 XIV on Mac 指向自訂資料夾。";
@@ -48,10 +48,10 @@
 "4l9-XH-Dbl.title" = "非同步";
 
 /* Class = "NSMenuItem"; title = "Quit XIV on Mac"; ObjectID = "4sb-4s-VLi"; */
-"4sb-4s-VLi.title" = "結束 XIV on Mac";
+"4sb-4s-VLi.title" = "結束 XIV on Mac in TC";
 
 /* Class = "NSTextFieldCell"; title = "Plugins are enabled by a project called Dalamud, which enables extra functionality in your game. If you do not know why you would want a plugin or do not wish to use them, you may safely leave this disabled. To learn more about Dalamud please visit:\nhttps://github.com/goatcorp/Dalamud"; ObjectID = "4uL-Sg-0m9"; */
-"4uL-Sg-0m9.title" = "外掛是由 Dalamud 啟用，能為你的遊戲增加額外功能。如果你不知道為什麼需要外掛，或是不想使用外掛，可以放心地保持停用。想了解更多關於 Dalamud，請造訪：\nhttps://github.com/goatcorp/Dalamud";
+"4uL-Sg-0m9.title" = "擴充套件是由 Dalamud 啟用，能為你的遊戲增加額外功能。如果你不知道為什麼需要擴充套件，或是不想使用擴充套件，可以放心地保持停用。想了解更多關於 Dalamud，請造訪：\nhttps://github.com/goatcorp/Dalamud";
 
 /* Class = "NSTextFieldCell"; placeholderString = "optional"; ObjectID = "5FC-rM-Oay"; */
 "5FC-rM-Oay.placeholderString" = "選填";
@@ -60,7 +60,7 @@
 "5QF-Oa-p0T.title" = "編輯";
 
 /* Class = "NSMenuItem"; title = "About XIV on Mac"; ObjectID = "5kV-Vb-QxS"; */
-"5kV-Vb-QxS.title" = "關於 XIV on Mac";
+"5kV-Vb-QxS.title" = "關於 XIV on Mac in TC";
 
 /* Class = "NSMenuItem"; title = "Auto-Launch ACT"; ObjectID = "6JE-Fn-nLi"; */
 "6JE-Fn-nLi.title" = "自動啟動 ACT";
@@ -114,7 +114,7 @@
 "9ic-FL-obx.title" = "替代";
 
 /* Class = "NSButtonCell"; title = "Quit XIV on Mac upon game exit"; ObjectID = "9ie-LK-Dur"; */
-"9ie-LK-Dur.title" = "遊戲結束時自動關閉 XIV on Mac";
+"9ie-LK-Dur.title" = "遊戲結束時自動關閉 XIV on Mac in TC";
 
 /* Class = "NSTextFieldCell"; title = "Copy existing game data to \"XIV on Mac\" prefix."; ObjectID = "9yd-8A-qFs"; */
 "9yd-8A-qFs.title" = "複製現有遊戲資料到「XIV on Mac」前綴。";
@@ -123,7 +123,7 @@
 "9yt-4B-nSM.title" = "智慧複製/貼上";
 
 /* Class = "NSViewController"; title = "Plugins (Dalamud)"; ObjectID = "A8Q-Gs-kK7"; */
-"A8Q-Gs-kK7.title" = "外掛程式 (Dalamud)";
+"A8Q-Gs-kK7.title" = "擴充套件(Dalamud)";
 
 /* Class = "NSMenu"; title = "Add On"; ObjectID = "A9a-u7-hsU"; */
 "A9a-u7-hsU.title" = "附加元件";
@@ -183,7 +183,7 @@
 "Dv1-io-Yv7.title" = "拼字和文法";
 
 /* Class = "NSTextFieldCell"; title = "XIV on Mac can identify potential problems, or make recommended changes to your FFXIV Configuration file to give you the best experience available on the Mac."; ObjectID = "Dv8-bd-owY"; */
-"Dv8-bd-owY.title" = "XIV on Mac 可以協助偵測潛在問題，或對你的 FFXIV 設定檔提出建議修改，讓你在 Mac 上獲得最佳體驗。";
+"Dv8-bd-owY.title" = "XIV on Mac in TC 可以協助偵測潛在問題，或對你的 FFXIV 設定檔提出建議修改，讓你在 Mac 上獲得最佳體驗。";
 
 /* Class = "NSButtonCell"; title = "Discord Rich Presence Wine Bridge"; ObjectID = "EJl-D1-TzE"; */
 "EJl-D1-TzE.title" = "Discord Rich Presence Wine 橋接";
@@ -222,7 +222,7 @@
 "GI5-jN-ZaJ.title" = "保留更新檔";
 
 /* Class = "NSTextFieldCell"; title = "The bridge enables the Discord Rich Presence Dalamud plugin to update your Discord status. If you do not plan to use this plugin, you can disable this setting."; ObjectID = "H7k-pX-G8j"; */
-"H7k-pX-G8j.title" = "此橋接功能可讓 Discord Rich Presence Dalamud 外掛更新你的 Discord 狀態。如果你不打算使用這個外掛，可以停用這個設定。";
+"H7k-pX-G8j.title" = "此橋接功能可讓 Discord Rich Presence Dalamud 擴充套件更新你的 Discord 狀態。如果你不打算使用這個擴充套件，可以停用這個設定。";
 
 /* Class = "NSMenuItem"; title = "Tools"; ObjectID = "H8h-7b-M4v"; */
 "H8h-7b-M4v.title" = "工具";
@@ -483,7 +483,7 @@
 "cwL-P1-jid.title" = "智慧連結";
 
 /* Class = "NSTextFieldCell"; title = "XIV On Mac can work with Mac, Windows, and Steam licenses. You must already own the license type you choose, if you are unsure you can check your account status through Mogstation. Steam accounts must have been previously linked to your Final Fantasy XIV service account by logging in on a Windows PC, and further require the macOS version of Steam to be running."; ObjectID = "d5H-SM-vjt"; */
-"d5H-SM-vjt.title" = "XIV on Mac 可以與 Mac、Windows 和 Steam 授權一起運作。您必須已經擁有您選擇的授權類型，如果您不確定，可以透過 Mogstation 檢查您的帳戶狀態。Steam 帳戶必須先前透過在 Windows PC 上登入來連結到您的 Final Fantasy XIV 服務帳戶，並且還需要運行 macOS 版本的 Steam。";
+"d5H-SM-vjt.title" = "XIV on Mac in TC 可以與 Mac、Windows 和 Steam 授權一起運作。您必須已經擁有您選擇的授權類型，如果您不確定，可以透過 Mogstation 檢查您的帳戶狀態。Steam 帳戶必須先前透過在 Windows PC 上登入來連結到您的 Final Fantasy XIV 服務帳戶，並且還需要運行 macOS 版本的 Steam。";
 
 /* Class = "NSMenuItem"; title = "Make Lower Case"; ObjectID = "d9M-CD-aMd"; */
 "d9M-CD-aMd.title" = "轉為小寫";
@@ -684,7 +684,7 @@
 "ti2-f2-LWe.title" = "幀數時間圖表";
 
 /* Class = "NSTextFieldCell"; title = "When selecting a custom folder, please select one your game is installed in. It should contain the folders \"game\" and \"boot\". Otherwise XIV on Mac will redownload your game."; ObjectID = "uJx-kU-CQH"; */
-"uJx-kU-CQH.title" = "選擇自訂資料夾時，請選擇您的遊戲安裝所在的資料夾。它應該包含「game」和「boot」資料夾。否則 XIV on Mac 將重新下載您的遊戲。";
+"uJx-kU-CQH.title" = "選擇自訂資料夾時，請選擇您的遊戲安裝所在的資料夾。它應該包含「game」和「boot」資料夾。否則 XIV on Mac in TC 將重新下載您的遊戲。";
 
 /* Class = "NSMenu"; title = "XIV on Mac"; ObjectID = "uQy-DD-JDr"; */
 "uQy-DD-JDr.title" = "XIV on Mac";
