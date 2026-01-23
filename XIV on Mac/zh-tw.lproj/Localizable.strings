@@ -347,4 +347,15 @@
 "SELECT_GAME_ROOT_SUBTITLE" = "選擇要建立 game 和 boot 資料夾的位置";
 "DIRECTORY_CREATION_FAILED" = "建立遊戲目錄失敗";
 
+// Audio Settings tab items
+"SETTINGS_TAB_AUDIO_TITLE" = "音訊";
+"SETTINGS_AUDIO_ROUTING_ENABLED" = "啟用音訊路由";
+"SETTINGS_AUDIO_ROUTING_DESCRIPTION" = "讓遊戲音訊自動跟隨系統預設輸出裝置切換";
+"SETTINGS_AUDIO_NOTICE_HEADER" = "注意事項";
+"SETTINGS_AUDIO_NOTICE_RESTART" = "變更此設定需要重新啟動 App 才會生效。";
+"SETTINGS_AUDIO_NOTICE_APP_STAY" = "啟用後，App 不會隨遊戲關閉而關閉。";
+"SETTINGS_AUDIO_STATUS_HEADER" = "狀態資訊";
+"SETTINGS_AUDIO_STATUS_CURRENT_OUTPUT" = "當前輸出：";
+"SETTINGS_AUDIO_STATUS_STATE" = "狀態：";
+
 

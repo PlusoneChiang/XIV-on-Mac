@@ -3,4 +3,4 @@
 url=https://github.com/PlusoneChiang/FFXIVQuickLauncher.git
 [submodule "XIV on Mac/wine-builder/source"]
 	path = XIV on Mac/wine-builder/source
-	url = https://github.com/marzent/winecx
+url=https://github.com/PlusoneChiang/winecx

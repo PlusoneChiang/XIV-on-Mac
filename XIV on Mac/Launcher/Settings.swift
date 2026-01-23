@@ -345,4 +345,17 @@ public enum Settings {
             }
         }
     }
+
+    // MARK: - 音訊路由設定
+
+    private static let audioRoutingEnabledKey = "AudioRoutingEnabled"
+    /// 是否啟用音訊路由功能（讓遊戲音訊自動跟隨系統預設輸出裝置切換）
+    static var audioRoutingEnabled: Bool {
+        get {
+            UserDefaults.standard.bool(forKey: audioRoutingEnabledKey)
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: audioRoutingEnabledKey)
+        }
+    }
 }

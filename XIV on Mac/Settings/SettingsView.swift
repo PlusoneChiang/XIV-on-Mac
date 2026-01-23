@@ -13,6 +13,7 @@ struct SettingsView: View {
     private var generalTabView: SettingsGeneralTabView = .init()
     private var captureView: SettingsCaptureView = .init()
     private var graphicsTabView: SettingsGraphicsTabView = .init()
+    private var audioTabView: SettingsAudioTabView = .init()
     private var pluginsTabView: SettingsPluginsTabView = .init()
     private var advancedTabView: SettingsAdvancedTabView = .init()
 
@@ -24,6 +25,8 @@ struct SettingsView: View {
                 SettingsTabItem.Capture)
             graphicsTabView.tabItem { Text("SETTINGS_TAB_GRAPHICS_TITLE") }.tag(
                 SettingsTabItem.Graphics)
+            audioTabView.tabItem { Text("SETTINGS_TAB_AUDIO_TITLE") }.tag(
+                SettingsTabItem.Audio)
             pluginsTabView.tabItem { Text("SETTINGS_TAB_PLUGINS_TITLE") }.tag(
                 SettingsTabItem.Plugins)
             advancedTabView.tabItem { Text("SETTINGS_TAB_ADVANCED_TITLE") }.tag(
@@ -45,6 +48,7 @@ private enum SettingsTabItem: Hashable {
     case General
     case Capture
     case Graphics
+    case Audio
     case Plugins
     case Advanced
 }
