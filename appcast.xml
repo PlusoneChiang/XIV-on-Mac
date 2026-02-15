@@ -5,8 +5,28 @@
         <link>https://plusonechiang.github.io/XIV-on-Mac-in-TC/</link>
         <description>XIV on Mac in TC</description>
         <language>zh-TW</language>
+                <!-- 最新版本 -->
+        <item>
+            <title>XIV on Mac in TC v0.8.5</title>
+            <pubDate>Sun, 15 Feb 2026 14:49:21 +0800</pubDate>
+            <sparkle:version>10</sparkle:version>
+            <sparkle:shortVersionString>0.8.5</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <description><![CDATA[
+                <h2>XIV on Mac in TC v0.8.5</h2>
+                <ul>
+                    <li>1. 修復建置錯誤。</li>
+                    <li>2. 新年快樂。</li>
+                </ul>
+            ]]></description>
+            <enclosure
+                url="https://github.com/plusonechiang/XIV-on-Mac-in-TC/releases/download/v0.8.5/XIV-on-Mac-in-TC-0.8.5.dmg"
+                type="application/octet-stream"
+                sparkle:edSignature="SIaphpNHlrJECPN/zIH9HyR1scJdD7j/cGvsqe+vuR3ASGl3jOOL4sNzp44385X7SG0ocXkDLXk4i3bZrzysCg=="
+                length="171912662"
+            />
+        </item>
 
-        <!-- 最新版本 -->
         <item>
             <title>XIV on Mac in TC 版本 0.8.4 pre-release</title>
             <pubDate>Sat, 18 Jan 2025 12:00:00 +0800</pubDate>
