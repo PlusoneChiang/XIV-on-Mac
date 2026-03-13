@@ -7,25 +7,23 @@
         <language>zh-TW</language>
                 <!-- 最新版本 -->
         <item>
-            <title>XIV on Mac in TC v1.0.0</title>
-            <pubDate>Fri, 13 Mar 2026 16:42:47 +0800</pubDate>
-            <sparkle:version>11</sparkle:version>
-            <sparkle:shortVersionString>1.0.0</sparkle:shortVersionString>
+            <title>XIV on Mac in TC v1.0.1</title>
+            <pubDate>Fri, 13 Mar 2026 20:00:01 +0800</pubDate>
+            <sparkle:version>12</sparkle:version>
+            <sparkle:shortVersionString>1.0.1</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
             <description><![CDATA[
-                <h2>XIV on Mac in TC v1.0.0</h2>
+                <h2>XIV on Mac in TC v1.0.1</h2>
                 <ul>
-                    <li>更新winecx for TC版本</li>
-                    <li>修復切換輸入法時，按鍵卡住問題</li>
-                    <li>修復CJK輸入法模式下，特定快捷建失效問題</li>
-                    <li>候選字視窗預設定位點，調到接近左下角位置(85%, 25%)，暫時無法調整</li>
+                    <li>更新winecx版本，修復卡鍵問題</li>
+                    <li>新增候選字視窗定位點設定功能</li>
                 </ul>
             ]]></description>
             <enclosure
-                url="https://github.com/plusonechiang/XIV-on-Mac-in-TC/releases/download/v1.0.0/XIV-on-Mac-in-TC-1.0.0.dmg"
+                url="https://github.com/plusonechiang/XIV-on-Mac-in-TC/releases/download/v1.0.1/XIV-on-Mac-in-TC-1.0.1.dmg"
                 type="application/octet-stream"
-                sparkle:edSignature="u7DdcnAb5nWadQX0cwWqQcXpUNgisAVlD8TQF5LNV5LvMeyP8Tt5oiv8vX8y3UtaEkM8BbKDs31zbyckb0T1Bg=="
-                length="171910660"
+                sparkle:edSignature="XYihxL5e/kHxfLONKrVuPjYpisQdp7xv132M+NeYSy4rBJ+UpJ00MA2J8QwAT8ubyhMdamqNJFPeYiFJDESWCA=="
+                length="171902495"
             />
         </item>
 
