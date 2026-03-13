@@ -168,6 +168,10 @@ Aktiviere dies auf Nicht-Retina-Displays nur, wenn du Bildschirmfotos aufnehmen 
 "SETTINGS_GENERAL_INPUT_RIGHT_COMMAND" = "Rechte command Taste:";
 "SETTINGS_GENERAL_INPUT_BUTTON_CTRL" = "Ctrl";
 "SETTINGS_GENERAL_INPUT_BUTTON_ALT" = "Alt";
+"SETTINGS_GENERAL_TITLE_IME_POSITION" = "IME-Position";
+"SETTINGS_GENERAL_IME_POS_X" = "X:";
+"SETTINGS_GENERAL_IME_POS_Y" = "Y:";
+"SETTINGS_GENERAL_IME_POSITION_HINT" = "Position des IME-Kandidatenfensters festlegen (Prozent 0–100, Ursprung 0,0 ist die obere linke Ecke)";
 
 // Screen Capture tab items
 "SETTINGS_TOGGLE_SCREEN_RECORDING" = "Bildschirmaufnahme starten/stoppen";

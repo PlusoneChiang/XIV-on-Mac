@@ -171,6 +171,47 @@ struct SettingsGeneralTabView: View {
                 }
                 .padding([.leading, .trailing, .top])
 
+                HStack {
+                    VStack {
+                        HStack {
+                            Text("SETTINGS_GENERAL_TITLE_IME_POSITION")
+                                .font(.headline)
+
+                            Spacer()
+                        }
+
+                        HStack {
+                            Text("SETTINGS_GENERAL_IME_POS_X")
+                            TextField(
+                                "0-100",
+                                text: $viewModel.imePosX
+                            )
+                            .frame(width: 50)
+                            Text("%")
+
+                            Spacer().frame(width: 30)
+
+                            Text("SETTINGS_GENERAL_IME_POS_Y")
+                            TextField(
+                                "0-100",
+                                text: $viewModel.imePosY
+                            )
+                            .frame(width: 50)
+                            Text("%")
+
+                            Spacer()
+                        }
+
+                        Text("SETTINGS_GENERAL_IME_POSITION_HINT")
+                            .font(.callout)
+                            .foregroundColor(.secondary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+
+                    Spacer(minLength: 140)
+                }
+                .padding([.leading, .trailing, .top])
+
                 Spacer()
             }
             Image(nsImage: NSImage(named: "PrefsGeneral") ?? NSImage())
@@ -221,6 +262,26 @@ extension SettingsGeneralTabView {
 
         @Published var rightCommandIsCtrl: Bool = Wine.rightCommandIsCtrl {
             didSet { Wine.rightCommandIsCtrl = rightCommandIsCtrl }
+        }
+
+        @Published var imePosX: String = String(Settings.imePosX) {
+            didSet { updateImePosX() }
+        }
+
+        @Published var imePosY: String = String(Settings.imePosY) {
+            didSet { updateImePosY() }
+        }
+
+        private func updateImePosX() {
+            if let value = Int(imePosX), (0...100).contains(value) {
+                Settings.imePosX = value
+            }
+        }
+
+        private func updateImePosY() {
+            if let value = Int(imePosY), (0...100).contains(value) {
+                Settings.imePosY = value
+            }
         }
 
         private func updateHTTPMaxSpeed() {

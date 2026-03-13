@@ -55,6 +55,8 @@ enum Wine {
         }
         addEnvironmentVariable(
             "MTL_HUD_ENABLED", Settings.metal3PerformanceOverlay ? "1" : "0")
+        addEnvironmentVariable("WINE_IME_POS_X", String(Settings.imePosX))
+        addEnvironmentVariable("WINE_IME_POS_Y", String(Settings.imePosY))
         // GStreamer 配置：使用 bundle 真實路徑，registry 存放在 wineprefix
         let gstLibPath = wineDllURL.deletingLastPathComponent().path
         let gstPluginPath = "\(gstLibPath)/gstreamer-1.0"

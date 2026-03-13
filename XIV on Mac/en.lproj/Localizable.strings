@@ -171,6 +171,10 @@ Do not enable this on non-retina displays, unless for screenshot purposes.";
 "SETTINGS_GENERAL_INPUT_RIGHT_COMMAND" = "Right command:";
 "SETTINGS_GENERAL_INPUT_BUTTON_CTRL" = "Ctrl";
 "SETTINGS_GENERAL_INPUT_BUTTON_ALT" = "Alt";
+"SETTINGS_GENERAL_TITLE_IME_POSITION" = "IME Position";
+"SETTINGS_GENERAL_IME_POS_X" = "X:";
+"SETTINGS_GENERAL_IME_POS_Y" = "Y:";
+"SETTINGS_GENERAL_IME_POSITION_HINT" = "Set the IME candidate window position (percentage 0–100, origin 0,0 is the top-left corner)";
 
 // Screen Capture tab items
 "SETTINGS_TOGGLE_SCREEN_RECORDING" = "Start/Stop Screen Recording";

@@ -169,6 +169,10 @@ Ne l'activez pas sur les écrans autres que écrans Retina, sauf à des fins de 
 "SETTINGS_GENERAL_INPUT_RIGHT_COMMAND" = "Command droite:";
 "SETTINGS_GENERAL_INPUT_BUTTON_CTRL" = "Ctrl";
 "SETTINGS_GENERAL_INPUT_BUTTON_ALT" = "Alt";
+"SETTINGS_GENERAL_TITLE_IME_POSITION" = "Position IME";
+"SETTINGS_GENERAL_IME_POS_X" = "X :";
+"SETTINGS_GENERAL_IME_POS_Y" = "Y :";
+"SETTINGS_GENERAL_IME_POSITION_HINT" = "Définir la position de la fenêtre candidate IME (pourcentage 0–100, l'origine 0,0 est le coin supérieur gauche)";
 
 // Screen Capture tab items
 "SETTINGS_TOGGLE_SCREEN_RECORDING" = "Démarrer/Arrêter l'enregistrement d'écran.";

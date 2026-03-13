@@ -346,6 +346,36 @@ public enum Settings {
         }
     }
 
+    // MARK: - 輸入法定位點設定
+
+    private static let imePosXKey = "WineImePosX"
+    static var imePosX: Int {
+        get {
+            Util.getSetting(settingKey: imePosXKey, defaultValue: 0)
+        }
+        set {
+            let clamped = max(0, min(100, newValue))
+            UserDefaults.standard.set(clamped, forKey: imePosXKey)
+            DispatchQueue.main.async {
+                Wine.setup()
+            }
+        }
+    }
+
+    private static let imePosYKey = "WineImePosY"
+    static var imePosY: Int {
+        get {
+            Util.getSetting(settingKey: imePosYKey, defaultValue: 0)
+        }
+        set {
+            let clamped = max(0, min(100, newValue))
+            UserDefaults.standard.set(clamped, forKey: imePosYKey)
+            DispatchQueue.main.async {
+                Wine.setup()
+            }
+        }
+    }
+
     // MARK: - 音訊路由設定
 
     private static let audioRoutingEnabledKey = "AudioRoutingEnabled"
