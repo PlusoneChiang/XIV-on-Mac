@@ -7,46 +7,25 @@
         <language>zh-TW</language>
                 <!-- 最新版本 -->
         <item>
-            <title>XIV on Mac in TC v0.8.5</title>
-            <pubDate>Sun, 15 Feb 2026 14:49:21 +0800</pubDate>
-            <sparkle:version>10</sparkle:version>
-            <sparkle:shortVersionString>0.8.5</sparkle:shortVersionString>
+            <title>XIV on Mac in TC v1.0.0</title>
+            <pubDate>Fri, 13 Mar 2026 16:42:47 +0800</pubDate>
+            <sparkle:version>11</sparkle:version>
+            <sparkle:shortVersionString>1.0.0</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
             <description><![CDATA[
-                <h2>XIV on Mac in TC v0.8.5</h2>
+                <h2>XIV on Mac in TC v1.0.0</h2>
                 <ul>
-                    <li>1. 修復建置錯誤。</li>
-                    <li>2. 新年快樂。</li>
+                    <li>更新winecx for TC版本</li>
+                    <li>修復切換輸入法時，按鍵卡住問題</li>
+                    <li>修復CJK輸入法模式下，特定快捷建失效問題</li>
+                    <li>候選字視窗預設定位點，調到接近左下角位置(85%, 25%)，暫時無法調整</li>
                 </ul>
             ]]></description>
             <enclosure
-                url="https://github.com/plusonechiang/XIV-on-Mac-in-TC/releases/download/v0.8.5/XIV-on-Mac-in-TC-0.8.5.dmg"
+                url="https://github.com/plusonechiang/XIV-on-Mac-in-TC/releases/download/v1.0.0/XIV-on-Mac-in-TC-1.0.0.dmg"
                 type="application/octet-stream"
-                sparkle:edSignature="SIaphpNHlrJECPN/zIH9HyR1scJdD7j/cGvsqe+vuR3ASGl3jOOL4sNzp44385X7SG0ocXkDLXk4i3bZrzysCg=="
-                length="171912662"
-            />
-        </item>
-
-        <item>
-            <title>XIV on Mac in TC 版本 0.8.4 pre-release</title>
-            <pubDate>Sat, 18 Jan 2025 12:00:00 +0800</pubDate>
-            <sparkle:version>9</sparkle:version>
-            <sparkle:shortVersionString>0.8.4</sparkle:shortVersionString>
-            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-            <description><![CDATA[
-                <h2>XIV on Mac in TC v0.8.4 pre-release</h2>
-                <p>XoMiT Release Note:</p>
-                <ul>
-                    <li>1. 調整Dalamud更新檢查流程</li>
-                    <li>2. 修復並提供本地化支援</li>
-                    <li>3. 新增音訊路由功能</li>
-                </ul>
-            ]]></description>
-            <enclosure
-                url="https://github.com/plusonechiang/XIV-on-Mac-in-TC/releases/download/v0.8.4/XIV-on-Mac-in-TC-0.8.4.dmg"
-                type="application/octet-stream"
-                sparkle:edSignature="qxezvTbTSjhvr4HtlIX+YOEyA2FuFhNnvXYtckGHTqN8CFGf7DDozdndzCPdl255yVWs+tKXYDisAVM6E9pDDg=="
-                length="171602058"
+                sparkle:edSignature="u7DdcnAb5nWadQX0cwWqQcXpUNgisAVlD8TQF5LNV5LvMeyP8Tt5oiv8vX8y3UtaEkM8BbKDs31zbyckb0T1Bg=="
+                length="171910660"
             />
         </item>
 
