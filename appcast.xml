@@ -7,23 +7,23 @@
         <language>zh-TW</language>
                 <!-- 最新版本 -->
         <item>
-            <title>XIV on Mac in TC v1.0.1</title>
-            <pubDate>Fri, 13 Mar 2026 20:00:01 +0800</pubDate>
-            <sparkle:version>12</sparkle:version>
-            <sparkle:shortVersionString>1.0.1</sparkle:shortVersionString>
+            <title>XIV on Mac in TC v1.0.2</title>
+            <pubDate>Mon, 30 Mar 2026 19:03:04 +0800</pubDate>
+            <sparkle:version>13</sparkle:version>
+            <sparkle:shortVersionString>1.0.2</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
             <description><![CDATA[
-                <h2>XIV on Mac in TC v1.0.1</h2>
+                <h2>XIV on Mac in TC v1.0.2</h2>
                 <ul>
-                    <li>更新winecx版本，修復卡鍵問題</li>
-                    <li>新增候選字視窗定位點設定功能</li>
+                    <li>WineCX更新至v2026.03.30</li>
+                    <li>修復特定IME因按鍵處理流程不正確，造成的IME作用不正常問題</li>
                 </ul>
             ]]></description>
             <enclosure
-                url="https://github.com/plusonechiang/XIV-on-Mac-in-TC/releases/download/v1.0.1/XIV-on-Mac-in-TC-1.0.1.dmg"
+                url="https://github.com/plusonechiang/XIV-on-Mac-in-TC/releases/download/v1.0.2/XIV-on-Mac-in-TC-1.0.2.dmg"
                 type="application/octet-stream"
-                sparkle:edSignature="XYihxL5e/kHxfLONKrVuPjYpisQdp7xv132M+NeYSy4rBJ+UpJ00MA2J8QwAT8ubyhMdamqNJFPeYiFJDESWCA=="
-                length="171902495"
+                sparkle:edSignature="ym35m1QYKW37QAOUSYNG6BQ4XK5/FnDAUad7m7I3CLFz8y6T4J1gnajF67gWsYzCKWDEmj3bg951JXt9ViwcCA=="
+                length="171902560"
             />
         </item>
 
