@@ -7,24 +7,22 @@
         <language>zh-TW</language>
                 <!-- 最新版本 -->
         <item>
-            <title>XIV on Mac in TC v1.0.3</title>
-            <pubDate>Wed, 01 Apr 2026 16:32:54 +0800</pubDate>
-            <sparkle:version>14</sparkle:version>
-            <sparkle:shortVersionString>1.0.3</sparkle:shortVersionString>
+            <title>XIV on Mac in TC v1.1.0</title>
+            <pubDate>Wed, 15 Apr 2026 22:35:56 +0800</pubDate>
+            <sparkle:version>15</sparkle:version>
+            <sparkle:shortVersionString>1.1.0</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
             <description><![CDATA[
-                <h2>XIV on Mac in TC v1.0.3</h2>
+                <h2>XIV on Mac in TC v1.1.0</h2>
                 <ul>
-                    <li>免費試玩帳號判斷</li>
-                    <li>我要跟我老公一起去中東打仗了，大家再見！！</li>
-                    <li>最後，祝大家愚人節快樂！</li>
+                    <li>重新開發Discord Rich Presence橋接功能</li>
                 </ul>
             ]]></description>
             <enclosure
-                url="https://github.com/plusonechiang/XIV-on-Mac-in-TC/releases/download/v1.0.3/XIV-on-Mac-in-TC-1.0.3.dmg"
+                url="https://github.com/plusonechiang/XIV-on-Mac-in-TC/releases/download/v1.1.0/XIV-on-Mac-in-TC-1.1.0.dmg"
                 type="application/octet-stream"
-                sparkle:edSignature="B0ffZf8SzuY91uSUVyOqi1ZUX01bzXx03Z/HokaZ6I9CeIpJQia5kfGouTwuHu2Ol7WfhSuFVCOFH2qZ4rBICg=="
-                length="171903161"
+                sparkle:edSignature="0OIMk91elEnUMFhBIXjom5DvDEegVSmm5D+DVEopP2VB5k1XFCZbCTb9gMdLHpQQy0yTutR9msc6ZeQex2w7Cw=="
+                length="171826923"
             />
         </item>
 

@@ -174,6 +174,14 @@ Ne l'activez pas sur les écrans autres que écrans Retina, sauf à des fins de 
 "SETTINGS_GENERAL_IME_POS_Y" = "Y :";
 "SETTINGS_GENERAL_IME_POSITION_HINT" = "Définir la position de la fenêtre candidate IME (pourcentage 0–100, l'origine 0,0 est le coin supérieur gauche)";
 
+"SETTINGS_GENERAL_DISCORD_TITLE" = "Discord Rich Presence";
+"SETTINGS_GENERAL_DISCORD_BLURB" = "xbridge détecte automatiquement les processus du jeu et met à jour votre statut Discord.";
+"SETTINGS_GENERAL_DISCORD_STATUS" = "État de xbridge :";
+"SETTINGS_GENERAL_DISCORD_INSTALLED" = "Installé";
+"SETTINGS_GENERAL_DISCORD_NOT_INSTALLED" = "Non installé";
+"SETTINGS_GENERAL_DISCORD_INSTALL_BTN" = "Installer xbridge";
+"SETTINGS_GENERAL_DISCORD_UNINSTALL_BTN" = "Supprimer xbridge";
+
 // Screen Capture tab items
 "SETTINGS_TOGGLE_SCREEN_RECORDING" = "Démarrer/Arrêter l'enregistrement d'écran.";
 "SETTINGS_CAPTURE_PERMISSIONS_CHECK" = "XIV On Mac nécessite des permissions supplémentaires pour enregistrer votre écran. Si vous souhaitez recevoir une notification chaque fois que l'enregistrement démarre ou s'arrête, les autorisations de notifications doivent également être accordées.";

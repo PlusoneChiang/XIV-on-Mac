@@ -173,6 +173,14 @@ Aktiviere dies auf Nicht-Retina-Displays nur, wenn du Bildschirmfotos aufnehmen 
 "SETTINGS_GENERAL_IME_POS_Y" = "Y:";
 "SETTINGS_GENERAL_IME_POSITION_HINT" = "Position des IME-Kandidatenfensters festlegen (Prozent 0–100, Ursprung 0,0 ist die obere linke Ecke)";
 
+"SETTINGS_GENERAL_DISCORD_TITLE" = "Discord Rich Presence";
+"SETTINGS_GENERAL_DISCORD_BLURB" = "xbridge erkennt automatisch laufende Spielprozesse und aktualisiert deinen Discord-Status.";
+"SETTINGS_GENERAL_DISCORD_STATUS" = "xbridge-Status:";
+"SETTINGS_GENERAL_DISCORD_INSTALLED" = "Installiert";
+"SETTINGS_GENERAL_DISCORD_NOT_INSTALLED" = "Nicht installiert";
+"SETTINGS_GENERAL_DISCORD_INSTALL_BTN" = "xbridge installieren";
+"SETTINGS_GENERAL_DISCORD_UNINSTALL_BTN" = "xbridge entfernen";
+
 // Screen Capture tab items
 "SETTINGS_TOGGLE_SCREEN_RECORDING" = "Bildschirmaufnahme starten/stoppen";
 "SETTINGS_CAPTURE_PERMISSIONS_CHECK" = "XIV on Mac benötigt deine Erlaubnis um den Bildschirm aufzunehmen.

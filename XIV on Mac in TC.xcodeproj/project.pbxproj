@@ -57,7 +57,6 @@
 		503B819628391054006197C1 /* XIVLauncher.NativeAOT.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 503B819428391054006197C1 /* XIVLauncher.NativeAOT.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		503B819C28394341006197C1 /* XIVLauncher.NativeAOT.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 503B819928394341006197C1 /* XIVLauncher.NativeAOT.dylib */; };
 		5043E36C27728BA300E59127 /* wine in Resources */ = {isa = PBXBuildFile; fileRef = 5043E36B27728BA300E59127 /* wine */; };
-		5046F7EF27E74AC9006C34E1 /* discord_bridge.exe in Resources */ = {isa = PBXBuildFile; fileRef = 5046F7EE27E74A9A006C34E1 /* discord_bridge.exe */; };
 		5049B9AE283BAFE600463A2B /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5049B9AD283BAFE600463A2B /* Log.swift */; };
 		5049B9B0283BF89400463A2B /* LoginResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5049B9AF283BF89400463A2B /* LoginResult.swift */; };
 		5049B9B3283CFEC600463A2B /* libsteam_api64.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5049B9B2283CFEC600463A2B /* libsteam_api64.dylib */; };
@@ -187,7 +186,6 @@
 		503C4F5C2D168CEC00141D3F /* nix-build.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "nix-build.sh"; sourceTree = "<group>"; };
 		503C4F5D2D168D0400141D3F /* package-runtime.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "package-runtime.sh"; sourceTree = "<group>"; };
 		5043E36B27728BA300E59127 /* wine */ = {isa = PBXFileReference; lastKnownFileType = folder; path = wine; sourceTree = "<group>"; };
-		5046F7EE27E74A9A006C34E1 /* discord_bridge.exe */ = {isa = PBXFileReference; lastKnownFileType = file; path = discord_bridge.exe; sourceTree = "<group>"; };
 		5049B9AC283BA82800463A2B /* Serilog.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Serilog.h; sourceTree = "<group>"; };
 		5049B9AD283BAFE600463A2B /* Log.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Log.swift; sourceTree = "<group>"; };
 		5049B9AF283BF89400463A2B /* LoginResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginResult.swift; sourceTree = "<group>"; };
@@ -437,7 +435,6 @@
 				07C876DC280B7DD500CB0D8E /* FFXIV-MacDefault.cfg */,
 				CC9B3FA52EDF5E7C0029BF87 /* FFXIV-TcDefault.cfg */,
 				07B3507229A4829C0010C1F5 /* ffxivbenchmarklauncher-Default.ini */,
-				5046F7EE27E74A9A006C34E1 /* discord_bridge.exe */,
 				CCFF04B22EEB41F90009A0EA /* SarasaMonoTC-Regular.ttf */,
 			);
 			path = "XIV on Mac";
@@ -635,7 +632,6 @@
 				CCFF04B12EEAB6890009A0EA /* login_page.css in Resources */,
 				507BECDD2D27E142009BE4A5 /* d3dcompiler in Resources */,
 				07A3499028056C7600A9D7D0 /* CfgCheckProblems.tiff in Resources */,
-				5046F7EF27E74AC9006C34E1 /* discord_bridge.exe in Resources */,
 				07E8A6662BD05698005AD41B /* ChocoboWalk2.tiff in Resources */,
 				50C029072C52638C0085297D /* dxmt in Resources */,
 				07A3498C2805689200A9D7D0 /* CfgCheckProbFailed.tiff in Resources */,
@@ -979,7 +975,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Developer ID Application";
 				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 15;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=macosx*]" = A7Z56NZJ7Q;
@@ -1000,7 +996,7 @@
 					"$(PROJECT_DIR)/XIV\\ on\\ Mac/XIVLauncher.NativeAOT",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				MARKETING_VERSION = 1.0.3;
+				MARKETING_VERSION = 1.1.0;
 				OTHER_CODE_SIGN_FLAGS = "--deep";
 				PRODUCT_BUNDLE_IDENTIFIER = "plusone.XIV-on-Mac-in-TC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1027,7 +1023,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Developer ID Application";
 				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 15;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=macosx*]" = A7Z56NZJ7Q;
@@ -1048,7 +1044,7 @@
 					"$(PROJECT_DIR)/XIV\\ on\\ Mac/XIVLauncher.NativeAOT",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				MARKETING_VERSION = 1.0.3;
+				MARKETING_VERSION = 1.1.0;
 				OTHER_CODE_SIGN_FLAGS = "--deep";
 				PRODUCT_BUNDLE_IDENTIFIER = "plusone.XIV-on-Mac-in-TC";
 				PRODUCT_NAME = "$(TARGET_NAME)";

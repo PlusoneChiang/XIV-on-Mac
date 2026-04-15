@@ -178,6 +178,14 @@
 "SETTINGS_GENERAL_IME_POS_Y" = "Y座標:";
 "SETTINGS_GENERAL_IME_POSITION_HINT" = "IME候補ウィンドウの位置を設定（パーセント0〜100、原点0,0はウィンドウの左上隅）";
 
+"SETTINGS_GENERAL_DISCORD_TITLE" = "Discord Rich Presence";
+"SETTINGS_GENERAL_DISCORD_BLURB" = "xbridgeはゲームプロセスを自動検出し、Discordのステータスを更新します。";
+"SETTINGS_GENERAL_DISCORD_STATUS" = "xbridgeの状態：";
+"SETTINGS_GENERAL_DISCORD_INSTALLED" = "インストール済み";
+"SETTINGS_GENERAL_DISCORD_NOT_INSTALLED" = "未インストール";
+"SETTINGS_GENERAL_DISCORD_INSTALL_BTN" = "xbridgeをインストール";
+"SETTINGS_GENERAL_DISCORD_UNINSTALL_BTN" = "xbridgeを削除";
+
 // Screen Capture tab items
 "SETTINGS_TOGGLE_SCREEN_RECORDING" = "録画のショートカットキー:";
 "SETTINGS_CAPTURE_PERMISSIONS_CHECK" = "録画を使用するにはXIV on Macへ画面収録の権限付与が必要です。また、録画開始・終了時に通知が必要な場合は、通知の権限付与が併せて必要です。";

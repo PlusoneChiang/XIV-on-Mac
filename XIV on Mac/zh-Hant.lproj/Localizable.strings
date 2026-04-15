@@ -175,6 +175,14 @@
 "SETTINGS_GENERAL_IME_POS_Y" = "Y 座標:";
 "SETTINGS_GENERAL_IME_POSITION_HINT" = "設定輸入法候選字視窗的位置（百分比 0~100，原點 0,0 為視窗左上角）";
 
+"SETTINGS_GENERAL_DISCORD_TITLE" = "Discord Rich Presence";
+"SETTINGS_GENERAL_DISCORD_BLURB" = "xbridge 可自動偵測遊戲程序並更新 Discord 狀態。";
+"SETTINGS_GENERAL_DISCORD_STATUS" = "xbridge 狀態：";
+"SETTINGS_GENERAL_DISCORD_INSTALLED" = "已安裝";
+"SETTINGS_GENERAL_DISCORD_NOT_INSTALLED" = "未安裝";
+"SETTINGS_GENERAL_DISCORD_INSTALL_BTN" = "安裝 xbridge";
+"SETTINGS_GENERAL_DISCORD_UNINSTALL_BTN" = "移除 xbridge";
+
 // Screen Capture tab items
 "SETTINGS_TOGGLE_SCREEN_RECORDING" = "開始/結束 螢幕錄影";
 "SETTINGS_CAPTURE_PERMISSIONS_CHECK" = "XIV On Mac 需要取得擷取螢幕的權限，如果你想要在開始/暫停結束螢幕錄影時收到通知的話，您也需要打開通知的權限。";

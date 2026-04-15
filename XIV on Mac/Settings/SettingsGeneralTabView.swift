@@ -212,6 +212,58 @@ struct SettingsGeneralTabView: View {
                 }
                 .padding([.leading, .trailing, .top])
 
+                HStack {
+                    VStack {
+                        HStack {
+                            Text("SETTINGS_GENERAL_DISCORD_TITLE")
+                                .font(.headline)
+                            Spacer()
+                        }
+
+                        Text("SETTINGS_GENERAL_DISCORD_BLURB")
+                            .font(.callout)
+                            .foregroundColor(.secondary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+
+                        HStack(spacing: 8) {
+                            Text("SETTINGS_GENERAL_DISCORD_STATUS")
+                            Circle()
+                                .frame(width: 8, height: 8)
+                                .foregroundColor(
+                                    viewModel.discordInstalled ? .green : .secondary)
+                            Text(
+                                viewModel.discordInstalled
+                                    ? "SETTINGS_GENERAL_DISCORD_INSTALLED"
+                                    : "SETTINGS_GENERAL_DISCORD_NOT_INSTALLED"
+                            )
+                            .foregroundColor(
+                                viewModel.discordInstalled ? .green : .secondary)
+                            if viewModel.discordOperating {
+                                ProgressView().scaleEffect(0.7)
+                            }
+                            Spacer()
+                        }
+
+                        HStack {
+                            Button("SETTINGS_GENERAL_DISCORD_INSTALL_BTN") {
+                                viewModel.installDiscord()
+                            }
+                            .disabled(
+                                viewModel.discordInstalled || viewModel.discordOperating)
+
+                            Button("SETTINGS_GENERAL_DISCORD_UNINSTALL_BTN") {
+                                viewModel.uninstallDiscord()
+                            }
+                            .disabled(
+                                !viewModel.discordInstalled || viewModel.discordOperating)
+
+                            Spacer()
+                        }
+                    }
+                    Spacer(minLength: 140)
+                }
+                .padding([.leading, .trailing, .top])
+
                 Spacer()
             }
             Image(nsImage: NSImage(named: "PrefsGeneral") ?? NSImage())
@@ -270,6 +322,31 @@ extension SettingsGeneralTabView {
 
         @Published var imePosY: String = String(Settings.imePosY) {
             didSet { updateImePosY() }
+        }
+
+        @Published var discordInstalled: Bool = DiscordBridge.isInstalled
+        @Published var discordOperating: Bool = false
+
+        func installDiscord() {
+            discordOperating = true
+            Task {
+                await DiscordBridge.install()
+                await MainActor.run {
+                    discordInstalled = DiscordBridge.isInstalled
+                    discordOperating = false
+                }
+            }
+        }
+
+        func uninstallDiscord() {
+            discordOperating = true
+            Task {
+                await DiscordBridge.uninstall()
+                await MainActor.run {
+                    discordInstalled = DiscordBridge.isInstalled
+                    discordOperating = false
+                }
+            }
         }
 
         private func updateImePosX() {
