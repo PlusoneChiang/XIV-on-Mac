@@ -1,9 +1,9 @@
 {
-  "assemblyVersion": "26-07-28-01",
+  "assemblyVersion": "26-07-28-02",
   "supportedGameVer": "2026.07.22.0000.0000",
   "runtimeRequired": true,
   "runtimeVersion": "9.0.2",
-  "downloadUrl": "https://github.com/yanmucorp/Dalamud/releases/download/26-07-28-01/latest.7z",
+  "downloadUrl": "https://github.com/yanmucorp/Dalamud/releases/download/26-07-28-02/latest.7z",
   "track": "custom",
   "displayName": "XIV on Mac in TC",
   "key": null
