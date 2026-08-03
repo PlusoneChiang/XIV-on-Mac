@@ -4,7 +4,7 @@
   "runtimeRequired": true,
   "runtimeVersion": "9.0.2",
   "downloadUrl": "https://github.com/yanmucorp/Dalamud/releases/download/26-07-28-02/latest.7z",
-  "track": "custom",
+  "track": "",
   "displayName": "XIV on Mac in TC",
   "key": null
 }
