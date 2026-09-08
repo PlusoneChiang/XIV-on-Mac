@@ -498,14 +498,6 @@ class LaunchController: NSViewController, WKNavigationDelegate {
                     dalamudInstallState = .failed
                 }
 
-                // 如果啟用音訊路由且尚未完成初始化，等待初始化完成
-                if Settings.audioRoutingEnabled && !GameAudioRouter.shared.bootCompleted {
-                    NotificationCenter.default.post(
-                        name: .loginInfo, object: nil,
-                        userInfo: [Notification.status.info: "Waiting for Audio"])
-                    GameAudioRouter.shared.waitForReady(timeout: 10.0)
-                }
-
                 NotificationCenter.default.post(
                     name: .loginInfo, object: nil,
                     userInfo: [Notification.status.info: "Starting Game"])

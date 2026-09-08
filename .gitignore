@@ -53,3 +53,4 @@ DerivedData/
 *.temp
 .claude
 Release
+/AGENTS.md

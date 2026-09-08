@@ -96,9 +96,6 @@
 		50F6CBAA27A975A000013301 /* Wine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50F6CBA927A975A000013301 /* Wine.swift */; };
 		50FC2DFF27F974D300871760 /* DxvkStateCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50FC2DFE27F974D300871760 /* DxvkStateCache.swift */; };
 		50FC2E0127F9751600871760 /* DxvkError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50FC2E0027F9751600871760 /* DxvkError.swift */; };
-		CC198FD62F23AD7A0054593A /* GameAudioRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC198FD42F23AD7A0054593A /* GameAudioRouter.swift */; };
-		CC198FD72F23AD7A0054593A /* AudioDeviceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC198FD32F23AD7A0054593A /* AudioDeviceManager.swift */; };
-		CC198FDB2F23ADF90054593A /* SettingsAudioTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC198FDA2F23ADF90054593A /* SettingsAudioTabView.swift */; };
 		CC9B3FA62EDF5E7C0029BF87 /* FFXIV-TcDefault.cfg in Resources */ = {isa = PBXBuildFile; fileRef = CC9B3FA52EDF5E7C0029BF87 /* FFXIV-TcDefault.cfg */; };
 		CCADF0FB2F1E27CB0030CD11 /* pony.png in Resources */ = {isa = PBXBuildFile; fileRef = CCADF0FA2F1E27CB0030CD11 /* pony.png */; };
 		CCE6C2082F232FF3007CC7D0 /* love.png in Resources */ = {isa = PBXBuildFile; fileRef = CCE6C2072F232FF3007CC7D0 /* love.png */; };
@@ -224,9 +221,6 @@
 		50F6CBA927A975A000013301 /* Wine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Wine.swift; sourceTree = "<group>"; };
 		50FC2DFE27F974D300871760 /* DxvkStateCache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DxvkStateCache.swift; sourceTree = "<group>"; };
 		50FC2E0027F9751600871760 /* DxvkError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DxvkError.swift; sourceTree = "<group>"; };
-		CC198FD32F23AD7A0054593A /* AudioDeviceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioDeviceManager.swift; sourceTree = "<group>"; };
-		CC198FD42F23AD7A0054593A /* GameAudioRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameAudioRouter.swift; sourceTree = "<group>"; };
-		CC198FDA2F23ADF90054593A /* SettingsAudioTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsAudioTabView.swift; sourceTree = "<group>"; };
 		CC198FE42F241F1E0054593A /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		CC198FE52F241F1F0054593A /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Main.strings"; sourceTree = "<group>"; };
 		CC9B3FA52EDF5E7C0029BF87 /* FFXIV-TcDefault.cfg */ = {isa = PBXFileReference; lastKnownFileType = text; path = "FFXIV-TcDefault.cfg"; sourceTree = "<group>"; };
@@ -396,7 +390,6 @@
 		50511EC32770E085003A1E9F /* XIV on Mac */ = {
 			isa = PBXGroup;
 			children = (
-				CC198FD52F23AD7A0054593A /* Audio */,
 				CCFF04A82EEAB05D0009A0EA /* LoginPageManager.swift */,
 				CCFF04A92EEAB05D0009A0EA /* LoginPageSchemeHandler.swift */,
 				50B2A2B327ABEF6800EFA0A2 /* XIV-on-Mac-Info.plist */,
@@ -494,7 +487,6 @@
 		50E32256281FA4BB00695B2E /* Settings */ = {
 			isa = PBXGroup;
 			children = (
-				CC198FDA2F23ADF90054593A /* SettingsAudioTabView.swift */,
 				0762AB8D2973A09A00A4D6E0 /* SettingsView.swift */,
 				0762AB8F2973AE2000A4D6E0 /* SettingsGeneralTabView.swift */,
 				07B5C83629C7AFCC0092C5C6 /* SettingsCaptureView.swift */,
@@ -528,15 +520,6 @@
 			path = GraphicsUtils;
 			sourceTree = "<group>";
 		};
-		CC198FD52F23AD7A0054593A /* Audio */ = {
-			isa = PBXGroup;
-			children = (
-				CC198FD32F23AD7A0054593A /* AudioDeviceManager.swift */,
-				CC198FD42F23AD7A0054593A /* GameAudioRouter.swift */,
-			);
-			path = Audio;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -545,7 +528,6 @@
 			buildConfigurationList = 50511ED02770E087003A1E9F /* Build configuration list for PBXNativeTarget "XIV on Mac in TC" */;
 			buildPhases = (
 				5049B9AB283B8E1300463A2B /* Build  XIVLauncher.NativeAOT */,
-				503C4F5B2D16074F00141D3F /* Build Wine */,
 				503C4F5E2D16932A00141D3F /* Package Wine */,
 				50511EBD2770E085003A1E9F /* Sources */,
 				50511EBE2770E085003A1E9F /* Frameworks */,
@@ -665,25 +647,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		503C4F5B2D16074F00141D3F /* Build Wine */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Build Wine";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "#!/bin/sh\n\ncd \"$PROJECT_DIR\"/XIV\\ on\\ Mac/wine-builder\n./nix-build.sh\n";
-		};
 		503C4F5E2D16932A00141D3F /* Package Wine */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
@@ -765,8 +728,6 @@
 				0786F05C29BADDA500009AD5 /* ScreenCapture.swift in Sources */,
 				0762AB902973AE2000A4D6E0 /* SettingsGeneralTabView.swift in Sources */,
 				07B3507129A4717B0010C1F5 /* INIReadWrite.swift in Sources */,
-				CC198FD62F23AD7A0054593A /* GameAudioRouter.swift in Sources */,
-				CC198FD72F23AD7A0054593A /* AudioDeviceManager.swift in Sources */,
 				0786F05E29BBF67400009AD5 /* ScreenCaptureEngine.swift in Sources */,
 				50E980DE2840A65000050151 /* RepairController.swift in Sources */,
 				50FC2DFF27F974D300871760 /* DxvkStateCache.swift in Sources */,
@@ -782,7 +743,6 @@
 				0762AB922973AEB400A4D6E0 /* SettingsGraphicsTabView.swift in Sources */,
 				505C0D9B277333920008A344 /* Util.swift in Sources */,
 				50F4BD2427CFA70A00FB165D /* Dxvk.swift in Sources */,
-				CC198FDB2F23ADF90054593A /* SettingsAudioTabView.swift in Sources */,
 				50511EC72770E085003A1E9F /* InstallerController.swift in Sources */,
 				50D30FA027B92EDB007A9F66 /* OTP.swift in Sources */,
 				50FC2E0127F9751600871760 /* DxvkError.swift in Sources */,
@@ -975,7 +935,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Developer ID Application";
 				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 16;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=macosx*]" = A7Z56NZJ7Q;
@@ -996,7 +956,7 @@
 					"$(PROJECT_DIR)/XIV\\ on\\ Mac/XIVLauncher.NativeAOT",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				MARKETING_VERSION = 1.1.0;
+				MARKETING_VERSION = 1.2.0;
 				OTHER_CODE_SIGN_FLAGS = "--deep";
 				PRODUCT_BUNDLE_IDENTIFIER = "plusone.XIV-on-Mac-in-TC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1023,7 +983,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Developer ID Application";
 				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 16;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=macosx*]" = A7Z56NZJ7Q;
@@ -1044,7 +1004,7 @@
 					"$(PROJECT_DIR)/XIV\\ on\\ Mac/XIVLauncher.NativeAOT",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				MARKETING_VERSION = 1.1.0;
+				MARKETING_VERSION = 1.2.0;
 				OTHER_CODE_SIGN_FLAGS = "--deep";
 				PRODUCT_BUNDLE_IDENTIFIER = "plusone.XIV-on-Mac-in-TC";
 				PRODUCT_NAME = "$(TARGET_NAME)";

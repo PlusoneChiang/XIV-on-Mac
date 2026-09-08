@@ -371,16 +371,3 @@ Do not enable this on non-retina displays, unless for screenshot purposes.";
 "SELECT_GAME_ROOT_TITLE" = "Select Game Root Directory";
 "SELECT_GAME_ROOT_SUBTITLE" = "Choose where to create the game and boot folders";
 "DIRECTORY_CREATION_FAILED" = "Failed to create game directories";
-
-// Audio Settings tab items
-"SETTINGS_TAB_AUDIO_TITLE" = "Audio";
-"SETTINGS_AUDIO_ROUTING_ENABLED" = "Enable Audio Routing";
-"SETTINGS_AUDIO_ROUTING_DESCRIPTION" = "Automatically follow system default audio output device";
-"SETTINGS_AUDIO_NOTICE_HEADER" = "Notice";
-"SETTINGS_AUDIO_NOTICE_RESTART" = "Changing this setting requires restarting the app to take effect.";
-"SETTINGS_AUDIO_NOTICE_APP_STAY" = "When enabled, the app must stay running to monitor device changes. Please do not close it manually.";
-"SETTINGS_AUDIO_STATUS_HEADER" = "Status";
-"SETTINGS_AUDIO_STATUS_CURRENT_OUTPUT" = "Current Output:";
-"SETTINGS_AUDIO_STATUS_STATE" = "State:";
-
-

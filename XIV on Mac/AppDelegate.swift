@@ -118,14 +118,6 @@ import XIVLauncher
         }
     }
 
-    func applicationWillTerminate(_ aNotification: Notification) {
-        // 停止音訊路由
-        if GameAudioRouter.shared.isRunning {
-            GameAudioRouter.shared.stop()
-        }
-        // Wine.kill()
-    }
-
     func applicationSupportsSecureRestorableState(_ app: NSApplication) -> Bool
     {
         return true

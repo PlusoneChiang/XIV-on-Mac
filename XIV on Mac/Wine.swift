@@ -87,14 +87,6 @@ enum Wine {
             installFontIfNeeded()
             setLocaleToZhTW()
             configureMediaFoundation()
-
-            // XIV on Mac: 在 Wine 初始化完成後啟動音訊路由
-            if Settings.audioRoutingEnabled {
-                GameAudioRouter.shared.start()
-            } else {
-                // 即使未啟用音訊路由，也要標記為已嘗試初始化，避免等待超時
-                GameAudioRouter.shared.markAsSkipped()
-            }
         }
     }
     
@@ -325,17 +317,6 @@ enum Wine {
         addRegistryKey(key, value, data)
     }
 
-    /// 新增 REG_BINARY 類型的 Registry 值
-    /// - Parameters:
-    ///   - key: Registry 路徑
-    ///   - value: 值名稱
-    ///   - hexData: 十六進位字串（如 "D4C3B2A1F6E5..."）
-    static func addRegBinary(key: String, value: String, hexData: String) {
-        // 使用 wine reg 命令新增 REG_BINARY
-        let command = "reg add \"\(key)\" /v \"\(value)\" /t REG_BINARY /d \(hexData) /f"
-        launch(command: command, blocking: true)
-    }
-
     static func override(dll: String, type: String) {
         addReg(
             key: "HKEY_CURRENT_USER\\Software\\Wine\\DllOverrides", value: dll,
@@ -419,35 +400,5 @@ enum Wine {
             UserDefaults.standard.set(
                 _rightCommandIsCtrl, forKey: rightCommandIsCtrlSettingKey)
         }
-    }
-
-    // MARK: - Audio Device Management
-
-    private static let rescanCounterKey = "RescanAudioDevicesCounter"
-
-    /// 觸發 Wine 重新掃描音訊裝置
-    /// 用於偵測遊戲啟動後才連接的新裝置
-    /// 透過切換 Registry 中的 RescanDevices toggle (0/1) 來觸發遊戲進程內的重新枚舉
-    static func rescanAudioDevices() {
-        // 切換 toggle (0 -> 1 或 1 -> 0)
-        var toggle = UserDefaults.standard.integer(forKey: rescanCounterKey)
-        toggle = (toggle == 0) ? 1 : 0
-        UserDefaults.standard.set(toggle, forKey: rescanCounterKey)
-
-        addRegDword(
-            key: "HKEY_CURRENT_USER\\Software\\Wine\\Drivers\\winecoreaudio.drv",
-            value: "RescanDevices",
-            data: UInt32(toggle)
-        )
-    }
-
-    /// 新增 REG_DWORD 類型的 Registry 值
-    /// - Parameters:
-    ///   - key: Registry 路徑
-    ///   - value: 值名稱
-    ///   - data: DWORD 數值
-    static func addRegDword(key: String, value: String, data: UInt32) {
-        let command = "reg add \"\(key)\" /v \"\(value)\" /t REG_DWORD /d \(data) /f"
-        launch(command: command, blocking: false)
     }
 }

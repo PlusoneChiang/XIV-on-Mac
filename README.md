@@ -49,7 +49,7 @@
 
 > *FPS improvements may vary based on hardware configuration
 
-**Wine Base:** Built on the latest release from [marzent/winecx](https://github.com/marzent/winecx)
+**Wine Base:** Wine 11 — [PlusoneChiang/winecx v2026.09.07](https://github.com/PlusoneChiang/winecx/releases/tag/v2026.09.07)
 
 ---
 
