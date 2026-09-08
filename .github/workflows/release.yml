@@ -1,0 +1,282 @@
+name: 發布
+
+on:
+  push:
+    tags:
+      - 'v[0-9]*.[0-9]*.[0-9]*'
+
+# 同一時間只發布一個版本，避免 appcast 被較舊的工作覆蓋。
+concurrency:
+  group: release-tc_region
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    name: 建置、簽署、公證與發布
+    runs-on: macos-15
+    timeout-minutes: 120
+    permissions:
+      contents: write
+      pages: read
+    outputs:
+      metadata: ${{ steps.metadata.outputs.json }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TAG: ${{ github.ref_name }}
+      APPLE_TEAM_ID: ${{ vars.APPLE_TEAM_ID }}
+      DEVELOPER_DIR: /Applications/Xcode_26.1.1.app/Contents/Developer
+      DOTNET_INSTALL_DIR: ${{ runner.temp }}/dotnet
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: 核對 tag、分支與 Pages
+        run: |
+          [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo '版本 tag 必須是 vX.Y.Z'; exit 1; }
+          git merge-base --is-ancestor HEAD origin/tc_region
+          git log -1 --format=%B > "$RUNNER_TEMP/release-notes.txt"
+          gh api "repos/$GITHUB_REPOSITORY/pages" > "$RUNNER_TEMP/pages.json"
+          gh api "repos/$GITHUB_REPOSITORY" --jq .default_branch > "$RUNNER_TEMP/default-branch"
+          python3 - <<'PY'
+          import json, os, pathlib, plistlib
+          root = pathlib.Path(os.environ['RUNNER_TEMP'])
+          pages = json.loads((root / 'pages.json').read_text())
+          assert pages['build_type'] == 'legacy', 'Pages Source 必須選 Deploy from a branch'
+          assert pages['source'] == {'branch': 'tc_region', 'path': '/'}, 'Pages 必須使用 tc_region / root'
+          assert (root / 'default-branch').read_text().strip() == 'tc_region', '預設分支必須是 tc_region'
+          with open('XIV-on-Mac-Info.plist', 'rb') as f:
+              feed = plistlib.load(f)['SUFeedURL']
+          assert feed == pages['html_url'].rstrip('/') + '/appcast.xml', 'App 更新網址與目前 Pages 網址不同'
+          PY
+
+      - name: 檢查已存在的 Release
+        id: existing
+        run: |
+          if gh api "repos/$GITHUB_REPOSITORY/releases/tags/$TAG" > "$RUNNER_TEMP/release.json" 2> "$RUNNER_TEMP/release-error"; then
+            python3 - <<'PY'
+          import json, os, pathlib, subprocess
+          root = pathlib.Path(os.environ['RUNNER_TEMP'])
+          release = json.loads((root / 'release.json').read_text())
+          assert not release['prerelease'], '不覆寫預覽版 Release'
+          assert release['body'].rstrip('\n') == (root / 'release-notes.txt').read_text().rstrip('\n'), '既有 Release 說明與 tag commit message 不同'
+          if release['draft']:
+              assert release['target_commitish'] == subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(), '草稿來源 commit 不同'
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              f.write('exists=true\n')
+              f.write(f"published={str(not release['draft']).lower()}\n")
+          PY
+          else
+            cat "$RUNNER_TEMP/release-error" >&2
+            grep -q 'HTTP 404' "$RUNNER_TEMP/release-error" || exit 1
+            echo 'exists=false' >> "$GITHUB_OUTPUT"
+            echo 'published=false' >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - uses: actions/setup-dotnet@v5
+        if: steps.existing.outputs.published != 'true'
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: 安裝打包工具
+        if: steps.existing.outputs.published != 'true'
+        run: brew install create-dmg
+
+      - name: 匯入 Developer ID 憑證
+        if: steps.existing.outputs.published != 'true'
+        env:
+          APPLE_CERTIFICATE_P12_BASE64: ${{ secrets.APPLE_CERTIFICATE_P12_BASE64 }}
+          APPLE_CERTIFICATE_PASS: ${{ secrets.APPLE_CERTIFICATE_PASS }}
+        run: |
+          : "${APPLE_TEAM_ID:?缺少 APPLE_TEAM_ID variable}"
+          : "${APPLE_CERTIFICATE_P12_BASE64:?缺少簽署憑證}"
+          CERTIFICATE="$RUNNER_TEMP/signing.p12"
+          KEYCHAIN="$RUNNER_TEMP/release.keychain-db"
+          KEYCHAIN_PASSWORD="$(openssl rand -base64 32)"
+          echo "::add-mask::$KEYCHAIN_PASSWORD"
+          umask 077
+          trap 'rm -f "$CERTIFICATE"' EXIT
+          printf '%s' "$APPLE_CERTIFICATE_P12_BASE64" | base64 -D > "$CERTIFICATE"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security import "$CERTIFICATE" -P "$APPLE_CERTIFICATE_PASS" -k "$KEYCHAIN" -T /usr/bin/codesign -T /usr/bin/security
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN" >/dev/null
+          security list-keychains -d user -s "$KEYCHAIN"
+          security find-identity -v -p codesigning "$KEYCHAIN"
+
+      - name: 建置並公證 App 與 DMG
+        if: steps.existing.outputs.published != 'true'
+        env:
+          NOTARY_KEY_P8_BASE64: ${{ secrets.NOTARY_KEY_P8_BASE64 }}
+          NOTARY_KEY_ID: ${{ secrets.NOTARY_KEY_ID }}
+          NOTARY_ISSUER_ID: ${{ secrets.NOTARY_ISSUER_ID }}
+        run: |
+          export DOTNET_PATH="$(command -v dotnet)"
+          bash .github/scripts/build-dmg.sh "${TAG#v}"
+
+      - name: 簽署 Sparkle 更新並記錄發布資料
+        if: steps.existing.outputs.published != 'true'
+        env:
+          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+        run: |
+          : "${SPARKLE_PRIVATE_KEY:?缺少 Sparkle 私鑰}"
+          DMG="Release/XIV-on-Mac-in-TC-${TAG#v}.dmg"
+          SIGN_UPDATE=build/DerivedData/SourcePackages/artifacts/sparkle/Sparkle/bin/sign_update
+          swift - <<'SWIFT'
+          import Foundation
+          import CryptoKit
+          func fail() -> Never {
+              fputs("Sparkle 私鑰格式無效或與 App 公鑰不符\n", stderr)
+              exit(1)
+          }
+          guard let text = ProcessInfo.processInfo.environment["SPARKLE_PRIVATE_KEY"],
+                let secret = Data(base64Encoded: text.trimmingCharacters(in: .whitespacesAndNewlines)) else { fail() }
+          let publicKey: Data
+          if secret.count == 32 {
+              publicKey = try Curve25519.Signing.PrivateKey(rawRepresentation: secret).publicKey.rawRepresentation
+          } else if secret.count == 96 {
+              publicKey = secret.suffix(32)
+          } else { fail() }
+          let info = NSDictionary(contentsOfFile: "Release/build/export/XIV on Mac in TC.app/Contents/Info.plist")!
+          guard let expected = info["SUPublicEDKey"] as? String,
+                Data(base64Encoded: expected) == publicKey else { fail() }
+          SWIFT
+          SIGNATURE="$(printf '%s' "$SPARKLE_PRIVATE_KEY" | "$SIGN_UPDATE" --ed-key-file - -p "$DMG")"
+          printf '%s' "$SPARKLE_PRIVATE_KEY" | "$SIGN_UPDATE" --ed-key-file - --verify "$DMG" "$SIGNATURE"
+          export SIGNATURE DMG
+          python3 - <<'PY'
+          import hashlib, json, os, pathlib, plistlib, subprocess
+          dmg = pathlib.Path(os.environ['DMG'])
+          with open('Release/build/export/XIV on Mac in TC.app/Contents/Info.plist', 'rb') as f:
+              info = plistlib.load(f)
+          metadata = dict(tag=os.environ['TAG'], commit=subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
+              version=info['CFBundleShortVersionString'], build=info['CFBundleVersion'], minimum_system_version=info['LSMinimumSystemVersion'],
+              filename=dmg.name, length=dmg.stat().st_size, signature=os.environ['SIGNATURE'],
+              sha256=hashlib.file_digest(dmg.open('rb'), 'sha256').hexdigest(), feed_url=info['SUFeedURL'])
+          assert metadata['tag'] == 'v' + metadata['version'], 'tag 與 App 版本不符'
+          (pathlib.Path(os.environ['RUNNER_TEMP']) / 'release-metadata.json').write_text(json.dumps(metadata))
+          PY
+          git show origin/tc_region:appcast.xml > "$RUNNER_TEMP/appcast.xml"
+          python3 - <<'PY'
+          import json, os, pathlib, subprocess
+          root = pathlib.Path(os.environ['RUNNER_TEMP'])
+          metadata = json.loads((root / 'release-metadata.json').read_text())
+          args = ['python3', '.github/scripts/update-appcast.py', '--appcast', str(root / 'appcast.xml'), '--notes', str(root / 'release-notes.txt')]
+          for key in ('filename', 'length', 'version', 'build', 'minimum_system_version', 'signature'):
+              args += ['--' + key.replace('_', '-'), str(metadata[key])]
+          subprocess.run(args, check=True)
+          PY
+
+      - name: 發布 GitHub Release
+        if: steps.existing.outputs.published != 'true'
+        env:
+          RELEASE_EXISTS: ${{ steps.existing.outputs.exists }}
+        run: |
+          if [[ "$RELEASE_EXISTS" != true ]]; then
+            gh release create "$TAG" --draft --verify-tag --target "$(git rev-parse HEAD)" --title "$TAG" --notes-file "$RUNNER_TEMP/release-notes.txt"
+          fi
+          gh release upload "$TAG" "Release/XIV-on-Mac-in-TC-${TAG#v}.dmg" "$RUNNER_TEMP/release-metadata.json" --clobber
+          gh release edit "$TAG" --draft=false --latest
+
+      - name: 讀取已發布的資料
+        id: metadata
+        run: |
+          mkdir -p "$RUNNER_TEMP/published"
+          gh release download "$TAG" --pattern release-metadata.json --dir "$RUNNER_TEMP/published"
+          python3 - <<'PY'
+          import json, os, pathlib, subprocess
+          root = pathlib.Path(os.environ['RUNNER_TEMP'])
+          metadata = json.loads((root / 'published/release-metadata.json').read_text())
+          assert metadata['commit'] == subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(), '已發布檔案與 tag commit 不符'
+          assert metadata['tag'] == os.environ['TAG'] and metadata['version'] == os.environ['TAG'][1:]
+          assert metadata['filename'] == f"XIV-on-Mac-in-TC-{metadata['version']}.dmg"
+          release = json.loads(subprocess.check_output(['gh', 'api', f"repos/{os.environ['GITHUB_REPOSITORY']}/releases/tags/{os.environ['TAG']}"]))
+          assert not release['draft'] and not release['prerelease']
+          asset, = [a for a in release['assets'] if a['name'] == metadata['filename']]
+          assert asset['state'] == 'uploaded' and asset['size'] == metadata['length']
+          assert asset['digest'] == 'sha256:' + metadata['sha256'], '已發布 DMG checksum 不符'
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              f.write('json=' + json.dumps(metadata) + '\n')
+          PY
+
+      - name: 清除簽署憑證
+        if: always()
+        run: |
+          if [[ -f "$RUNNER_TEMP/release.keychain-db" ]]; then
+            security delete-keychain "$RUNNER_TEMP/release.keychain-db"
+          fi
+          rm -f "$RUNNER_TEMP/signing.p12"
+
+  appcast:
+    name: 更新 appcast 與 Pages
+    needs: release
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+      pages: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TAG: ${{ github.ref_name }}
+      RELEASE_METADATA: ${{ needs.release.outputs.metadata }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: tc_region
+          fetch-depth: 0
+
+      - name: 寫回 appcast.xml
+        shell: bash
+        run: |
+          git log -1 --format=%B "$TAG^{commit}" > "$RUNNER_TEMP/release-notes.txt"
+          python3 - <<'PY'
+          import json, os, subprocess
+          metadata = json.loads(os.environ['RELEASE_METADATA'])
+          assert metadata['commit'] == subprocess.check_output(['git', 'rev-parse', os.environ['TAG'] + '^{commit}'], text=True).strip()
+          args = ['python3', '.github/scripts/update-appcast.py', '--appcast', 'appcast.xml', '--notes', os.environ['RUNNER_TEMP'] + '/release-notes.txt']
+          for key in ('filename', 'length', 'version', 'build', 'minimum_system_version', 'signature'):
+              args += ['--' + key.replace('_', '-'), str(metadata[key])]
+          subprocess.run(args, check=True)
+          PY
+          if ! git diff --quiet -- appcast.xml; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add appcast.xml
+            git commit -m "更新 ${TAG} 的 appcast"
+            git push origin HEAD:tc_region
+          fi
+
+      - name: 要求 Pages 重建並確認更新已上線
+        shell: bash
+        run: |
+          # GITHUB_TOKEN 的 push 不會自動觸發分支型 Pages 建置。
+          gh api --method POST "repos/$GITHUB_REPOSITORY/pages/builds"
+          python3 - <<'PY'
+          import json, os, pathlib, time, urllib.error, urllib.request
+          metadata = json.loads(os.environ['RELEASE_METADATA'])
+          expected = pathlib.Path('appcast.xml').read_bytes()
+          for attempt in range(60):
+              try:
+                  request = urllib.request.Request(metadata['feed_url'] + '?release=' + metadata['commit'], headers={'Cache-Control': 'no-cache'})
+                  with urllib.request.urlopen(request, timeout=20) as response:
+                      if response.read() == expected:
+                          print('Pages appcast 已上線且內容相符')
+                          break
+              except (urllib.error.URLError, TimeoutError) as error:
+                  print(f'等待 Pages 更新：{error}')
+              time.sleep(10)
+          else:
+              raise SystemExit('Pages 未在期限內更新；請檢查 Pages 建置紀錄，再重跑失敗的 job')
+          PY
