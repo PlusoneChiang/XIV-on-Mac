@@ -1,31 +1,36 @@
-<?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<?xml version='1.0' encoding='utf-8'?>
+<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
     <channel>
         <title>XIV on Mac in TC</title>
         <link>https://plusonechiang.github.io/XIV-on-Mac-in-TC/</link>
         <description>XIV on Mac in TC</description>
         <language>zh-TW</language>
-                <!-- 最新版本 -->
+        <!-- 最新版本 -->
+        <item>
+            <title>XIV on Mac v1.2.0</title>
+            <pubDate>Tue, 08 Sep 2026 10:00:47 GMT</pubDate>
+            <sparkle:version>17</sparkle:version>
+            <sparkle:shortVersionString>1.2.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.5</sparkle:minimumSystemVersion>
+            <description>&lt;pre&gt;- 將 Wine 升級至 Wine 11（winecx v2026.09.07）。
+- 移除 App 自訂音訊路由功能，改由 Wine 處理。
+&lt;/pre&gt;</description>
+            <enclosure url="https://github.com/PlusoneChiang/XIV-on-Mac-in-TC/releases/download/v1.2.0/XIV-on-Mac-in-TC-1.2.0.dmg" type="application/octet-stream" length="174942514" sparkle:edSignature="8TVl0rOo8dxRMODSKYT2DJC4vzmMaGJBt18uQC6/vTDHuf6xtKZa02MZNvPe4RTmQ6F5qqIMTYpRmF490T8UDQ==" />
+        </item>
         <item>
             <title>XIV on Mac in TC v1.1.0</title>
             <pubDate>Wed, 15 Apr 2026 22:35:56 +0800</pubDate>
             <sparkle:version>15</sparkle:version>
             <sparkle:shortVersionString>1.1.0</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-            <description><![CDATA[
-                <h2>XIV on Mac in TC v1.1.0</h2>
-                <ul>
-                    <li>重新開發Discord Rich Presence橋接功能</li>
-                </ul>
-            ]]></description>
-            <enclosure
-                url="https://github.com/plusonechiang/XIV-on-Mac-in-TC/releases/download/v1.1.0/XIV-on-Mac-in-TC-1.1.0.dmg"
-                type="application/octet-stream"
-                sparkle:edSignature="0OIMk91elEnUMFhBIXjom5DvDEegVSmm5D+DVEopP2VB5k1XFCZbCTb9gMdLHpQQy0yTutR9msc6ZeQex2w7Cw=="
-                length="171826923"
-            />
+            <description>
+                &lt;h2&gt;XIV on Mac in TC v1.1.0&lt;/h2&gt;
+                &lt;ul&gt;
+                    &lt;li&gt;重新開發Discord Rich Presence橋接功能&lt;/li&gt;
+                &lt;/ul&gt;
+            </description>
+            <enclosure url="https://github.com/plusonechiang/XIV-on-Mac-in-TC/releases/download/v1.1.0/XIV-on-Mac-in-TC-1.1.0.dmg" type="application/octet-stream" sparkle:edSignature="0OIMk91elEnUMFhBIXjom5DvDEegVSmm5D+DVEopP2VB5k1XFCZbCTb9gMdLHpQQy0yTutR9msc6ZeQex2w7Cw==" length="171826923" />
         </item>
-
         <!--
         新增版本範本：
         <item>
@@ -48,6 +53,5 @@
             />
         </item>
         -->
-
     </channel>
 </rss>
