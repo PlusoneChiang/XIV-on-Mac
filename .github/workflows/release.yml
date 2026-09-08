@@ -28,7 +28,6 @@ jobs:
       TAG: ${{ github.ref_name }}
       APPLE_TEAM_ID: ${{ vars.APPLE_TEAM_ID }}
       DEVELOPER_DIR: /Applications/Xcode_26.1.1.app/Contents/Developer
-      DOTNET_INSTALL_DIR: ${{ runner.temp }}/dotnet
     defaults:
       run:
         shell: bash
@@ -42,7 +41,7 @@ jobs:
         run: |
           [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo '版本 tag 必須是 vX.Y.Z'; exit 1; }
           git merge-base --is-ancestor HEAD origin/tc_region
-          git log -1 --format=%B > "$RUNNER_TEMP/release-notes.txt"
+          python3 .github/scripts/update-appcast.py --extract-notes "$TAG" < release_notes.md > "$RUNNER_TEMP/release-notes.txt"
           gh api "repos/$GITHUB_REPOSITORY/pages" > "$RUNNER_TEMP/pages.json"
           gh api "repos/$GITHUB_REPOSITORY" --jq .default_branch > "$RUNNER_TEMP/default-branch"
           python3 - <<'PY'
@@ -66,7 +65,7 @@ jobs:
           root = pathlib.Path(os.environ['RUNNER_TEMP'])
           release = json.loads((root / 'release.json').read_text())
           assert not release['prerelease'], '不覆寫預覽版 Release'
-          assert release['body'].rstrip('\n') == (root / 'release-notes.txt').read_text().rstrip('\n'), '既有 Release 說明與 tag commit message 不同'
+          assert release['body'].rstrip('\n') == (root / 'release-notes.txt').read_text().rstrip('\n'), '既有 Release 說明與 tag 版本的 release_notes.md 不同'
           if release['draft']:
               assert release['target_commitish'] == subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(), '草稿來源 commit 不同'
           with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
@@ -86,6 +85,8 @@ jobs:
 
       - uses: actions/setup-dotnet@v5
         if: steps.existing.outputs.published != 'true'
+        env:
+          DOTNET_INSTALL_DIR: ${{ runner.temp }}/dotnet
         with:
           dotnet-version: '9.0.x'
 
@@ -240,7 +241,7 @@ jobs:
       - name: 寫回 appcast.xml
         shell: bash
         run: |
-          git log -1 --format=%B "$TAG^{commit}" > "$RUNNER_TEMP/release-notes.txt"
+          git show "$TAG^{commit}:release_notes.md" | python3 .github/scripts/update-appcast.py --extract-notes "$TAG" > "$RUNNER_TEMP/release-notes.txt"
           python3 - <<'PY'
           import json, os, subprocess
           metadata = json.loads(os.environ['RELEASE_METADATA'])

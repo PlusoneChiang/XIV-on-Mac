@@ -17,6 +17,37 @@ ET.register_namespace("sparkle", SPARKLE)
 VERSION_RE = re.compile(r"^\d+(?:\.\d+)+$")
 
 
+def extract_notes(document, version):
+    version = version.removeprefix('v')
+    if not re.fullmatch(r'[0-9]+\.[0-9]+\.[0-9]+', version):
+        raise ValueError('版本必須是 vX.Y.Z 或 X.Y.Z')
+    sections = []
+    selected = False
+    fence = None
+    for line in document.splitlines(keepends=True):
+        marker = re.match(r'^ {0,3}(`{3,}|~{3,})(.*)$', line)
+        if fence:
+            if marker and marker[1][0] == fence[0] and len(marker[1]) >= len(fence) and not marker[2].strip():
+                fence = None
+        elif marker:
+            fence = marker[1]
+        elif re.match(r'^##(?:\s|$)', line):
+            heading = re.fullmatch(r'##[ \t]+v?([0-9]+\.[0-9]+\.[0-9]+)[ \t]*', line.rstrip('\r\n'))
+            selected = heading is not None and heading[1] == version
+            if selected:
+                sections.append([])
+            continue
+        if selected:
+            sections[-1].append(line)
+    if len(sections) != 1:
+        raise ValueError(f'release_notes.md 必須有且只有一個「## v{version}」版本區段')
+    notes = ''.join(sections[0]).strip()
+    if not notes:
+        raise ValueError(f'版本 v{version} 的更新說明不可空白')
+    return notes + '\n'
+
+
+
 def get(item, name):
     return (item.findtext(name) or "").strip()
 
@@ -107,11 +138,21 @@ def update(args):
 
 def main():
     parser = argparse.ArgumentParser()
-    for name in ("appcast", "notes", "filename", "length", "version", "build",
-                 "minimum-system-version", "signature"):
-        parser.add_argument(f"--{name}", required=True)
+    parser.add_argument("--extract-notes", metavar="VERSION",
+                        help="只從標準輸入的 release_notes.md 輸出指定版本更新說明")
+    fields = ("appcast", "notes", "filename", "length", "version", "build",
+              "minimum-system-version", "signature")
+    for name in fields:
+        parser.add_argument(f"--{name}")
+    args = parser.parse_args()
     try:
-        changed = update(parser.parse_args())
+        if args.extract_notes is not None:
+            sys.stdout.write(extract_notes(sys.stdin.read(), args.extract_notes))
+            return 0
+        for name in fields:
+            if getattr(args, name.replace("-", "_")) is None:
+                parser.error(f"更新 appcast 時必須提供 --{name}")
+        changed = update(args)
     except ValueError as error:
         print(f"錯誤: {error}", file=sys.stderr)
         return 1
