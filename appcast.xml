@@ -7,6 +7,18 @@
         <language>zh-TW</language>
         <!-- 最新版本 -->
         <item>
+            <title>XIV on Mac v1.2.2</title>
+            <pubDate>Wed, 09 Sep 2026 10:48:53 GMT</pubDate>
+            <sparkle:version>18</sparkle:version>
+            <sparkle:shortVersionString>1.2.2</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.5</sparkle:minimumSystemVersion>
+            <description>&lt;pre&gt;- 移除新版本wine不支援的功能(輸入法定位、DXVK)
+- 更新DXMT版本至v0.80
+- 修正prefix環境建立邏輯
+&lt;/pre&gt;</description>
+            <enclosure url="https://github.com/PlusoneChiang/XIV-on-Mac-in-TC/releases/download/v1.2.2/XIV-on-Mac-in-TC-1.2.2.dmg" type="application/octet-stream" length="169915536" sparkle:edSignature="NHX2QMdXqco/yXtB6cbxNX2lmYepFRiZuCsT4d9aMgsuqhgz1QsguLyQHqYOgE/GPxHNGqZwP9EnOPaMcRr0Aw==" />
+        </item>
+        <item>
             <title>XIV on Mac v1.2.0</title>
             <pubDate>Tue, 08 Sep 2026 10:00:47 GMT</pubDate>
             <sparkle:version>17</sparkle:version>
