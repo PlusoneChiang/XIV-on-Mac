@@ -299,6 +299,15 @@ enum Benchmark {
     public static func launchFrom(
         folder: URL, options: BenchmarkOptions, setDefaults: Bool
     ) async {
+        guard Wine.isReady else {
+            await MainActor.run {
+                let alert = NSAlert()
+                alert.messageText = "Wine 環境準備中"
+                alert.informativeText = "請等待背景檢查完成後再啟動 Benchmark。"
+                alert.runModal()
+            }
+            return
+        }
         var shouldSetDefaults: Bool = setDefaults
         Log.information("Benchmark started on folder: \(folder.path)")
         let benchmarkExe = folder.appendingPathComponent("game/ffxiv_dx11.exe")

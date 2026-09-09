@@ -73,22 +73,21 @@ import XIVLauncher
     }
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
-        // Do this first so that nothing loads data or otherwise touches the prefix first!
-        let migrated = PrefixMigrator.migratePrefixIfNeeded()
+        checkForRosetta()
+        checkGPUSupported()
+        Wine.boot { [weak self] result in
+            if case .failure(let error) = result {
+                Log.error("[Wine] Prefix initialization failed: \(error.localizedDescription)")
+                NSAlert(error: error).runModal()
+                NSApp.terminate(self)
+            }
+        }
         let storyboard = NSStoryboard(name: "Main", bundle: nil)
         launchWinController =
             storyboard.instantiateController(withIdentifier: "LaunchWindow")
             as? NSWindowController
         launchWinController?.showWindow(self)
         bhAutoLaunch.state = BunnyHUD.autoLaunch ? .on : .off
-        checkForRosetta()
-        checkGPUSupported()
-        Wine.boot()
-
-        if migrated {
-            // The final piece of migration has to happen after wine is ready for use.
-            PrefixMigrator.migrateWineRegistrySettings()
-        }
         // Auto-update check (延遲執行確保 Sparkle 完全初始化)
         DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) { [weak self] in
             guard let self = self else { return }
@@ -134,6 +133,7 @@ import XIVLauncher
 
     func application(_ sender: NSApplication, openFile filename: String) -> Bool
     {
+        guard Wine.isReady else { return false }
         Wine.launch(command: "\"\(filename)\"")
         return true
     }

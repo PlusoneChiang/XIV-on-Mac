@@ -288,19 +288,8 @@ public enum Settings {
         }
     }
 
-    private static let dxmtSettingsKey = "DxmtEnabled2"
     static var dxmtEnabled: Bool {
-        get {
-            guard #available(macOS 14.0, *) else {
-                // DXMT requires Metal 3.1 features
-                return false
-            }
-            return Util.getSetting(
-                settingKey: dxmtSettingsKey, defaultValue: true)
-        }
-        set {
-            UserDefaults.standard.set(newValue, forKey: dxmtSettingsKey)
-        }
+        true
     }
 
     private static let metalFxSpatialSettingsKey = "MetalFxSpatialEnabled"
@@ -336,7 +325,7 @@ public enum Settings {
         get {
             Util.getSetting(
                 settingKey: maxFramerateSettingsKey,
-                defaultValue: UInt32(Dxvk.options.maxFramerate))
+                defaultValue: 0)
         }
         set {
             UserDefaults.standard.set(newValue, forKey: maxFramerateSettingsKey)

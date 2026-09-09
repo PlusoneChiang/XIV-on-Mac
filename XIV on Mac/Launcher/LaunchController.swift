@@ -435,9 +435,6 @@ class LaunchController: NSViewController, WKNavigationDelegate {
         DispatchQueue.global(qos: .default).async {
             do {
                 // 安裝檢查已在 loginPageManager 中執行，此處不再需要
-                // Ensure graphics backend is installed before starting the game
-                GraphicsInstaller.ensureBackend()
-                DiscordBridge.refreshIpcPath()
                 // TC Region: maintenance checks disabled
                 // if Frontier.loginMaintenance {
                 //     throw FFXIVLoginError.maintenance

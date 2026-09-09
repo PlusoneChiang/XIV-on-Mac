@@ -120,9 +120,6 @@ struct BenchmarkView: View {
                 Button("BENCHMARK_START_BUTTON") {
                     benchmarkRunning = true
                     Task {
-                        // Needed for people who've never played the retail game through XoM
-                        GraphicsInstaller.ensureBackend()
-
                         let benchmarkLocation: URL = URL(
                             fileURLWithPath: benchmarkFolder)
                         var options: BenchmarkOptions = BenchmarkOptions()

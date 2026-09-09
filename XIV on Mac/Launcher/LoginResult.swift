@@ -57,10 +57,12 @@ struct LoginResult: Codable {
     }
 
     func startGame(_ _dalamudOk: Bool) throws -> ProcessInformation {
-        // Update XL_DXMT_ENABLED environment variable before starting game
-        // This ensures the C# layer uses the current backend setting
-        addEnvironmentVariable("XL_DXMT_ENABLED", Settings.dxmtEnabled ? "1" : "0")
-        
+        do {
+            try Wine.waitUntilReady()
+        } catch {
+            throw XLError.startError(error.localizedDescription)
+        }
+        DiscordBridge.refreshIpcPath()
         let loginResultJSON = String(
             data: try! JSONEncoder().encode(self),
             encoding: String.Encoding.utf8)!

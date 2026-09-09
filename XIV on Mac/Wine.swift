@@ -29,24 +29,14 @@ enum Wine {
         addEnvironmentVariable(
             "DXMT_METALFX_SPATIAL_SWAPCHAIN",
             Settings.metalFxSpatialEnabled ? "1" : "0")
-        addEnvironmentVariable("XL_DXMT_ENABLED", Settings.dxmtEnabled ? "1" : "0")
+        addEnvironmentVariable("XL_DXMT_ENABLED", "1")
+        addEnvironmentVariable("DXMT_ENABLE_NVEXT", "1")
         addEnvironmentVariable("LANG", "en_US")
         addEnvironmentVariable("MVK_ALLOW_METAL_FENCES", "1")  // XXX Required by DXVK for Apple/NVidia GPUs (better FPS than CPU Emulation)
         addEnvironmentVariable("MVK_CONFIG_FULL_IMAGE_VIEW_SWIZZLE", "1")  // XXX Required by DXVK for Intel/NVidia GPUs
         addEnvironmentVariable("MVK_CONFIG_RESUME_LOST_DEVICE", "1")  // XXX Required by WINE (doesn't handle VK_ERROR_DEVICE_LOST correctly)
         addEnvironmentVariable("MVK_CONFIG_LOG_LEVEL", "mvk_error")
-        // DXMT requires Metal Argument Buffers (Metal 3.1+)
-        if Settings.dxmtEnabled {
-            addEnvironmentVariable("MVK_CONFIG_USE_METAL_ARGUMENT_BUFFERS", "1")
-        }
-        // DXVK settings (also used by DXMT for compatibility)
-        addEnvironmentVariable("DXVK_HUD", Dxvk.options.getHud())
-        addEnvironmentVariable("DXVK_ASYNC", Dxvk.options.getAsync())
-        addEnvironmentVariable("DXVK_FRAME_RATE", String(Settings.maxFramerate))
-        addEnvironmentVariable("DXVK_CONFIG_FILE", "C:\\dxvk.conf")
-        addEnvironmentVariable("DXVK_STATE_CACHE_PATH", "C:\\")
-        addEnvironmentVariable("DXVK_LOG_PATH", "C:\\")
-        addEnvironmentVariable("DOTNET_EnableWriteXorExecute", "0")  // XXX Required for Apple Silicon and .NET 7+
+        addEnvironmentVariable("MVK_CONFIG_USE_METAL_ARGUMENT_BUFFERS", "1")
         // Dalamud dotnet runtime 路徑設定（如果啟用 Dalamud，預先設定以避免 inject 時讀取不到）
         if Settings.dalamudEnabled {
             let runtimePath = Util.applicationSupport.appendingPathComponent("runtime").path
@@ -55,8 +45,6 @@ enum Wine {
         }
         addEnvironmentVariable(
             "MTL_HUD_ENABLED", Settings.metal3PerformanceOverlay ? "1" : "0")
-        addEnvironmentVariable("WINE_IME_POS_X", String(Settings.imePosX))
-        addEnvironmentVariable("WINE_IME_POS_Y", String(Settings.imePosY))
         // GStreamer 配置：使用 bundle 真實路徑，registry 存放在 wineprefix
         let gstLibPath = wineDllURL.deletingLastPathComponent().path
         let gstPluginPath = "\(gstLibPath)/gstreamer-1.0"
@@ -78,20 +66,150 @@ enum Wine {
         // addEnvironmentVariable("WINEDEBUG", "+mf,+mfplat,+winegstreamer")
         createCompatToolsInstance(
             FileManager.default.fileSystemRepresentation(
-                withPath: wineBinURL.path), debug, esync)
+                withPath: wineBinURL.path), debug, false)
     }
 
-    static func boot() {
-        DispatchQueue.global(qos: .utility).async {
-            ensurePrefix()
-            installFontIfNeeded()
-            setLocaleToZhTW()
-            configureMediaFoundation()
+    private static let initializationQueue = DispatchQueue(label: "Wine.initialization", qos: .utility)
+    private static let initializationKey = DispatchSpecificKey<Bool>()
+    private static let initializationGroup: DispatchGroup = {
+        let group = DispatchGroup()
+        group.enter()
+        return group
+    }()
+    private static var initializationResult: Result<Void, Error>?
+
+    static var isReady: Bool {
+        guard initializationGroup.wait(timeout: .now()) == .success else { return false }
+        if case .success? = initializationResult { return true }
+        return false
+    }
+
+    /// 僅供背景登入流程等待；主執行緒使用 isReady，避免卡住畫面。
+    static func waitUntilReady() throws {
+        initializationGroup.wait()
+        try initializationResult!.get()
+    }
+
+    @MainActor static func boot(completion: @escaping (Result<Void, Error>) -> Void) {
+        initializationQueue.setSpecific(key: initializationKey, value: true)
+        initializationQueue.async {
+            let result = Result {
+                _ = PrefixMigrator.migratePrefixIfNeeded()
+                try preparePrefix()
+            }
+            initializationResult = result
+            initializationGroup.leave()
+            DispatchQueue.main.async { completion(result) }
         }
     }
-    
+
+    private struct RuntimeVersion: Codable, Equatable {
+        let repository: String
+        let commit: String
+        let tag: String
+        let asset: String
+        let sha256: String
+    }
+
+    private static func prefixError(_ message: String) -> NSError {
+        NSError(domain: "WinePrefix", code: 1,
+                userInfo: [NSLocalizedDescriptionKey: message])
+    }
+
+    /// 在背景完成版本檢查，成功前不允許其他 Wine 操作。
+    private static func preparePrefix() throws {
+        let fm = FileManager.default
+        let receiptName = ".winecx-runtime.json"
+        let runtimeReceipt = wineBinURL.deletingLastPathComponent()
+            .appendingPathComponent(receiptName)
+        let receiptData = try Data(contentsOf: runtimeReceipt)
+        let version = try JSONDecoder().decode(RuntimeVersion.self, from: receiptData)
+        guard version.commit.range(of: "^[0-9a-f]{40}$", options: .regularExpression) != nil,
+              version.sha256.range(of: "^[0-9a-f]{64}$", options: .regularExpression) != nil,
+              !version.repository.isEmpty, !version.tag.isEmpty, !version.asset.isEmpty else {
+            throw prefixError("App 內附的 Wine 版本資訊無效，請重新下載 App。")
+        }
+        let prefixReceipt = prefix.appendingPathComponent(receiptName)
+        let previousVersion = (try? Data(contentsOf: prefixReceipt)).flatMap {
+            try? JSONDecoder().decode(RuntimeVersion.self, from: $0)
+        }
+        let needsRebuild = previousVersion != version
+            || !fm.fileExists(atPath: prefix.appendingPathComponent("system.reg").path)
+            || !fm.fileExists(atPath: prefix.appendingPathComponent("user.reg").path)
+
+        var prefixBackup: URL?
+        if needsRebuild {
+            // 自訂遊戲目錄若位於 prefix 內，不能在搬走 prefix 後繼續使用原路徑。
+            let prefixPath = prefix.resolvingSymlinksInPath().standardizedFileURL.path
+            for location in [Settings.gamePath, Settings.gameConfigPath] {
+                let path = location.resolvingSymlinksInPath().standardizedFileURL.path
+                guard path != prefixPath, !path.hasPrefix(prefixPath + "/") else {
+                    throw prefixError("需要重建 Wine prefix，請先將遊戲與設定目錄移至 wineprefix 以外的位置：\(location.path)")
+                }
+            }
+            // 等待現有 Wine 結束；逾時只停止等待，不終止使用者的遊戲。
+            let server = Process()
+            server.executableURL = wineBinURL.appendingPathComponent("wineserver")
+            server.arguments = ["-w"]
+            var environment = ProcessInfo.processInfo.environment
+            environment["WINEPREFIX"] = prefix.path
+            server.environment = environment
+            let exited = DispatchSemaphore(value: 0)
+            server.terminationHandler = { _ in exited.signal() }
+            try server.run()
+            guard exited.wait(timeout: .now() + 5) == .success else {
+                server.terminate()
+                throw prefixError("Wine 仍在執行中，請關閉遊戲與其他 Wine 程式後重新開啟 App。")
+            }
+            guard server.terminationStatus == 0 else {
+                throw prefixError("無法確認 Wine 已結束，暫停重建 prefix。")
+            }
+            if fm.fileExists(atPath: prefix.path) {
+                let backup = prefix.deletingLastPathComponent()
+                    .appendingPathComponent("wineprefix-backup-\(UUID().uuidString)")
+                try fm.moveItem(at: prefix, to: backup)
+                prefixBackup = backup
+                Log.information("[Wine] Prefix version changed or missing; backup: \(backup.path)")
+            }
+            try fm.createDirectory(at: prefix, withIntermediateDirectories: true)
+        }
+
+        // 原生層必須回報 wineboot 的執行結果，不能把初始化失敗標記為完成。
+        guard ensurePrefix(needsRebuild) == 0 else {
+            throw prefixError("Wine prefix 初始化失敗，請查看 wine.log；舊 prefix 已保留於備份目錄。")
+        }
+        try ensureD3DCompiler()
+        try installFontIfNeeded()
+        setLocaleToZhTW()
+        configureMediaFoundation()
+        Wine.leftOptionIsAlt = Wine.leftOptionIsAlt
+        Wine.rightOptionIsAlt = Wine.rightOptionIsAlt
+        Wine.retina = Wine.retina
+        Settings.platform = Settings.platform
+        try receiptData.write(to: prefixReceipt, options: .atomic)
+        if let prefixBackup {
+            try fm.removeItem(at: prefixBackup)
+        }
+        Log.information("[Wine] Prefix ready: \(version.tag) (\(version.commit))")
+    }
+
+    /// 缺少編譯器時使用 Wine runtime 的 DLL，不覆蓋 prefix 既有檔案。
+    static func ensureD3DCompiler() throws {
+        let fm = FileManager.default
+        let target = prefix.appendingPathComponent("drive_c/windows/system32/d3dcompiler_47.dll")
+        let source = wineDllURL.appendingPathComponent("x86_64-windows/d3dcompiler_47.dll")
+        guard !fm.fileExists(atPath: target.path) else { return }
+        guard fm.fileExists(atPath: source.path) else {
+            throw prefixError("Wine runtime 缺少 d3dcompiler_47.dll。")
+        }
+        if (try? fm.destinationOfSymbolicLink(atPath: target.path)) != nil {
+            try fm.removeItem(at: target)
+        }
+        try fm.createSymbolicLink(at: target, withDestinationURL: source)
+    }
+
     /// 安裝 Sarasa Mono TC 字體到 Wine（如果尚未安裝）
-    static func installFontIfNeeded() {
+    static func installFontIfNeeded() throws {
         let fontName = "SarasaMonoTC-Regular.ttf"
         let fontsPath = prefix.appendingPathComponent("drive_c/windows/Fonts")
         let targetFontPath = fontsPath.appendingPathComponent(fontName)
@@ -111,13 +229,11 @@ enum Wine {
         )
         
         guard let fontURL = fontURL else {
-            Log.error("[Wine] Font file '\(fontName)' not found in bundle")
-            return
+            throw prefixError("App 內缺少字體：\(fontName)")
         }
         
         guard FileManager.default.fileExists(atPath: fontURL.path) else {
-            Log.error("[Wine] Font source file does not exist")
-            return
+            throw prefixError("App 內的字體檔案不存在。")
         }
         
         do {
@@ -150,7 +266,7 @@ enum Wine {
             // 設定字體替換和連結
             configureFontSubstitutionAndLinking()
         } catch {
-            Log.error("[Wine] Failed to install font: \(error.localizedDescription)")
+            throw error
         }
     }
     
@@ -238,6 +354,10 @@ enum Wine {
     static func launch(
         command: String, blocking: Bool = false, wineD3D: Bool = false
     ) {
+        guard isReady else {
+            Log.error("[Wine] Prefix is not ready; launch was blocked")
+            return
+        }
         runInPrefix(command, blocking, wineD3D)
     }
 
@@ -246,13 +366,15 @@ enum Wine {
     }
 
     static func pidsOf(processName: String) -> [Int] {
-        Array(
+        guard isReady else { return [] }
+        return Array(
             String(cString: getProcessIds(processName)).split(separator: " ")
                 .compactMap { Int($0) })
     }
 
     static func convertToUnixPidFrom(winePid: Int) -> pid_t {
-        getUnixProcessId(Int32(winePid))
+        guard isReady else { return 0 }
+        return getUnixProcessId(Int32(winePid))
     }
 
     static func running(processName: String) -> Bool {
@@ -269,19 +391,6 @@ enum Wine {
 
     static func touchDocuments() {
         launch(command: "cmd /c dir \"%userprofile%/My Documents\" > nul")
-    }
-
-    private static let esyncSettingKey = "EsyncSetting"
-    static var esync: Bool {
-        get {
-            Util.getSetting(settingKey: esyncSettingKey, defaultValue: true)
-        }
-        set {
-            UserDefaults.standard.set(newValue, forKey: esyncSettingKey)
-            createCompatToolsInstance(
-                FileManager.default.fileSystemRepresentation(
-                    withPath: wineBinURL.path), debug, esync)
-        }
     }
 
     private static let msyncSettingKey = "MsyncSetting"
@@ -303,18 +412,29 @@ enum Wine {
         }
         set {
             UserDefaults.standard.set(newValue, forKey: wineDebugSettingKey)
-            createCompatToolsInstance(
-                FileManager.default.fileSystemRepresentation(
-                    withPath: wineBinURL.path), debug, esync)
+            initializationQueue.async {
+                guard isReady else { return }
+                createCompatToolsInstance(
+                    FileManager.default.fileSystemRepresentation(
+                        withPath: wineBinURL.path), debug, false)
+            }
         }
     }
 
     static func kill() {
+        guard isReady else { return }
         killWine()
     }
 
     static func addReg(key: String, value: String, data: String) {
-        addRegistryKey(key, value, data)
+        if DispatchQueue.getSpecific(key: initializationKey) == true || isReady {
+            addRegistryKey(key, value, data)
+        } else {
+            initializationQueue.async {
+                guard isReady else { return }
+                addRegistryKey(key, value, data)
+            }
+        }
     }
 
     static func override(dll: String, type: String) {

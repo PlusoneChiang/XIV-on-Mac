@@ -85,44 +85,6 @@ struct FirstAidView: View {
     var body: some View {
         VStack {
             Group {
-                Text("FIRSTAID_SHADER_CACHE_HEADING")
-                    .font(Font.title)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-
-                Text("FIRSTAID_SHADER_CACHE_BLURB")
-                    .multilineTextAlignment(.leading)
-                    .lineLimit(nil)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding([.leading, .trailing])
-                Button("FIRSTAID_SHADER_CACHE_BUTTON") {
-                    guard checkIfNotRunning() else {
-                        return
-                    }
-                    let alert = NSAlert()
-                    do {
-                        try Dxvk.resetCache()
-                        alert.alertStyle = .informational
-                        alert.messageText = NSLocalizedString(
-                            "DXVK_USER_CACHE_DELETED", comment: "")
-                        alert.informativeText = NSLocalizedString(
-                            "DXVK_USER_CACHE_DELETED_INFORMATIVE", comment: "")
-                    } catch {
-                        Log.error(error.localizedDescription)
-                        alert.alertStyle = .warning
-                        alert.messageText = NSLocalizedString(
-                            "DXVK_USER_CACHE_DELETE_FAILED", comment: "")
-                        alert.informativeText = NSLocalizedString(
-                            "DXVK_USER_CACHE_DELETE_FAILED_INFORMATIVE",
-                            comment: "")
-                    }
-                    alert.addButton(
-                        withTitle: NSLocalizedString("BUTTON_OK", comment: ""))
-                    alert.runModal()
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            Divider()
-            Group {
                 Text("FIRSTAID_CONFIG_HEADING")
                     .font(Font.title)
                     .frame(maxWidth: .infinity, alignment: .leading)
