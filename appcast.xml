@@ -7,6 +7,17 @@
         <language>zh-TW</language>
         <!-- 最新版本 -->
         <item>
+            <title>XIV on Mac v1.2.3</title>
+            <pubDate>Thu, 10 Sep 2026 09:37:46 GMT</pubDate>
+            <sparkle:version>19</sparkle:version>
+            <sparkle:shortVersionString>1.2.3</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.5</sparkle:minimumSystemVersion>
+            <description>&lt;pre&gt;- 更新winecx版本到v2026.09.10
+- 修復延伸螢幕的視窗縮放問題
+&lt;/pre&gt;</description>
+            <enclosure url="https://github.com/PlusoneChiang/XIV-on-Mac-in-TC/releases/download/v1.2.3/XIV-on-Mac-in-TC-1.2.3.dmg" type="application/octet-stream" length="169934082" sparkle:edSignature="4sH51vASAVp7Ra6dBf+t7nxPSQp074SF0iF7HyaTcnL0t09RhMVDqpz1y/57L/eCzFunMlfB2nUyfkp9lUkCDQ==" />
+        </item>
+        <item>
             <title>XIV on Mac v1.2.2</title>
             <pubDate>Wed, 09 Sep 2026 10:48:53 GMT</pubDate>
             <sparkle:version>18</sparkle:version>
